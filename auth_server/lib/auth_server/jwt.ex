@@ -16,4 +16,22 @@ defmodule AuthServer.Jwt do
       _err -> {:error, "could not generate token"}
     end
   end
+
+  def check_cookie(cookie) do
+    with {:ok, claims} <- verify_and_validate(cookie, @signer),
+         {:ok, value}  <- Map.fetch(claims, "exp")
+    do
+      check_cookie_expiry(claims, value)
+    else
+      _invalid -> {:error, "invalid cookie"}
+    end
+  end
+
+  defp check_cookie_expiry(claims, value) do
+    if value <= Joken.current_time() do
+      {:error, "expired cookie"}
+    else
+      {:ok, claims}
+    end
+  end
 end
