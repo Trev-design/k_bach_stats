@@ -12,7 +12,6 @@ defmodule AuthServer.Plugs.AuthPlug do
   def call(conn, _opts) do
     new_conn = fetch_cookies(conn, signed: ~w(_Refresh))
     cookie = new_conn.cookies["_Refresh"]
-    IO.inspect(new_conn)
     if cookie == nil do
       conn
       |> put_resp_content_type("application/json")
@@ -32,14 +31,24 @@ defmodule AuthServer.Plugs.AuthPlug do
   end
 
   defp check_auth(conn, cookie) do
-    with {:ok, claims}      <- Jwt.check_cookie(cookie),
-         {:ok, value}       <- Map.fetch(claims, "id"),
-         {:ok, id}          <- check_session(conn, value)
+    with {:ok, claims}     <- Jwt.check_cookie(cookie),
+         {:ok, expiration} <- Map.fetch(claims, "exp"),
+         {:ok, :valid}     <- check_expiration(expiration),
+         {:ok, value}      <- Map.fetch(claims, "id"),
+         {:ok, id}         <- check_session(conn, value)
     do
       {:ok, id}
     else
       :error -> {:error, "missing claims"}
       error  -> error
+    end
+  end
+
+  defp check_expiration(expiration) do
+    if expiration - Joken.current_time() <= 0 do
+      {:error, "token_expired"}
+    else
+      {:ok, :valid}
     end
   end
 

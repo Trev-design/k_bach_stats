@@ -50,8 +50,9 @@ defmodule AuthServer.Routers.SessionRouter do
   get "/signout" do
     conn
     |> fetch_session()
-    |> delete_session(:current_user)
-    |> put_resp_cookie("_Refersh", Jwt.generate_expired_cookie(), http_only: true, secure: true, sign: true, max_age: -1)
+    |> clear_session()
+    |> configure_session(drop: true)
+    |> delete_resp_cookie("_Refresh")
     |> send_resp(200, Jason.encode!(%{}))
   end
 end
