@@ -17,6 +17,8 @@ defmodule AuthServer.Jwt do
     end
   end
 
+  def generate_expired_cookie(), do: generate_and_sign(%{}, @signer)
+
   def check_cookie(cookie) do
     with {:ok, claims} <- verify_and_validate(cookie, @signer),
          {:ok, value}  <- Map.fetch(claims, "exp")

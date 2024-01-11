@@ -20,7 +20,7 @@ defmodule AuthServer.Plugs.AuthPlug do
       |> halt()
     else
       case check_auth(conn, cookie) do
-        {:ok, :authorized} -> conn
+        {:ok, id} -> assign(conn, :current_user_id, id)
 
         {:error, reason}   ->
           conn
@@ -34,9 +34,9 @@ defmodule AuthServer.Plugs.AuthPlug do
   defp check_auth(conn, cookie) do
     with {:ok, claims}      <- Jwt.check_cookie(cookie),
          {:ok, value}       <- Map.fetch(claims, "id"),
-         {:ok, :valid_user} <- check_session(conn, value)
+         {:ok, id}          <- check_session(conn, value)
     do
-      {:ok, :authorized}
+      {:ok, id}
     else
       :error -> {:error, "missing claims"}
       error  -> error
@@ -54,6 +54,10 @@ defmodule AuthServer.Plugs.AuthPlug do
   end
 
   defp check_current_user(current_session, id) do
-    if current_session == id, do: {:ok, :valid_user}, else: {:error, "invalid user session"}
+    if current_session == id do
+      {:ok, id}
+    else
+      {:error, "invalid user session"}
+    end
   end
 end

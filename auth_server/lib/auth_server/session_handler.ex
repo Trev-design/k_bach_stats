@@ -25,6 +25,13 @@ defmodule AuthServer.SessionHandler do
     end
   end
 
+  def get_user(id) do
+    case User |> Repo.get(id) do
+      %User{} = user -> {:ok, user}
+      nil            -> {:error, "no user with this id"}
+    end
+  end
+
   defp try_make_password_hash(password) do
     case Regex.match?(~r/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!?&%$§#@€]).{10,}$/, password) do
       true  -> {:ok, Argon2.hash_pwd_salt(password)}

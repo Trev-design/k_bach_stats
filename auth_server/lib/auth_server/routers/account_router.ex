@@ -74,7 +74,7 @@ defmodule AuthServer.Routers.AccountRouter do
       |> put_resp_content_type("application/json")
       |> fetch_session()
       |> put_session(:current_user, account.user.id)
-      |> put_resp_cookie("_Refresh", refresh, http_only: true, secure: true, sign: true)
+      |> put_resp_cookie("_Refresh", refresh, http_only: true, secure: true, sign: true, max_age: 24*60*60)
       |> send_resp(200, Jason.encode!(%{name:  account.user.name, id: account.user.id, jwt: jwt}))
     else
       {:error, reason} ->

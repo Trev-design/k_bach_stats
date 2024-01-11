@@ -1,6 +1,8 @@
 defmodule AuthServer.Routers.SessionRouter do
   use Plug.Router
 
+  alias AuthServer.{SessionHandler, Jwt, Schemas.User}
+
   plug Plug.Logger
   plug :match
   plug Plug.Parsers,
@@ -24,10 +26,32 @@ defmodule AuthServer.Routers.SessionRouter do
   end
 
   get "/refresh_session" do
-    send_resp(conn, 200, Jason.encode!(%{popo: "pippi"}))
+    IO.inspect(conn)
+    with {:ok, %User{} = user}      <- SessionHandler.get_user(conn.assigns.current_user_id),
+         {:ok, jwt, refresh}        <- Jwt.generate_token_pair(
+                                        %{"id"   => user.id,
+                                          "name" => user.name,
+                                          "exp"  => Joken.current_time() + (15 * 60)},
+                                        %{"id"   => user.id,
+                                          "exp"  => Joken.current_time() + (24 * 60 * 60)})
+    do
+      conn
+      |> put_resp_content_type("application/json")
+      |> put_resp_cookie("_Refresh", refresh, http_only: true, secure: true, sign: true, max_age: 24*60*60)
+      |> send_resp(200, Jason.encode!(%{name: user.name, id: user.id, jwt: jwt}))
+    else
+      {:error, reason} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(500, Jason.encode!(%{message: reason}))
+    end
   end
 
   get "/signout" do
-    send_resp(conn, 200, Jason.encode!(%{popo: "pippi"}))
+    conn
+    |> fetch_session()
+    |> delete_session(:current_user)
+    |> put_resp_cookie("_Refersh", Jwt.generate_expired_cookie(), http_only: true, secure: true, sign: true, max_age: -1)
+    |> send_resp(200, Jason.encode!(%{}))
   end
 end
