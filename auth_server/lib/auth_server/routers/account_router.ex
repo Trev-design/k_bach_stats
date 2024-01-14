@@ -3,23 +3,32 @@ defmodule AuthServer.Routers.AccountRouter do
 
   alias AuthServer.{SessionHandler, Jwt, Schemas.Account}
 
-  require Logger
 
   plug Plug.Logger
+
   plug :match
+
   plug Plug.Parsers,
     parsers: [:json],
     pass: ["application/json"],
     json_decoder: Jason
+
   plug Plug.Session, store: :cookie,
     key: "_Refresh",
     signing_salt: "cookie store signing salt",
     log: :debug
+
   plug Plug.Session, store: :cookie,
-    key: "current_user",
+    key: "session_id",
     signing_salt: "session store signing salt",
+    http_only: true,
+    secure: true,
+    sign: true,
+    same_site: "Strict",
     log: :debug
+
   plug :put_secret_key_base
+
   plug :dispatch
 
   def put_secret_key_base(conn, _) do
@@ -38,7 +47,6 @@ defmodule AuthServer.Routers.AccountRouter do
   end
 
   post "/create" do
-    Logger.info("#{inspect(conn.path_info)}")
     case conn.body_params do
       %{"name" => name, "email" => email, "password" => password, "confirmation" => confirmation} ->
         {status, response} = compute_create_request(name, email, password, confirmation)
@@ -73,8 +81,8 @@ defmodule AuthServer.Routers.AccountRouter do
       conn
       |> put_resp_content_type("application/json")
       |> fetch_session()
-      |> put_session(:current_user, account.user.id)
-      |> put_resp_cookie("_Refresh", refresh, http_only: true, secure: true, sign: true, max_age: 24*60*60)
+      |> put_session(:session_id, Jason.encode!(%{user_id: account.user.id, session: UUID.uuid4()}))
+      |> put_resp_cookie("_Refresh", refresh, http_only: true, secure: true, sign: true, max_age: 24*60*60, same_site: "Strict")
       |> send_resp(200, Jason.encode!(%{name:  account.user.name, id: account.user.id, jwt: jwt}))
     else
       {:error, reason} ->

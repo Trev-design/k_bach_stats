@@ -4,21 +4,32 @@ defmodule AuthServer.Routers.SessionRouter do
   alias AuthServer.{SessionHandler, Jwt, Schemas.User}
 
   plug Plug.Logger
+
   plug :match
+
   plug Plug.Parsers,
     parsers: [:json],
     pass: ["application/json"],
     json_decoder: Jason
+
   plug Plug.Session, store: :cookie,
     key: "_Refresh",
     signing_salt: "cookie store signing salt",
     log: :debug
+
   plug Plug.Session, store: :cookie,
-    key: "current_user",
+    key: "session_id",
     signing_salt: "session store signing salt",
+    http_only: true,
+    secure: true,
+    sign: true,
+    same_site: "Strict",
     log: :debug
+
   plug :put_secret_key_base
+
   plug AuthServer.Plugs.AuthPlug
+
   plug :dispatch
 
   def put_secret_key_base(conn, _) do
@@ -26,7 +37,6 @@ defmodule AuthServer.Routers.SessionRouter do
   end
 
   get "/refresh_session" do
-    IO.inspect(conn)
     with {:ok, %User{} = user}      <- SessionHandler.get_user(conn.assigns.current_user_id),
          {:ok, jwt, refresh}        <- Jwt.generate_token_pair(
                                         %{"id"   => user.id,
@@ -37,7 +47,7 @@ defmodule AuthServer.Routers.SessionRouter do
     do
       conn
       |> put_resp_content_type("application/json")
-      |> put_resp_cookie("_Refresh", refresh, http_only: true, secure: true, sign: true, max_age: 24*60*60)
+      |> put_resp_cookie("_Refresh", refresh, http_only: true, secure: true, sign: true, max_age: 24*60*60, same_site: "Strict")
       |> send_resp(200, Jason.encode!(%{name: user.name, id: user.id, jwt: jwt}))
     else
       {:error, reason} ->

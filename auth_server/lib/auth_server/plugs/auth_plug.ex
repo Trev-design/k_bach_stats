@@ -53,8 +53,9 @@ defmodule AuthServer.Plugs.AuthPlug do
   end
 
   defp check_session(conn, id) do
-    case conn |> fetch_session() |> get_session(:current_user) do
+    case conn |> fetch_session() |> get_session(:session_id) do
       nil ->
+        IO.inspect(conn)
         {:error, "no user validated in this session"}
 
       current_session ->
@@ -63,10 +64,20 @@ defmodule AuthServer.Plugs.AuthPlug do
   end
 
   defp check_current_user(current_session, id) do
-    if current_session == id do
+    if fetch_user(current_session) == id do
       {:ok, id}
     else
       {:error, "invalid user session"}
+    end
+  end
+
+  defp fetch_user(current_session) do
+    with {:ok, object}  <- Jason.decode(current_session, keys: :atoms),
+         {:ok, user_id} <- Map.fetch(object, :user_id)
+    do
+      user_id
+    else
+      _error -> :error
     end
   end
 end
