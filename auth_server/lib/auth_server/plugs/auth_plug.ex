@@ -15,16 +15,24 @@ defmodule AuthServer.Plugs.AuthPlug do
     if cookie == nil do
       conn
       |> put_resp_content_type("application/json")
-      |> send_resp(403, Jason.encode!(%{message: "unauthorized"}))
+      |> send_resp(401, Jason.encode!(%{message: "unauthorized"}))
       |> halt()
     else
       case check_auth(conn, cookie) do
         {:ok, id} -> assign(conn, :current_user_id, id)
 
+        {:error, "token expired"} ->
+          conn
+          |> fetch_session()
+          |> clear_session()
+          |> configure_session(drop: true)
+          |> delete_resp_cookie("_Refresh")
+          |> send_resp(401, Jason.encode!(%{message: "session expired"}))
+
         {:error, reason}   ->
           conn
           |> put_resp_content_type("application/json")
-          |> send_resp(403, Jason.encode!(%{message: reason}))
+          |> send_resp(401, Jason.encode!(%{message: reason}))
           |> halt()
       end
     end
@@ -46,7 +54,7 @@ defmodule AuthServer.Plugs.AuthPlug do
 
   defp check_expiration(expiration) do
     if expiration - Joken.current_time() <= 0 do
-      {:error, "token_expired"}
+      {:error, "token expired"}
     else
       {:ok, :valid}
     end

@@ -3,7 +3,6 @@ defmodule AuthServer.Routers.AccountRouter do
 
   alias AuthServer.{SessionHandler, Jwt, Schemas.Account}
 
-
   plug Plug.Logger
 
   plug :match
