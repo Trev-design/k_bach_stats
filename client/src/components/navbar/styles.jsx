@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { NavLink } from 'react-router-dom'
 
 export const NavbarContainer = styled.section`
     width: 100%;
@@ -9,9 +10,17 @@ export const NavbarContainer = styled.section`
     flex-direction: row;
     justify-content: right;
     align-items: center;
+    z-index: 1;
+    background: white;
 `
 
-export const NavbarButton = styled.a`
+export const NavbarButton = styled(NavLink)`
+    font-size: 1.1rem;
+    margin: 0 2rem 0 0;
+    cursor: pointer;
+`
+
+export const NavbarNavButton = styled.a`
     font-size: 1.1rem;
     margin: 0 2rem 0 0;
     cursor: pointer;

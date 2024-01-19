@@ -1,5 +1,5 @@
 import React from 'react'
-import { LandingSectionNavContainer, NavbarButton, NavbarContainer, NavbarLogo, NavbarLogoContainer } from './styles'
+import { LandingSectionNavContainer, NavbarButton, NavbarContainer, NavbarLogo, NavbarLogoContainer, NavbarNavButton } from './styles'
 
 export default function Navbar() {
   return (
@@ -8,14 +8,14 @@ export default function Navbar() {
             <NavbarLogo>KBachStats</NavbarLogo>
         </NavbarLogoContainer>
         <LandingSectionNavContainer>
-            <NavbarButton>section1</NavbarButton>
-            <NavbarButton>section2</NavbarButton>
-            <NavbarButton>section3</NavbarButton>
-            <NavbarButton>section4</NavbarButton>
-            <NavbarButton>section5</NavbarButton>
+            <NavbarNavButton>section1</NavbarNavButton>
+            <NavbarNavButton>section2</NavbarNavButton>
+            <NavbarNavButton>section3</NavbarNavButton>
+            <NavbarNavButton>section4</NavbarNavButton>
+            <NavbarNavButton>section5</NavbarNavButton>
         </LandingSectionNavContainer>
-        <NavbarButton>Login</NavbarButton>
-        <NavbarButton>Register</NavbarButton>
+        <NavbarButton to="/login">Login</NavbarButton>
+        <NavbarButton to="/register">Register</NavbarButton>
     </NavbarContainer>
   )
 }
