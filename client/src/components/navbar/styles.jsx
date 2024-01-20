@@ -15,9 +15,25 @@ export const NavbarContainer = styled.section`
 `
 
 export const NavbarButton = styled(NavLink)`
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     margin: 0 2rem 0 0;
     text-decoration: none;
+    position: relative;
+
+    &::before {
+        content: '';
+        height: 2px;
+        width: 100%;
+        background: rgb(195, 165, 110);
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        transform: scale(0, 1);
+        transition: all 0.3s ease;
+    }
+
+    &:hover{&::before{transform: scale(1, 1);}}
+
     @media screen and (max-width: 1020px) {font-size: 1rem;}
     color: rgb(195, 165, 110);
     background-color: black;
@@ -27,6 +43,22 @@ export const NavbarButton = styled(NavLink)`
 export const NavbarNavButton = styled.a`
     font-size: 1.1rem;
     margin: 0 2rem 0 0;
+    position: relative;
+
+    &::before {
+        content: '';
+        height: 2px;
+        width: 100%;
+        background: rgb(215, 90, 90);
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        transform: scale(0, 1);
+        transition: all 0.3s ease;
+    }
+
+    &:hover{&::before{transform: scale(1, 1);}}
+
     @media screen and (max-width: 1020px) {font-size: 0.9rem;}
     @media screen and (max-width: 860px) {margin: 0 1rem 0 0;}
     color: rgb(165, 165, 150);
