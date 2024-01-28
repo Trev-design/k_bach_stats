@@ -1,5 +1,6 @@
 import styled from "styled-components"
 import { PageContainer } from "../../styles"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export const RegisterPageContainer = styled(PageContainer)`
     display: flex;
@@ -17,4 +18,8 @@ export const RegisterLabel = styled.label`
 
 export const RegisterValidationIcon = styled.span`
     visibility: ${props => props.validInput ? "visible" : "hidden"};
+`
+
+export const RegisterInfoText = styled.p`
+    visibility: ${props => props.valid ? "visible" : "hidden"};
 `

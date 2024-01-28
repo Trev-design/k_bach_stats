@@ -28,6 +28,7 @@ defmodule AuthServer.Plugs.AuthPlug do
           |> configure_session(drop: true)
           |> delete_resp_cookie("_Refresh")
           |> send_resp(401, Jason.encode!(%{message: "session expired"}))
+          |> halt()
 
         {:error, reason}   ->
           conn
