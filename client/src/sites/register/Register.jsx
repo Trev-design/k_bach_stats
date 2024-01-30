@@ -1,5 +1,5 @@
 import React from 'react'
-import {RegisterInfoText, RegisterLabel, RegisterPageContainer, RegisterValidationIcon } from './styles'
+import {RegisterInfoText, RegisterInput, RegisterLabel, RegisterLogo, RegisterPageContainer, RegisterSection, RegisterValidationIcon } from './styles'
 import { useRef, useState, useEffect } from 'react'
 import {faInfoCircle, faCheck, faTimes} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -55,9 +55,9 @@ function Register() {
 
   return (
     <RegisterPageContainer>
-      <section>
+      <RegisterSection>
       <p ref={errRef} aria-aria-live='assertlive'>{errorMessage}</p>
-      <h1> Register </h1>
+      <RegisterLogo> Register </RegisterLogo>
       <form action="">
 
       <RegisterLabel htmlFor="email">
@@ -69,7 +69,7 @@ function Register() {
             <FontAwesomeIcon icon={faTimes} color='#FF6161'/>
           </RegisterValidationIcon>
         </RegisterLabel>
-        <input 
+        <RegisterInput 
           type="text"
           id='email'
           ref={userRef}
@@ -95,7 +95,7 @@ function Register() {
             <FontAwesomeIcon icon={faTimes} color='#FF6161'/>
           </RegisterValidationIcon>
         </RegisterLabel>
-        <input 
+        <RegisterInput 
           type="text"
           id='email'
           ref={userRef}
@@ -121,7 +121,7 @@ function Register() {
             <FontAwesomeIcon icon={faTimes} color='#FF6161'/>
           </RegisterValidationIcon>
         </RegisterLabel>
-        <input 
+        <RegisterInput 
           type="password"
           id='password'
           ref={userRef}
@@ -147,7 +147,7 @@ function Register() {
             <FontAwesomeIcon icon={faTimes} color='#FF6161'/>
           </RegisterValidationIcon>
         </RegisterLabel>
-        <input 
+        <RegisterInput 
           type="password"
           id='confirm'
           ref={userRef}
@@ -164,7 +164,7 @@ function Register() {
           confirmation does not match
         </RegisterInfoText>
       </form>
-      </section>
+      </RegisterSection>
     </RegisterPageContainer>
   )
 }
