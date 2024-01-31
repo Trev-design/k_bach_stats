@@ -1,5 +1,5 @@
 import React from 'react'
-import {RegisterInfoText, RegisterInput, RegisterLabel, RegisterLogo, RegisterPageContainer, RegisterSection, RegisterValidationIcon } from './styles'
+import {InfoTextDiv, RegisterInfoText, RegisterInput, RegisterLabel, RegisterLogo, RegisterPageContainer, RegisterSection, RegisterValidationIcon } from './styles'
 import { useRef, useState, useEffect } from 'react'
 import {faInfoCircle, faCheck, faTimes} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -60,8 +60,8 @@ function Register() {
       <RegisterLogo> Register </RegisterLogo>
       <form action="">
 
-      <RegisterLabel htmlFor="email">
-          Email:
+      <RegisterLabel htmlFor="name">
+          Name:
           <RegisterValidationIcon validInput={validName && name !== ''}>
             <FontAwesomeIcon icon={faCheck} color='#38FF5D'/>
           </RegisterValidationIcon>
@@ -71,7 +71,7 @@ function Register() {
         </RegisterLabel>
         <RegisterInput 
           type="text"
-          id='email'
+          id='name'
           ref={userRef}
           autoComplete='off'
           onChange={e => setName(e.target.value)}
@@ -81,10 +81,12 @@ function Register() {
           onFocus={() => setNamefocus(true)}
           onBlur={() => setNamefocus(false)}
         />
-        <RegisterInfoText id='uidnote' valid={!validName && name !== '' && nameFocus}>
-          <FontAwesomeIcon icon={faInfoCircle}/>
-          invalid email
-        </RegisterInfoText>
+        <InfoTextDiv focus={nameFocus}>
+          <RegisterInfoText id='uidnote'>
+            <FontAwesomeIcon icon={faInfoCircle}/>
+            invalid email
+          </RegisterInfoText>
+        </InfoTextDiv>
 
         <RegisterLabel htmlFor="email">
           Email:
@@ -107,10 +109,12 @@ function Register() {
           onFocus={() => setUserfocus(true)}
           onBlur={() => setUserfocus(false)}
         />
-        <RegisterInfoText id='uidnote' valid={!validEmail && user !== '' && userFocus}>
-          <FontAwesomeIcon icon={faInfoCircle}/>
-          invalid email
-        </RegisterInfoText>
+        <InfoTextDiv focus={userFocus}>
+          <RegisterInfoText id='uidnote'>
+            <FontAwesomeIcon icon={faInfoCircle}/>
+            invalid email
+          </RegisterInfoText>
+        </InfoTextDiv>
 
         <RegisterLabel htmlFor="password">
           Password:
@@ -133,10 +137,12 @@ function Register() {
           onFocus={() => setPasswordFocus(true)}
           onBlur={() => setPasswordFocus(false)}
         />
-        <RegisterInfoText id='pwdnote'valid={!validPassword && password !== '' && passworFocus}>
-          <FontAwesomeIcon icon={faInfoCircle}/>
-          password must have at least 10 characters and lowercase and uppercase letters. also it needs to have digits and special characters like %&$§!?#€&
-        </RegisterInfoText>
+        <InfoTextDiv focus={passworFocus}>
+          <RegisterInfoText id='pwdnote'>
+            <FontAwesomeIcon icon={faInfoCircle}/>
+            password must have at least 10 characters and lowercase and uppercase letters. also it needs to have digits and special characters like %&$§!?#€&
+          </RegisterInfoText>
+        </InfoTextDiv>
 
         <RegisterLabel htmlFor="confirm">
           Confirmation:
@@ -159,10 +165,12 @@ function Register() {
           onFocus={() => setConfirmationFocus(true)}
           onBlur={() => setConfirmationFocus(false)}
         />
-        <RegisterInfoText id='confirmnote' valid={validConfirmation && confirmation !== '' && confirmationFocus}>
-          <FontAwesomeIcon icon={faInfoCircle}/>
-          confirmation does not match
-        </RegisterInfoText>
+        <InfoTextDiv focus={confirmationFocus}>
+          <RegisterInfoText id='confirmnote'>
+            <FontAwesomeIcon icon={faInfoCircle}/>
+            confirmation does not match
+          </RegisterInfoText>
+        </InfoTextDiv>
       </form>
       </RegisterSection>
     </RegisterPageContainer>

@@ -11,14 +11,14 @@ export const RegisterPageContainer = styled(PageContainer)`
 `
 
 export const RegisterSection = styled.section`
-    width: 40vw;
-    height: 60vh;
+    width: 360px;
+    height: 650px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
     border: solid 1px white;
-    margin-top: 4rem;
+    margin:4rem 0;
 `
 
 export const RegisterLogo = styled.h1`
@@ -31,18 +31,27 @@ export const RegisterLabel = styled.label`
     margin: 0.3rem 2rem;
 `
 
+export const InfoTextDiv = styled.div`
+    width: 285px;
+    padding: 10px;
+    margin: 10px 2rem;
+    color: black;
+    background: white;
+    border-radius: 10px;
+    visibility: ${props => props.focus ? "visible" : "hidden"};
+`
+
 export const RegisterInput = styled.input`
     margin: 0 2rem;
+    padding: 0 0.5rem;
+    border: 1px solid white;
     background: none;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-    border-bottom: 1px solid white;
     outline: none;
-    width: 30vw;
+    width: 285px;
     height: 2rem;
     color: rgb(165, 165, 150);
     font-size: 1rem;
+    border-radius: 100vh;
 `
 
 export const RegisterValidationIcon = styled.span`
@@ -50,5 +59,5 @@ export const RegisterValidationIcon = styled.span`
 `
 
 export const RegisterInfoText = styled.p`
-    visibility: ${props => props.valid ? "visible" : "hidden"};
+    font-size: 14px;
 `
