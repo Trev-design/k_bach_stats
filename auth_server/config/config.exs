@@ -17,10 +17,5 @@ config :auth_server,
 
 config :auth_server, Oban,
   repo: AuthServer.JobHandler.Repo,
-  plugins: [{Oban.Plugins.Pruner, max_age: 90, interval: 45000}],
-  queues: [events: [limit: 2]]
-
-
-config :auth_server, AuthServer.Email.Mailer,
-  adapter: Bamboo.LocalAdapter,
-  open_email_in_browser_url: "http://localhost:4000/sent_emails"
+  plugins: [Oban.Plugins.Pruner],
+  queues: [events: [limit: 2, paused: false]]
