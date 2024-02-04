@@ -30,7 +30,9 @@ defmodule AuthServer.MixProject do
       {:comeonin, "~> 5.4"},
       {:argon2_elixir, "~> 4.0"},
       {:joken, "~> 2.6"},
-      {:uuid, "~> 1.1"}
+      {:uuid, "~> 1.1"},
+      {:bamboo, "~> 2.3"},
+      {:oban, "~> 2.17"}
     ]
   end
 end

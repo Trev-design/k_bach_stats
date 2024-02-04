@@ -15,4 +15,12 @@ defmodule AuthServer.Router do
 
   forward "/account", to: AuthServer.Routers.AccountRouter
   forward "/session", to: AuthServer.Routers.SessionRouter
+
+  if Mix.env() == :dev do
+    forward "/sent_emails", to: Bamboo.SentEmailViewerPlug
+  end
+
+  match _ do
+    send_resp(conn, 500, "ERROR")
+  end
 end

@@ -1,7 +1,7 @@
 defmodule AuthServer.Routers.AccountRouter do
   use Plug.Router
 
-  alias AuthServer.{SessionHandler, Jwt, Schemas.Account}
+  alias AuthServer.{SessionHandler, Jwt, Schemas.Account, JobHandler.EmailJob}
 
   plug Plug.Logger
 
@@ -38,6 +38,7 @@ defmodule AuthServer.Routers.AccountRouter do
     case conn.body_params do
       %{"email" => email, "password" => password} ->
         compute_signin_request(conn, email, password)
+
       _invalid ->
         conn
         |> put_resp_content_type("application/json")
@@ -48,10 +49,7 @@ defmodule AuthServer.Routers.AccountRouter do
   post "/create" do
     case conn.body_params do
       %{"name" => name, "email" => email, "password" => password, "confirmation" => confirmation} ->
-        {status, response} = compute_create_request(name, email, password, confirmation)
-        conn
-        |> put_resp_content_type("application/json")
-        |> send_resp(status, Jason.encode!(response))
+        make_response(conn, name, email, password, confirmation)
 
       _invalid ->
         conn
@@ -65,6 +63,22 @@ defmodule AuthServer.Routers.AccountRouter do
       SessionHandler.register(name, email, password)
     else
       {403, %{message: "password does not match"}}
+    end
+  end
+
+  defp make_response(conn, name, email, password, confirmation) do
+    case compute_create_request(name, email, password, confirmation) do
+      {200, response} ->
+        EmailJob.deliver(email, name)
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(response))
+
+      {status, response} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(status, Jason.encode!(response))
     end
   end
 
