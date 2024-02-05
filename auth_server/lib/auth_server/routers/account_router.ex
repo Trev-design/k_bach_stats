@@ -26,6 +26,12 @@ defmodule AuthServer.Routers.AccountRouter do
     same_site: "Strict",
     log: :debug
 
+  plug Plug.Session, store: :ets,
+    table: :verify_session_table,
+    key: "_verify",
+    signing_salt: "averycomplicatedandstrongsigningsaltwithalotofcharactersandnumbers1234567890",
+    log: :debug
+
   plug :put_secret_key_base
 
   plug :dispatch
@@ -68,12 +74,28 @@ defmodule AuthServer.Routers.AccountRouter do
 
   defp make_response(conn, name, email, password, confirmation) do
     case compute_create_request(name, email, password, confirmation) do
-      {200, response} ->
-        EmailJob.deliver(email, name)
+      {200, %{name: user_name} = cookie_data} ->
+        random_number =
+          for _x <- 1..7 do
+            :rand.uniform(9) + 48
+          end
+          |> List.to_integer()
+
+        EmailJob.deliver(email, name, random_number)
+        |> IO.inspect()
 
         conn
         |> put_resp_content_type("application/json")
-        |> send_resp(200, Jason.encode!(response))
+        |> put_resp_cookie(
+          "_verify",
+          cookie_data |> Map.put(:verify, random_number) |> Jason.encode!(),
+          http_only: true,
+          secure: true,
+          sign: true,
+          max_age: 60*60,
+          same_site: "Strict"
+        )
+        |> send_resp(200, Jason.encode!(%{guest: user_name}))
 
       {status, response} ->
         conn
