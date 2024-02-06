@@ -6,6 +6,7 @@ defmodule AuthServer.Schemas.User do
   @foreign_key_type :binary_id
   schema "users" do
     field :name, :string
+    has_one :role, AuthServer.Schemas.Role
     belongs_to :account, AuthServer.Schemas.Account
 
     timestamps()

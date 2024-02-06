@@ -1,7 +1,7 @@
 defmodule AuthServer.Routers.AccountRouter do
   use Plug.Router
 
-  alias AuthServer.{SessionHandler, Jwt, Schemas.Account, JobHandler.EmailJob}
+  alias AuthServer.{SessionHandler, Schemas.Account, Schemas.User, JobHandler.EmailJob, Routers.RouterHelpers}
 
   plug Plug.Logger
 
@@ -64,6 +64,18 @@ defmodule AuthServer.Routers.AccountRouter do
     end
   end
 
+  post "/verify" do
+    case conn.body_params do
+      %{"verification" => verification} ->
+        compute_verification(conn, verification)
+
+      _invalid ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(500, Jason.encode!(%{message: "something went wrong"}))
+    end
+  end
+
   defp compute_create_request(name, email, password, confirmation) do
     if password == confirmation do
       SessionHandler.register(name, email, password)
@@ -106,12 +118,7 @@ defmodule AuthServer.Routers.AccountRouter do
 
   defp compute_signin_request(conn, email, password) do
     with {:ok, %Account{} = account} <- SessionHandler.signin(email, password),
-         {:ok, jwt, refresh}         <- Jwt.generate_token_pair(
-                                          %{"id" => account.user.id,
-                                            "name" => account.user.name,
-                                            "exp" => Joken.current_time() + (15 * 60)},
-                                          %{"id" => account.user.id,
-                                            "exp" => Joken.current_time()+ (24 * 60 * 60)})
+         {:ok, jwt, refresh}         <- RouterHelpers.add_claims_and_generate(account.user.id, account.user.name)
     do
       conn
       |> put_resp_content_type("application/json")
@@ -124,6 +131,32 @@ defmodule AuthServer.Routers.AccountRouter do
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(500, Jason.encode!(%{message: reason}))
+    end
+  end
+
+  defp compute_verification(conn, verification) do
+    new_conn = fetch_cookies(conn, signed: ~w(_verification))
+    cookie = new_conn.cookies["_verification"]
+    if cookie == nil do
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(401, Jason.encode!(%{message: "unauthorized"}))
+    else
+      with {:ok, %User{} = user} <- SessionHandler.check_verification(verification, cookie),
+           {:ok, jwt, refresh}   <- RouterHelpers.add_claims_and_generate(user.id, user.name)
+      do
+        conn
+        |> put_resp_content_type("application/json")
+        |> fetch_session()
+        |> put_session(:session_id, Jason.encode!(%{user_id: user.id, session: UUID.uuid4()}))
+        |> put_resp_cookie("_Refresh", refresh, http_only: true, secure: true, sign: true, max_age: 24*60*60, same_site: "Strict")
+        |> send_resp(200, Jason.encode!(%{name:  user.name, id: user.id, jwt: jwt}))
+      else
+        {:error, reason} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(500, Jason.encode!(%{message: reason}))
+      end
     end
   end
 end
