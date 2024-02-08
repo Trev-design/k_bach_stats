@@ -1,6 +1,11 @@
 defmodule AuthServer.SessionHandler do
   require Ecto.Query
-  alias AuthServer.{Repo, Schemas.Account, Schemas.User, Schemas.Role}
+  alias AuthServer.{
+    Repo,
+    Schemas.Account,
+    Schemas.User,
+    Schemas.Role
+  }
 
   def register(name, email, password) do
     with {:ok, password_hash}        <- try_make_password_hash(password),
@@ -44,6 +49,8 @@ defmodule AuthServer.SessionHandler do
       nil            -> {:error, "no user with this id"}
     end
   end
+
+  def get_by_email(email), do: Repo.get_by(Account, email: email) |> Repo.preload(:user)
 
   defp try_make_password_hash(password) do
     case Regex.match?(~r/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!?&%$§#@€]).{10,}$/, password) do
