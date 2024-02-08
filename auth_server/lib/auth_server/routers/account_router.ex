@@ -104,28 +104,8 @@ defmodule AuthServer.Routers.AccountRouter do
 
   defp make_response(conn, name, email, password, confirmation) do
     case compute_create_request(name, email, password, confirmation) do
-      {200, %{name: user_name} = cookie_data} ->
-        random_number =
-          for _x <- 1..7 do
-            :rand.uniform(9) + 48
-          end
-          |> List.to_integer()
-
-        EmailJob.deliver(email, name, random_number)
-        |> IO.inspect()
-
-        conn
-        |> put_resp_content_type("application/json")
-        |> put_resp_cookie(
-          "_verify",
-          cookie_data |> Map.put(:verify, random_number) |> Jason.encode!(),
-          http_only: true,
-          secure: true,
-          sign: true,
-          max_age: 60*60,
-          same_site: "Strict"
-        )
-        |> send_resp(200, Jason.encode!(%{guest: user_name}))
+      {200, %{id: id}} ->
+        verification_code_response(conn, id, name, email)
 
       {status, response} ->
         conn
@@ -181,28 +161,37 @@ defmodule AuthServer.Routers.AccountRouter do
 
   defp compute_new_verify_request(conn, email) do
     case SessionHandler.get_by_email(email) do
-      %Account{email: email, user: %{name: name}} ->
-        random_number =
-          for _x <- 1..7 do
-            :rand.uniform(9) + 48
-          end
-          |> List.to_integer()
+      %Account{email: email, user: %{name: name, id: id}} ->
+        verification_code_response(conn, id, name, email)
 
-          EmailJob.deliver(email, name, random_number)
-          |> IO.inspect()
-
-          conn
-          |> put_resp_content_type("application/json")
-          |> put_resp_cookie(
-            "_verify",
-            Jason.encode(%{email: email, name: name, verify: random_number}),
-            http_only: true,
-            secure: true,
-            sign: true,
-            max_age: 60*60,
-            same_site: "Strict"
-          )
-          |> send_resp(200, Jason.encode!(%{guest: name}))
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(403, Jason.encode!(%{message: "invalid email"}))
     end
+  end
+
+  defp verification_code_response(conn, id, name, email) do
+    random_number =
+      for _x <- 1..7 do
+        :rand.uniform(9) + 48
+      end
+      |> List.to_integer()
+
+      EmailJob.deliver(email, name, random_number)
+      |> IO.inspect()
+
+      conn
+      |> put_resp_content_type("application/json")
+      |> put_resp_cookie(
+        "_verify",
+        Jason.encode(%{id: id, name: name, verify: random_number}),
+        http_only: true,
+        secure: true,
+        sign: true,
+        max_age: 60*60,
+        same_site: "Strict"
+      )
+      |> send_resp(200, Jason.encode!(%{guest: name}))
   end
 end
