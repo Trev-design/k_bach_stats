@@ -87,10 +87,10 @@ defmodule AuthServer.Routers.AccountRouter do
       %{"email" => email} ->
         compute_new_verify_request(conn, email)
 
-        _invalid ->
-          conn
-          |> put_resp_content_type("application/json")
-          |> send_resp(500, Jason.encode!(%{message: "something went wrong"}))
+      _invalid ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(500, Jason.encode!(%{message: "something went wrong"}))
     end
   end
 
