@@ -26,14 +26,13 @@ defmodule AuthServer.SessionHandler do
   end
 
   def check_verification(verification, cookie) do
-    with {:ok, payload}         <- Jason.decode(cookie),
-         {:ok, user}            <- get_user(payload["id"]),
-         true                   <- payload["verification"] == verification,
-         {:ok, %Role{} = _role} <- create_role(user, %{verificated: true})
+    with {:ok, payload} <- Jason.decode(cookie),
+         {:ok, user}    <- get_user(payload["id"]),
+         {:ok, integer} <- verification_integer(verification),
+         {:ok, %Role{}} <- create_role(user, %{verificated: true})
     do
-      {:ok, user}
+      if integer == payload["verify"], do: {:ok, user}, else: {:error, "verification does not match"}
     else
-      true                                    -> {:error, "false verification code"}
       {:error, %Ecto.Changeset{} = changeset} -> {:error, errors(changeset.errors)}
       error                                   -> error
     end
@@ -77,5 +76,12 @@ defmodule AuthServer.SessionHandler do
     |> Ecto.build_assoc(:role)
     |> Role.changeset(attrs)
     |> Repo.insert()
+  end
+
+  defp verification_integer(verification) do
+    case Integer.parse(verification) do
+      {integer, ""} -> {:ok, integer}
+      _invalid      -> {:error, "verification not just an integer"}
+    end
   end
 end

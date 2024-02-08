@@ -1,7 +1,11 @@
 defmodule AuthServer.Routers.SessionRouter do
   use Plug.Router
 
-  alias AuthServer.{SessionHandler, Jwt, Schemas.User}
+  alias AuthServer.{
+    SessionHandler,
+    Schemas.User,
+    Routers.RouterHelpers
+  }
 
   plug Plug.Logger
 
@@ -38,12 +42,7 @@ defmodule AuthServer.Routers.SessionRouter do
 
   get "/refresh_session" do
     with {:ok, %User{} = user}      <- SessionHandler.get_user(conn.assigns.current_user_id),
-         {:ok, jwt, refresh}        <- Jwt.generate_token_pair(
-                                        %{"id"   => user.id,
-                                          "name" => user.name,
-                                          "exp"  => Joken.current_time() + (15 * 60)},
-                                        %{"id"   => user.id,
-                                          "exp"  => Joken.current_time() + (24 * 60 * 60)})
+         {:ok, jwt, refresh}        <- RouterHelpers.add_claims_and_generate(user.id, user.name)
     do
       conn
       |> put_resp_content_type("application/json")

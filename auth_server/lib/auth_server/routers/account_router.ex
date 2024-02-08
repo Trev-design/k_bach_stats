@@ -1,7 +1,13 @@
 defmodule AuthServer.Routers.AccountRouter do
   use Plug.Router
 
-  alias AuthServer.{SessionHandler, Schemas.Account, Schemas.User, JobHandler.EmailJob, Routers.RouterHelpers}
+  alias AuthServer.{
+    SessionHandler,
+    Schemas.Account,
+    Schemas.User,
+    JobHandler.EmailJob,
+    Routers.RouterHelpers
+  }
 
   plug Plug.Logger
 
@@ -148,6 +154,7 @@ defmodule AuthServer.Routers.AccountRouter do
         conn
         |> put_resp_content_type("application/json")
         |> fetch_session()
+        |> delete_resp_cookie("_verify")
         |> put_session(:session_id, Jason.encode!(%{user_id: user.id, session: UUID.uuid4()}))
         |> put_resp_cookie("_Refresh", refresh, http_only: true, secure: true, sign: true, max_age: 24*60*60, same_site: "Strict")
         |> send_resp(200, Jason.encode!(%{name:  user.name, id: user.id, jwt: jwt}))
