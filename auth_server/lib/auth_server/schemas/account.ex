@@ -17,6 +17,5 @@ defmodule AuthServer.Schemas.Account do
     |> cast(attrs, [:email, :password_hash])
     |> validate_required([:email, :password_hash])
     |> unique_constraint(:email)
-    |> validate_format(:email, ~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,4}$/, message: "invalid email")
   end
 end

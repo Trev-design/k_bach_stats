@@ -1,5 +1,7 @@
 defmodule AuthServer.SessionHandler do
   require Ecto.Query
+  require Logger
+
   alias AuthServer.{
     Repo,
     Schemas.Account,
@@ -9,6 +11,7 @@ defmodule AuthServer.SessionHandler do
 
   def register(name, email, password) do
     with {:ok, password_hash}        <- try_make_password_hash(password),
+         {:ok, "email valid"}        <- check_email(email),
          {:ok, %Account{} = account} <- create_account(%{email: email, password_hash: password_hash}),
          {:ok, %User{} = user}       <- create_user(account, %{name: name})
     do
@@ -30,7 +33,8 @@ defmodule AuthServer.SessionHandler do
     end
   end
 
-  def check_verification(verification, cookie) do
+  def check_verification(verification, {:ok, cookie}) do
+    Logger.info(inspect(cookie))
     with {:ok, payload} <- Jason.decode(cookie),
          {:ok, user}    <- get_user(payload["id"]),
          {:ok, integer} <- verification_integer(verification),
@@ -83,6 +87,13 @@ defmodule AuthServer.SessionHandler do
     |> Ecto.build_assoc(:role)
     |> Role.changeset(attrs)
     |> Repo.insert()
+  end
+
+  defp check_email(email) do
+    case Regex.match?(~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,4}$/, email) do
+      true  -> {:ok, "email valid"}
+      false -> {:error, "invalid email"}
+    end
   end
 
   defp verification_integer(verification) do

@@ -19,6 +19,11 @@ defmodule AuthServer.Routers.AccountRouter do
     json_decoder: Jason
 
   plug Plug.Session, store: :cookie,
+    key: "_verify",
+    signing_salt: "averycomplicatedandstrongsigningsaltwithalotofcharactersandnumbers1234567890",
+    log: :debug
+
+  plug Plug.Session, store: :cookie,
     key: "_Refresh",
     signing_salt: "cookie store signing salt",
     log: :debug
@@ -30,12 +35,6 @@ defmodule AuthServer.Routers.AccountRouter do
     secure: true,
     sign: true,
     same_site: "Strict",
-    log: :debug
-
-  plug Plug.Session, store: :ets,
-    table: :verify_session_table,
-    key: "_verify",
-    signing_salt: "averycomplicatedandstrongsigningsaltwithalotofcharactersandnumbers1234567890",
     log: :debug
 
   plug :put_secret_key_base
@@ -133,8 +132,8 @@ defmodule AuthServer.Routers.AccountRouter do
   end
 
   defp compute_verification(conn, verification) do
-    new_conn = fetch_cookies(conn, signed: ~w(_verification))
-    cookie = new_conn.cookies["_verification"]
+    new_conn = fetch_cookies(conn, signed: ~w(_verify))
+    cookie = new_conn.cookies["_verify"]
     if cookie == nil do
       conn
       |> put_resp_content_type("application/json")
@@ -143,12 +142,13 @@ defmodule AuthServer.Routers.AccountRouter do
       with {:ok, %User{} = user} <- SessionHandler.check_verification(verification, cookie),
            {:ok, jwt, refresh}   <- RouterHelpers.add_claims_and_generate(user.id, user.name)
       do
+
         conn
         |> put_resp_content_type("application/json")
         |> fetch_session()
-        |> delete_resp_cookie("_verify")
         |> put_session(:session_id, Jason.encode!(%{user_id: user.id, session: UUID.uuid4()}))
         |> put_resp_cookie("_Refresh", refresh, http_only: true, secure: true, sign: true, max_age: 24*60*60, same_site: "Strict")
+        |> delete_resp_cookie("_verify")
         |> send_resp(200, Jason.encode!(%{name:  user.name, id: user.id, jwt: jwt}))
       else
         {:error, reason} ->
