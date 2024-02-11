@@ -13,7 +13,8 @@ defmodule AuthServer.SessionHandler do
     with {:ok, password_hash}        <- try_make_password_hash(password),
          {:ok, "email valid"}        <- check_email(email),
          {:ok, %Account{} = account} <- create_account(%{email: email, password_hash: password_hash}),
-         {:ok, %User{} = user}       <- create_user(account, %{name: name})
+         {:ok, %User{} = user}       <- create_user(account, %{name: name}),
+         {:ok, %Role{}}              <- create_role(user, %{verify: false})
     do
       {200, %{name: user.name, id: user.id}}
     else
@@ -28,17 +29,17 @@ defmodule AuthServer.SessionHandler do
     do
       {:ok, Repo.preload(account, :user)}
     else
-      nil               -> {:error, "could not find an account wit this email"}
-      false             -> {:error, "password not correct"}
+      nil   -> {:error, "could not find an account wit this email"}
+      false -> {:error, "password not correct"}
     end
   end
 
-  def check_verification(verification, {:ok, cookie}) do
+  def check_verification(verification, cookie) do
     Logger.info(inspect(cookie))
     with {:ok, payload} <- Jason.decode(cookie),
          {:ok, user}    <- get_user(payload["id"]),
          {:ok, integer} <- verification_integer(verification),
-         {:ok, %Role{}} <- create_role(user, %{verificated: true})
+         {:ok, %Role{}} <- update_role(user.role, %{verify: true})
     do
       if integer == payload["verify"], do: {:ok, user}, else: {:error, "verification does not match"}
     else
@@ -48,7 +49,7 @@ defmodule AuthServer.SessionHandler do
   end
 
   def get_user(id) do
-    case User |> Repo.get(id) do
+    case User |> Repo.get(id) |> Repo.preload(:role) do
       %User{} = user -> {:ok, user}
       nil            -> {:error, "no user with this id"}
     end
@@ -87,6 +88,12 @@ defmodule AuthServer.SessionHandler do
     |> Ecto.build_assoc(:role)
     |> Role.changeset(attrs)
     |> Repo.insert()
+  end
+
+  defp update_role(old_role, new_attrs) do
+    old_role
+    |> Role.changeset(new_attrs)
+    |> Repo.update()
   end
 
   defp check_email(email) do

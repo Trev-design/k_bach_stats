@@ -4,7 +4,7 @@ defmodule AuthServer.Repo.Migrations.RoleMigration do
   def change do
     create table(:roles, primary_key: false) do
       add :id, :binary_id, primary_key: true
-      add :verificated, :boolean
+      add :verified, :boolean
       add :user_id, references(:users, on_delete: :delete_all, type: :binary_id)
 
       timestamps()

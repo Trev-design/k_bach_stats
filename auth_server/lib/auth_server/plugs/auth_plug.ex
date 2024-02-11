@@ -3,7 +3,11 @@ defmodule AuthServer.Plugs.AuthPlug do
 
   import Plug.Conn
 
-  alias AuthServer.Jwt
+  alias AuthServer.{
+    Jwt,
+    SessionHandler,
+    Schemas.User
+  }
 
   require Logger
 
@@ -82,10 +86,11 @@ defmodule AuthServer.Plugs.AuthPlug do
   end
 
   defp fetch_user(current_session) do
-    with {:ok, object}  <- Jason.decode(current_session, keys: :atoms),
-         {:ok, user_id} <- Map.fetch(object, :user_id)
+    with {:ok, object}          <- Jason.decode(current_session, keys: :atoms),
+         {:ok, user_id}         <- Map.fetch(object, :user_id),
+         {:ok , %User{} = user} <- SessionHandler.get_user(user_id)
     do
-      user_id
+      if user.role.verified, do: user_id, else: :error
     else
       _error -> :error
     end

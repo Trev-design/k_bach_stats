@@ -6,7 +6,7 @@ defmodule AuthServer.Email.EmailHandler do
   use Oban.Worker, queue: :events, max_attempts: 3, tags: ["email delivery"]
 
   @impl Oban.Worker
-  def perform(%{args: %{"to" => to, "name" => name, verify: verify}}) do
+  def perform(%{args: %{"to" => to, "name" => name, "verify" => verify}}) do
     {:ok, new_email(
       to: to,
       subject: "welcome #{name}",

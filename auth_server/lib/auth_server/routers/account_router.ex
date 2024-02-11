@@ -185,7 +185,7 @@ defmodule AuthServer.Routers.AccountRouter do
       |> put_resp_content_type("application/json")
       |> put_resp_cookie(
         "_verify",
-        Jason.encode(%{id: id, name: name, verify: random_number}),
+        Jason.encode!(%{id: id, name: name, verify: random_number}),
         http_only: true,
         secure: true,
         sign: true,
