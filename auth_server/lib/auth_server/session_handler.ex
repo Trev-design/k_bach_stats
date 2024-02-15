@@ -14,7 +14,7 @@ defmodule AuthServer.SessionHandler do
          {:ok, "email valid"}        <- check_email(email),
          {:ok, %Account{} = account} <- create_account(%{email: email, password_hash: password_hash}),
          {:ok, %User{} = user}       <- create_user(account, %{name: name}),
-         {:ok, %Role{}}              <- create_role(user, %{verify: false})
+         {:ok, %Role{}}              <- create_role(user, %{verified: false})
     do
       {200, %{name: user.name, id: user.id}}
     else
@@ -24,10 +24,10 @@ defmodule AuthServer.SessionHandler do
   end
 
   def signin(email, password) do
-    with %Account{} = account <- Repo.get_by(Account, email: email),
+    with %Account{} = account <- get_by_email(email),
          true                 <- Argon2.verify_pass(password, account.password_hash)
     do
-      {:ok, Repo.preload(account, :user)}
+      if account.user.role.verified, do: {:ok, account}, else: {:error, "user is not verified"}
     else
       nil   -> {:error, "could not find an account wit this email"}
       false -> {:error, "password not correct"}
@@ -39,7 +39,7 @@ defmodule AuthServer.SessionHandler do
     with {:ok, payload} <- Jason.decode(cookie),
          {:ok, user}    <- get_user(payload["id"]),
          {:ok, integer} <- verification_integer(verification),
-         {:ok, %Role{}} <- update_role(user.role, %{verify: true})
+         {:ok, %Role{}} <- update_role(user.role, %{verified: true})
     do
       if integer == payload["verify"], do: {:ok, user}, else: {:error, "verification does not match"}
     else
@@ -55,7 +55,7 @@ defmodule AuthServer.SessionHandler do
     end
   end
 
-  def get_by_email(email), do: Repo.get_by(Account, email: email) |> Repo.preload(:user)
+  def get_by_email(email), do: Repo.get_by(Account, email: email) |> Repo.preload(user: :role)
 
   defp try_make_password_hash(password) do
     case Regex.match?(~r/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!?&%$§#@€]).{10,}$/, password) do
