@@ -18,7 +18,8 @@ defmodule ChatServer.Application do
         ]
       },
 
-      {Registry, keys: :duplicate, name: Registry.ChatServer}
+      {Registry, keys: :duplicate, name: Registry.ChatServer},
+      {Task.Supervisor, name: ChatServer.TaskSupervisor}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

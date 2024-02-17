@@ -11,23 +11,28 @@ defmodule ChatServer.SocketHandler do
     {:ok, state}
   end
 
-  def websocket_handle({:text, json}, state) do
+  def websocket_handle(frame = {:text, json}, state) do
     with {:ok, _payload} <- Jason.decode(json, keys: :atoms) do
-      Registry.dispatch(Registry.ChatServer ,state.registry_key, fn entries ->
+      distribute_messages(self(), json, state.registry_key)
+      {[frame], state}
+    end
+
+    {[{:text, Jason.encode!(%{error: "Something went wrong"})}], state}
+  end
+
+  def websocket_info({:to_distribute, payload}, state) do
+    {[{:text, payload}], state}
+  end
+
+  defp distribute_messages(sender, message, registry_key) do
+    Task.Supervisor.start_child(ChatServer.TaskSupervisor, fn ->
+      Registry.dispatch(Registry.ChatServer, registry_key, fn entries ->
         Enum.each(entries, fn {pid, _} ->
-          if pid != self() do
-            Process.send(pid, {:to_receive, json}, [])
+          if pid != sender do
+            Process.send(pid, {:to_distribute, message}, [])
           end
         end)
       end)
-
-      {:ok, {:text, json}, state}
-    end
-
-    {:ok, {:text, Jason.encode!(%{error: "Something went wrong"})}}
-  end
-
-  def websocket_info({:to_receive, payload}, state) do
-    {:reply, {:text, payload}, state}
+    end)
   end
 end
