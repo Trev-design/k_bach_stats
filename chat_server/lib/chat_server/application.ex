@@ -8,13 +8,33 @@ defmodule ChatServer.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: ChatServer.Worker.start_link(arg)
-      # {ChatServer.Worker, arg}
+      {
+        Plug.Cowboy,
+        scheme: :http,
+        plug: ChatServer.Router,
+        options: [
+          dispatch: dispatch(),
+          port: 4001
+        ]
+      },
+
+      {Registry, keys: :duplicate, name: Registry.ChatServer}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: ChatServer.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp dispatch() do
+    [
+      {:_,
+        [
+          {"/ws/[...]", ChatServer.SocketHandler, []},
+          {:_, Plug.Cowboy.Handler, {ChatServer.Router, []}}
+        ]
+      }
+    ]
   end
 end
