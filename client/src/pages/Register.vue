@@ -1,15 +1,15 @@
 <template>
   <section class="register-page-container">
-    <FormInput></FormInput>  
+    <RegisterFormInput/>  
   </section>
 </template>
 
 
 <script>
-import FormInput from '../components/FormInput.vue';
+import RegisterFormInput from '../components/RegisterFormInput.vue';
 export default {
   name: 'Register',
-  components: {FormInput}
+  components: {RegisterFormInput}
 }
 </script>
 

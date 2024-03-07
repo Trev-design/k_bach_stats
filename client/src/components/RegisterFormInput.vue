@@ -23,7 +23,7 @@
 
 <script>
 export default {
-    name: 'FormInput',
+    name: 'RegisterFormInput',
     data: () => (
       {
         userName: '',
@@ -42,7 +42,7 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
 .form-input-container {
   width: 400px;
   height: 600px;
