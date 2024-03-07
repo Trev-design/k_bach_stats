@@ -1,15 +1,6 @@
 <script>
 export default {
-  name: 'App',
-  data: () => ({
-    firstName: 'Mehners',
-    lastName: 'Moos'
-  }),
-  computed: {
-    fullName() {
-      return this.firstName + " " + this.lastName
-    }
-  }
+  name: 'App'
 }
 </script>
 
@@ -19,8 +10,3 @@ export default {
     <router-view></router-view>
   </div>
 </template>
-
-
-<style>
-
-</style>

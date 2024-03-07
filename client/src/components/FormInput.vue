@@ -1,6 +1,6 @@
 <template>
   <section class="form-input-container">
-    <form class="input-form">
+    <form class="input-form" @submit.prevent="handleSubmit">
       <label class="form-label" for="">Name:</label>
       <input class="input-area" type="text" required v-model="userName">
 
@@ -32,6 +32,12 @@ export default {
         confirmation: '',
       }
     ),
+    methods: {
+      handleSubmit() {
+        console.log(`${this.email}`)
+        console.log('form submitted')
+      }
+    }
 }
 </script>
 
