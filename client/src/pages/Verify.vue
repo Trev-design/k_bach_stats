@@ -1,13 +1,15 @@
 <template>
-    <div>
-        
-    </div>
+  <div> 
+    <VerifyFormInput/>
+  </div>
 </template>
 
 
 <script>
+import VerifyFormInput from '../components/VerifyFormInput.vue';
 export default {
-    name: 'verify'
+  name: 'verify',
+  components: {VerifyFormInput}
 }
 </script>
 

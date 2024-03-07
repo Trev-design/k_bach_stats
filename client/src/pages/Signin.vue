@@ -1,12 +1,15 @@
 <template lang="">
-  <div>      
+  <div>  
+    <SigninFormInput/>   
   </div>
 </template>
 
 
 <script>
+import SigninFormInput from '../components/SigninFormInput.vue';
 export default {
-  name: 'Signin'
+  name: 'Signin',
+  components: {SigninFormInput}
 }
 </script>
 
