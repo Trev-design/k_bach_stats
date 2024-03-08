@@ -41,7 +41,7 @@ export default {
   border: 1px solid black;
   width: 350px;
   height: 400px;
-  margin: -200px 0 0 -175px;
+  margin: 175px 0 0 -175px;
 } 
 
 .input-form {
