@@ -1,7 +1,7 @@
 <template lang="">
-  <div>  
+  <section class="signin-page-container">  
     <SigninFormInput/>   
-  </div>
+  </section>
 </template>
 
 
@@ -15,5 +15,7 @@ export default {
 
 
 <style lang="">
-    
+.signin-page-container {
+  position: relative;
+}
 </style>
