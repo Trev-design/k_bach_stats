@@ -2,10 +2,10 @@
   <section class="form-input-container">
     <form action="" class="input-form">
       <label for="" class="form-input-label">Email: </label>
-      <input type="text" class="input-area">
+      <input type="email" class="input-area" required v-model="email">
 
       <label for="" class="form-input-label">Password: </label>
-      <input type="text" class="input-area">
+      <input type="password" class="input-area" required v-model="password">
 
       <div class="submit">
         <button class="submit-button">Submit</button>
@@ -17,7 +17,18 @@
 
 <script>
 export default {
-  name: 'SigninFormInput'
+  name: 'SigninFormInput',
+  data: () => (
+    {
+      email: '',
+      password: ''
+    }
+  ),
+  methods: {
+    handleSubmit() {
+      console.log(this.email)
+    }
+  }
 }
 </script>
 

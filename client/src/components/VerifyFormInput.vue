@@ -3,7 +3,7 @@
     <form action="" class="input-form">
       <div class="input">
         <label for="" class="form-input-label">enter Code:</label>
-        <input type="text" class="input-area">
+        <input type="text" class="input-area" required v-model="verifyCode">
       </div>
 
       <button class="submit-button">Submit</button>
@@ -14,7 +14,17 @@
 
 <script>
 export default {
-  name: 'VerifyFormInput'
+  name: 'VerifyFormInput',
+  data: () => (
+    {
+      verifyCode: ''
+    }
+  ),
+  methods: {
+    handleSubmit() {
+      console.log(this.verifyCode)
+    }
+  }
 }
 </script>
 
