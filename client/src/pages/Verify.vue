@@ -1,7 +1,7 @@
 <template>
-  <div> 
+  <section class="verify-page-container"> 
     <VerifyFormInput/>
-  </div>
+  </section>
 </template>
 
 
@@ -15,5 +15,7 @@ export default {
 
 
 <style >
-    
+.verify-page-container {
+    position: relative;
+}
 </style>
