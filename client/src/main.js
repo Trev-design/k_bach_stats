@@ -25,19 +25,157 @@ const router = createRouter(
 )
 
 const store = createStore({
-    state() {
-      return {
-        jwt: ''
-      }
-    },
-    mutations: {
+  state: () => (
+    {
+      jwt: '',
+    }
+  ),
 
+  mutations: {
+    setAccessToken: (state, token) => {
+      state.jwt = token
     },
-    actions: {
-      
+
+    unsetAccessToken: (state) => {
+      state.jwt = ''
+    }
+  },
+
+  actions: {
+    registerRequest: ({commit}, userdata) => {
+      return new Promise((resolve, reject) => {
+        const requestOptions = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'include',
+          body: JSON.stringify(userdata)
+        }
+        fetch('http://localhost:4000/account/create', requestOptions)
+          .then((response) => {
+            if (response.ok) {
+              return response.json()
+            } else {
+              reject(response.json().then((data) => data.message))
+            }
+          })
+          .then((data) => {
+            localStorage.setItem('guest', data.guest)
+            resolve('OK')
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    },
+    
+    signinRequest: ({commit}, userdata) => {
+      return new Promise((resolve, reject) => {
+        const requestOptions = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'include',
+          body: JSON.stringify(userdata)
+        }
+        fetch('http://localhost:4000/account/signin', requestOptions)
+          .then((response) => {
+            if (response.ok) {
+              return response.json()
+            } else {
+              reject(response.json().then((data) => {data.message}))
+            }
+          })
+          .then((data) => {
+            localStorage.setItem('guest', data.name)
+            localStorage.setItem('userId', data.id)
+            commit('setAccessToken', data.jwt)
+            resolve('OK')
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    },
+
+    verifyRequest: ({commit}, userdata) => {
+      return new Promise((resolve, reject) => {
+        const requestOptions = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'include',
+          body: JSON.stringify(userdata)
+        }
+        fetch('http://localhost:4000/account/verify', requestOptions)
+          .then((response) => {
+            if (response.ok) {
+              return response.json()
+            } else {
+              reject(response.json().then((data) => {data.message}))
+            }
+          })
+          .then((data) => {
+            localStorage.setItem('userId', data.id)
+            commit('setAccessToken', data.jwt)
+            resolve('OK')
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    },
+
+    refreshRequest: ({commit}) => {
+      return new Promise((resolve, reject) => {
+        const requestOptions = {
+          method: 'GET',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'include'
+        }
+        fetch('http://localhost:4000/session/refresh_session', requestOptions)
+          .then((response) => {
+            if (response.ok) {
+              return response.json()
+            } else {
+              reject(response.json().then((data) => {data.message}))
+            }
+          })
+          .then((data) => {
+            commit('setAccessToken', data.jwt)
+            resolve('OK')
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    },
+
+    signoutRequest: ({commit}) => {
+      return new Promise((resolve, reject) => {
+        const requestOptions = {
+          method: 'GET',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'include'
+        }
+        fetch('http://localhost:4000/session/signout', requestOptions)
+          .then((response) => {
+            if (response.ok) {
+              return response.json()
+            } else {
+              reject(response.json().then((data) => {data.message}))
+            }
+          })
+          .then((data) => {
+            localStorage.removeItem('guest')
+            localStorage.removeItem('id')
+            commit('unsetAccessToken')
+            resolve('OK')
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
     }
   }
-)
+})
 
 app.use(store)
 app.use(router)
