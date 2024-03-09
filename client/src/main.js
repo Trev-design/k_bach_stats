@@ -25,24 +25,24 @@ const router = createRouter(
 )
 
 const store = createStore({
-  state: () => (
-    {
+  state() {
+    return {
       jwt: '',
     }
-  ),
+  },
 
   mutations: {
-    setAccessToken: (state, token) => {
+    setAccessToken(state, token) {
       state.jwt = token
     },
 
-    unsetAccessToken: (state) => {
+    unsetAccessToken (state) {
       state.jwt = ''
     }
   },
 
   actions: {
-    registerRequest: ({commit}, userdata) => {
+    registerRequest({commit}, userdata) {
       return new Promise((resolve, reject) => {
         const requestOptions = {
           method: 'POST',
@@ -68,7 +68,7 @@ const store = createStore({
       })
     },
     
-    signinRequest: ({commit}, userdata) => {
+    signinRequest({commit}, userdata) {
       return new Promise((resolve, reject) => {
         const requestOptions = {
           method: 'POST',
@@ -96,7 +96,7 @@ const store = createStore({
       })
     },
 
-    verifyRequest: ({commit}, userdata) => {
+    verifyRequest({commit}, userdata) {
       return new Promise((resolve, reject) => {
         const requestOptions = {
           method: 'POST',
@@ -123,7 +123,7 @@ const store = createStore({
       })
     },
 
-    refreshRequest: ({commit}) => {
+    refreshRequest({commit}) {
       return new Promise((resolve, reject) => {
         const requestOptions = {
           method: 'GET',
@@ -148,7 +148,7 @@ const store = createStore({
       })
     },
 
-    signoutRequest: ({commit}) => {
+    signoutRequest({commit}) {
       return new Promise((resolve, reject) => {
         const requestOptions = {
           method: 'GET',
