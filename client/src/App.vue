@@ -1,4 +1,6 @@
 <script>
+import HomeNavbar from './components/HomeNavbar.vue'
+
 export default {
   name: 'App',
 
@@ -7,6 +9,8 @@ export default {
       refreshInterval: null
     }
   },
+
+  components: {HomeNavbar},
 
   methods: {
     refresh(status) {
@@ -58,6 +62,7 @@ export default {
 
 <template>
   <div id="app">
+    <HomeNavbar v-if="jwt != ''" :handleLogout="() => {this.$store.dispatch('signoutRequest'); this.refresh(false)}"/>
     <router-view></router-view>
   </div>
 </template>

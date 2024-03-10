@@ -1,8 +1,8 @@
 <template>
   <div class="navbar-container">
     <ul class="nav-items">
-      <li><router-link class="navlink" to="/register">Register</router-link></li>
-      <li><router-link class="navlink" to="/signin">Signin</router-link></li>
+      <li><router-link class="nav-link">{{ localStorage.getItem('guest') }}</router-link></li>
+      <li><router-link to="/signin" class="nav-link" @click="handleLogout()">Logout</router-link></li>
     </ul>
   </div>
 </template>
@@ -10,16 +10,16 @@
 
 <script>
 export default {
-  name: 'Navbar',
-  data: () => ({
-    navbarData: [{text: "signup"}]
-  }) 
+  name: 'HomeNavbar',
+  props: {
+    handleLogout: Function
+  } 
 }
 </script>
 
 
-<style>
-.navbar-container{
+<style scoped>
+.navbar-container {
   position: fixed;
   top: 0;
   z-index: 2;
@@ -32,13 +32,13 @@ export default {
 .nav-items {
   display: flex;
   flex-direction: row;
-  
+
   li {
     list-style: none;
   }
 }
 
-.navlink {
+.nav-link {
   margin: 0 1.2rem 0 0;
   text-decoration: none;
 }

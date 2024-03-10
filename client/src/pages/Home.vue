@@ -1,19 +1,20 @@
-<template lang="">
+<template>
   <div>
-    <Navbar></Navbar> 
+    <LandingNavbar/>
   </div>
 </template>
 
 
 <script>
-import Navbar from '../components/Navbar.vue';
+import LandingNavbar from '../components/LandingNavbar.vue';
+
 export default {
   name: 'Home',
-  components: {Navbar}
+  components: {LandingNavbar}
 }
 </script>
 
 
-<style lang="">
-    
+<style>
+
 </style>

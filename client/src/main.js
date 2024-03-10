@@ -163,7 +163,7 @@ const store = createStore({
               reject(response.json().then((data) => {data.message}))
             }
           })
-          .then((data) => {
+          .then((_data) => {
             localStorage.removeItem('guest')
             localStorage.removeItem('id')
             commit('unsetAccessToken')
