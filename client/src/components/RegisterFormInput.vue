@@ -34,8 +34,17 @@ export default {
     ),
     methods: {
       handleSubmit() {
-        console.log(`${this.email}`)
-        console.log('form submitted')
+        this.$store.dispatch(
+          'registerRequest',
+          {
+            name: this.userName,
+            email: this.email,
+            password: this.password,
+            confirmation: this.confirmation
+          }
+          )
+          .then((_ok) => {this.$router.push('/')})
+          .catch((_error) => {this.$router.push('/register')})
       }
     }
 }

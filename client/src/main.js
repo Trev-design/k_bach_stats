@@ -42,7 +42,7 @@ const store = createStore({
   },
 
   actions: {
-    registerRequest({commit}, userdata) {
+    registerRequest({_commit}, userdata) {
       return new Promise((resolve, reject) => {
         const requestOptions = {
           method: 'POST',

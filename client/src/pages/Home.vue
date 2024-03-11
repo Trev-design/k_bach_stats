@@ -12,7 +12,7 @@ export default {
   name: 'Home',
   components: {LandingNavbar},
   computed: {
-    jwt() { return this.$store.jwt }
+    jwt() { return this.$store.state.jwt }
   }
 }
 </script>
