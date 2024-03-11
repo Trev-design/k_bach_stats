@@ -7,6 +7,12 @@ defmodule AuthServer.Routers.SessionRouter do
     Routers.RouterHelpers
   }
 
+  plug Corsica,
+    origins: "*",
+    allow_headers: ["accept", "content-type", "authorization"],
+    allow_methods: ["GET", "POST", "OPTIONS"],
+    allow_credentials: true
+
   plug Plug.Logger
 
   plug :match

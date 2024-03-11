@@ -32,7 +32,8 @@ defmodule AuthServer.MixProject do
       {:joken, "~> 2.6"},
       {:uuid, "~> 1.1"},
       {:bamboo, "~> 2.3"},
-      {:oban, "~> 2.17"}
+      {:oban, "~> 2.17"},
+      {:corsica, "~> 2.1"}
     ]
   end
 end
