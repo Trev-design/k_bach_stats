@@ -26,7 +26,15 @@ export default {
   ),
   methods: {
     handleSubmit() {
-      console.log(this.email)
+      this.$store.dispatch(
+        'signinRequest',
+        {
+          email: this.email,
+          password: this.password
+        }
+      )
+      .then((_ok) => {this.$router.push('/')})
+      .catch((_error) => {this.$router.push('/signin')})
     }
   }
 }

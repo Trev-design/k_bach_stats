@@ -42,9 +42,9 @@ export default {
             password: this.password,
             confirmation: this.confirmation
           }
-          )
-          .then((_ok) => {this.$router.push('/')})
-          .catch((_error) => {this.$router.push('/register')})
+        )
+        .then((_ok) => {this.$router.push('/')})
+        .catch((_error) => {this.$router.push('/register')})
       }
     }
 }
