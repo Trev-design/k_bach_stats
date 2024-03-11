@@ -74,7 +74,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .navbar-container {
   position: fixed;
   top: 0;

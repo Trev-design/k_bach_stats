@@ -1,6 +1,6 @@
 <template>
   <div>
-    <LandingNavbar/>
+    <LandingNavbar v-if="jwt === ''"/>
   </div>
 </template>
 
@@ -10,7 +10,10 @@ import LandingNavbar from '../components/LandingNavbar.vue';
 
 export default {
   name: 'Home',
-  components: {LandingNavbar}
+  components: {LandingNavbar},
+  computed: {
+    jwt() { return this.$store.jwt }
+  }
 }
 </script>
 
