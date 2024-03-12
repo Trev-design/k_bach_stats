@@ -81,7 +81,7 @@ const store = createStore({
             if (response.ok) {
               return response.json()
             } else {
-              reject(response.json().then((data) => {data.message}))
+              reject(response.json().then((data) => {console.log(data.message)}))
             }
           })
           .then((data) => {
@@ -165,7 +165,7 @@ const store = createStore({
           })
           .then((_data) => {
             localStorage.removeItem('guest')
-            localStorage.removeItem('id')
+            localStorage.removeItem('userId')
             commit('unsetAccessToken')
             resolve('OK')
           })

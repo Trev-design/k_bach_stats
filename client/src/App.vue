@@ -18,38 +18,42 @@ export default {
               localStorage.removeItem('guest')
               this.$router.push('signin')
             })
-        }, 1000 * 60 * 10)
+          }, 1000 * 60 * 10)
+
         this.setRefreshInterval(interval)
       } else {
-        this.setRefreshInterval(null)
         clearInterval(this.refreshInterval)
+        this.setRefreshInterval(null)
       }
     },
 
     setRefreshInterval(interval) {
-      this.$data.refreshInterval = interval
+      this.refreshInterval = interval
     },
 
     logout() {
       this.$store.dispatch('signoutRequest')
+      this.refresh(false)
       this.$router.push('')
     }
   },
 
   computed: {
     jwt() {return this.$store.state.jwt},
-    guest() {return localStorage.getItem('guest')}
+    guest() {return localStorage.getItem('guest')},
+    userID () {return localStorage.getItem('userId')}
   },
 
   watch: {
     jwt: {
-      handler() {this.refresh(true)},
+      handler() { this.refresh(true) },
       once: true
     }
   },
 
   created() {
-    if (localStorage.getItem('userId') != null) {
+    if (!!this.userID) {
+      console.log(this.userID != null)
       this.$store.dispatch('refreshRequest')
         .catch((_error) => {
           localStorage.removeItem('id')
@@ -107,7 +111,7 @@ export default {
     content: '';
     width: 120%;
     left: -10%;
-    bottom: -3px;
+    bottom: -4px;
     height: 2px;
     background-color: rgb(110, 170, 250);
     position: absolute;
