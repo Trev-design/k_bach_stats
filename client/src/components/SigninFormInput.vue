@@ -8,7 +8,7 @@
       <input type="password" class="input-area" required v-model="password">
 
       <div class="submit">
-        <button class="submit-button">Submit</button>
+        <button class="submit-button" @click="handleSubmit()">Submit</button>
       </div>
     </form>
   </section>
