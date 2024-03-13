@@ -79,6 +79,7 @@ export default {
   </div>
 </template>
 
+
 <style scoped>
 .navbar-container {
   position: fixed;
@@ -120,6 +121,11 @@ export default {
   }
 
   &:hover {&::before {transform: scale(1, 1);}}
+
+  @media screen and (min-width: 850px) {
+    margin: 0 1.5rem 0 0;
+    font-size: 1.25rem;
+  }
 }
 
 .brand {
