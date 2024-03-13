@@ -1,10 +1,10 @@
 <template>
   <div class="navbar-container">
     <h1 class="brand">KBach</h1>
-    <a href="#about" class="navlink">About</a>
-    <a href="#features" class="navlink">Features</a>
-    <a href="#testimonials" class="navlink">Testimonials</a>
-    <a href="#pricing" class="navlink">Pricing</a>
+    <a href="#/#about" class="navlink">About</a>
+    <a href="#/#features" class="navlink">Features</a>
+    <a href="#/#testimonials" class="navlink">Testimonials</a>
+    <a href="#/#pricing" class="navlink">Pricing</a>
     <ul class="nav-items">
       <li><router-link class="navlink" to="/register">Register</router-link></li>
       <li><router-link class="navlink" to="/signin">Signin</router-link></li>
@@ -45,20 +45,25 @@ export default {
   margin: 0 1.2rem 0 0;
   text-decoration: none;
   font-size: 1.1rem;
-  color: rgb(150, 165, 225);
+  color: rgb(120, 140, 200);
   position: relative;
   &::before {
     content: '';
     width: 100%;
     bottom: -4px;
     height: 2px;
-    background-color: rgb(110, 170, 250);
+    background-color: rgb(55, 85, 175);
     position: absolute;
     transform: scale(0, 1);
     transition: all 0.3s ease;
   }
 
   &:hover {&::before {transform: scale(1, 1);}}
+
+  @media screen and (min-width: 850px) {
+    margin: 0 1.5rem 0 0;
+    font-size: 1.25rem;
+  }
 }
 
 .brand {
