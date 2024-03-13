@@ -2,38 +2,37 @@
 export default {
   name: 'App',
 
-  data(){
+  data() {
     return {
-      refreshInterval: null
+      refreshDelay: null
     }
   },
 
   methods: {
     refresh(status) {
       if (status) {
-        const interval = setInterval(() => {
-          this.$store.dispatch('refreshRequest')
-            .catch((_error) => {
-              localStorage.removeItem('id')
-              localStorage.removeItem('guest')
-              this.$router.push('signin')
-            })
-          }, 1000 * 60 * 10)
-
-        this.setRefreshInterval(interval)
+        const delay = setTimeout(() => {
+        this.$store.dispatch('refreshRequest')
+          .catch((_error) => {
+            localStorage.removeItem('id')
+            localStorage.removeItem('guest')
+            this.$router.push('signin')
+          })
+        }, 1000 *  10)
+        this.setRefreshDelay(delay)
       } else {
-        clearInterval(this.refreshInterval)
-        this.setRefreshInterval(null)
+        clearTimeout(this.refreshDelay)
+        this.setRefreshDelay(null)
       }
     },
 
-    setRefreshInterval(interval) {
-      this.refreshInterval = interval
+    setRefreshDelay(delay) {
+      this.refreshDelay = delay
     },
 
     logout() {
-      this.$store.dispatch('signoutRequest')
       this.refresh(false)
+      this.$store.dispatch('signoutRequest')
       this.$router.push('')
     }
   },
@@ -45,9 +44,10 @@ export default {
   },
 
   watch: {
-    jwt: {
-      handler() { this.refresh(true) },
-      once: true
+    jwt(token) {
+      if (token != '') {
+        this.refresh(true)
+      }
     }
   },
 
