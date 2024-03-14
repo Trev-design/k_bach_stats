@@ -1,5 +1,8 @@
 <template>
   <section class="form-input-container">
+    <div class="register-label">
+      <p class="register-label-text">register</p>
+    </div>
     <form class="input-form" @submit.prevent="handleSubmit">
       <label class="form-label" for="">Name:</label>
       <input class="input-area" type="text" required v-model="userName">
@@ -52,18 +55,40 @@ export default {
 
 
 <style scoped>
+.register-label {
+  position: absolute;
+  top: -4rem;
+  width: 600px;
+}
+
+.register-label-text {
+  padding-left: .5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
 .form-input-container {
   width: 400px;
   height: 600px;
-  border: 1px solid black;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: 70px 0 0 -200px;
+  position: relative;
+  background-color: rgb(3, 6, 18);
+  border-radius: 6px;
+  &::before {
+    content: '';
+    position: absolute;
+    top: -4rem;
+    left: -5px;
+    right: .2rem;
+    width: 410px;
+    height: 669px;
+    z-index: -10;
+    background-color: rgb(110, 170, 250);
+    border-radius: 10px;
+  }
 }
 
 .form-label {
   margin: 2rem 0 .2rem 2rem;
+  color: rgb(110, 170, 250);
 }
 
 .input-form {
@@ -72,8 +97,14 @@ export default {
 }
 
 .input-area {
-  margin: 0 2rem;
+  margin: 0 2rem 2rem 2rem;
+  padding: .1rem .5rem;
   height: 20px;
+  background-color: rgb(3, 6, 18);
+  border-radius: 6px;
+  border: 1px solid rgb(110, 170, 250);
+  color: rgb(110, 170, 250);
+  &:focus {outline: none;}
 }
 
 .submit {
@@ -82,6 +113,9 @@ export default {
 }
 
 .submit-button {
-  padding: .4rem 1rem;
+  padding: .6rem 2.5rem;
+  background-color: rgb(3, 6, 18);
+  color: rgb(110, 170, 250);
+  border-radius: 100vh;
 }
 </style>

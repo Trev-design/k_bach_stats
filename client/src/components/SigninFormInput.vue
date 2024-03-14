@@ -57,7 +57,6 @@ export default {
 }
 
 .form-input-container {
-  border: 1px solid black;
   width: 350px;
   height: 400px;
   position: relative;
@@ -96,6 +95,7 @@ export default {
   background-color: rgb(3, 6, 18);
   border: 1px solid rgb(110, 170, 250);
   border-radius: 6px;
+  &:focus {outline: none;}
 }
 
 .submit {
