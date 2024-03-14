@@ -46,7 +46,7 @@ export default {
             confirmation: this.confirmation
           }
         )
-        .then((_ok) => {this.$router.push('/')})
+        .then((_ok) => {this.$router.push('/verify')})
         .catch((_error) => {this.$router.push('/register')})
       }
     }
@@ -70,6 +70,7 @@ export default {
   width: 400px;
   height: 600px;
   position: relative;
+  margin-top: 3rem;
   background-color: rgb(3, 6, 18);
   border-radius: 6px;
   &::before {
