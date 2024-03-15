@@ -9,7 +9,7 @@
         <input type="text" class="input-area" required v-model="verifyCode">
       </div>
 
-      <button class="submit-button">Submit</button>
+      <button class="submit-button" @click="handleSubmit()">Submit</button>
     </form>
   </section>
 </template>
@@ -20,12 +20,15 @@ export default {
   name: 'VerifyFormInput',
   data: () => (
     {
-      verifyCode: ''
+      verifyCode: '',
+      verifyError: ''
     }
   ),
   methods: {
     handleSubmit() {
-      console.log(this.verifyCode)
+      this.$store.dispatch('verifyRequest', {verification: this.verifyCode})
+        .then((_ok) => {this.$router.push('/')})
+        .catch((error) => {this.verifyError = error; console.log(error)})
     }
   }
 }
