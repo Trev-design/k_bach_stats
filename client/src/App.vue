@@ -34,13 +34,14 @@ export default {
       this.refresh(false)
       this.$store.dispatch('signoutRequest')
       this.$router.push('')
+    },
+    userName() {
+      return localStorage.getItem('guest')
     }
   },
 
   computed: {
-    jwt() {return this.$store.state.jwt},
-    guest() {return localStorage.getItem('guest')},
-    userID () {return localStorage.getItem('userId')}
+    jwt() {return this.$store.state.jwt}
   },
 
   watch: {
@@ -52,7 +53,7 @@ export default {
   },
 
   created() {
-    if (!!this.userID) {
+    if (!!localStorage.getItem('userId')) {
       console.log(this.userID != null)
       this.$store.dispatch('refreshRequest')
         .catch((_error) => {
@@ -71,7 +72,7 @@ export default {
     <div class="navbar-container" v-if="jwt != ''">
         <h1 class="brand">KBach</h1>
       <ul class="nav-items">
-        <li><router-link class="nav-link" to="/">{{ guest }}</router-link></li>
+        <li><router-link class="nav-link" to="/">{{ this.userName() }}</router-link></li>
         <li><router-link to="/signin" class="nav-link" @click="logout()">Logout</router-link></li>
       </ul>
     </div>

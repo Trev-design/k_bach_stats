@@ -4,17 +4,45 @@
       <p class="register-label-text">register</p>
     </div>
     <form class="input-form" @submit.prevent="handleSubmit">
-      <label class="form-label" for="">Name:</label>
-      <input class="input-area" type="text" required v-model="userName">
+      <label class="form-label" for="name">Name:</label>
+      <input 
+        class="input-area" 
+        id="name" 
+        type="text" 
+        required 
+        v-model="userName"
+        @focus="nameFocus = true"
+        @blur="nameFocus = false">
 
-      <label class="form-label" for="">Email:</label>
-      <input class="input-area" type="email" required v-model="email">
+      <label class="form-label" for="email">Email:</label>
+      <input 
+        class="input-area" 
+        id="email" 
+        type="email" 
+        required 
+        v-model="email"
+        @focus="emailFocus = true"
+        @blur="emailFocus = true">
 
-      <label class="form-label" for="">Password:</label>
-      <input class="input-area" type="password" required v-model="password">
+      <label class="form-label" for="password">Password:</label>
+      <input 
+        class="input-area" 
+        id="password" 
+        type="password" 
+        required 
+        v-model="password"
+        @focus="passwordFocus = true"
+        @blur="passwordFocus = false">
 
-      <label class="form-label" for="">Confirmation;</label>
-      <input class="input-area" type="password" required v-model="confirmation">
+      <label class="form-label" for="confirmation">Confirmation;</label>
+      <input 
+        class="input-area" 
+        id="confirmation" 
+        type="password" 
+        required 
+        v-model="confirmation"
+        @focus="confirmationFocus = true"
+        @blur="confirmationFocus = false">
 
       <div class="submit">
         <button class="submit-button">Create Account</button>
@@ -26,30 +54,71 @@
 
 <script>
 export default {
-    name: 'RegisterFormInput',
-    data: () => (
-      {
-        userName: '',
-        email: '',
-        password: '',
-        confirmation: '',
+  name: 'RegisterFormInput',
+  data: () => (
+    {
+      userName: '',
+      email: '',
+      password: '',
+      confirmation: '',
+      nameFocus: false,
+      emailFocus: false,
+      passwordFocus: false,
+      confirmationFocus: false,
+      nameErrorMessage: '',
+      emailErrorMessage: '',
+      passwordErrorMessage: '',
+      confirmationErrorMessage: ''
+    }
+  ),
+  methods: {
+    handleSubmit() {
+      this.$store.dispatch(
+        'registerRequest',
+        {
+          name: this.userName,
+          email: this.email,
+          password: this.password,
+          confirmation: this.confirmation
+        }
+      )
+      .then((_ok) => {this.$router.push('/verify')})
+      .catch((_error) => {this.$router.push('/register')})
+    }
+  },
+  watch: {
+    name(current) {
+      if (current.length() < 4) {
+        this.nameErrorMessage = 'name must have mor than one character'
+      } else {
+        this.nameErrorMessage = ''
       }
-    ),
-    methods: {
-      handleSubmit() {
-        this.$store.dispatch(
-          'registerRequest',
-          {
-            name: this.userName,
-            email: this.email,
-            password: this.password,
-            confirmation: this.confirmation
-          }
-        )
-        .then((_ok) => {this.$router.push('/verify')})
-        .catch((_error) => {this.$router.push('/register')})
+    },
+
+    email(current) {
+      if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,4}$/.test(current)) {
+        this.nameErrorMessage = 'please enter a regular email address'
+      } else {
+        this.emailErrorMessage = ''
+      }
+    },
+
+    password(current) {
+      if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!?&%$§#@€]).{10,}$/.test(current)) {
+        this.passwordErrorMessage = 'password needs to have et least 10 characters including lowercase letters, uppercase letters, digits and special characters'
+      } else {
+        this.passwordErrorMessage = ''
+      }
+    },
+
+    confirmation(current) {
+      if (current !== this.password) {
+        this.confirmationErrorMessage = 'confirmation does not match'
+      } else {
+        this.confirmationErrorMessage = ''
       }
     }
+  }
 }
 </script>
 
