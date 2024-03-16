@@ -7,6 +7,7 @@ import Home from './pages/Home.vue'
 import Register from './pages/Register.vue'
 import Signin from './pages/Signin.vue'
 import Verify from './pages/Verify.vue'
+import VerifyRequest from './pages/VerifyRequest.vue'
 
 const app = createApp(App)
 
@@ -14,7 +15,8 @@ const routes = [
   {path: "/", component: Home},
   {path: "/register", component: Register},
   {path: "/signin", component: Signin},
-  {path: "/verify", component: Verify}
+  {path: "/verify", component: Verify},
+  {path: "/new-verify", component: VerifyRequest}
 ]
 
 const router = createRouter(

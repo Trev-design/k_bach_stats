@@ -18,7 +18,7 @@ export default {
             localStorage.removeItem('guest')
             this.$router.push('signin')
           })
-        }, 1000 *  10)
+        }, 1000 * 60 * 10)
         this.setRefreshDelay(delay)
       } else {
         clearTimeout(this.refreshDelay)
