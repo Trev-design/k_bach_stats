@@ -97,8 +97,7 @@ export default {
   },
   watch: {
     userName() {
-      console.log("changed name")
-      if (this.userName.length > 0 && this.userName.length < 4) {
+      if (this.userName.length < 4) {
         this.nameErrorMessage = 'name must have mor than one character'
       } else {
         this.nameErrorMessage = ''
@@ -106,7 +105,6 @@ export default {
     },
 
     email() {
-      console.log('changed email')
       if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,4}$/.test(this.email)) {
         this.emailErrorMessage = 'please enter a regular email address'
       } else {
