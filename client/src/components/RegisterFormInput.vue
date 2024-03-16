@@ -44,12 +44,14 @@
         @focus="confirmationFocus = true"
         @blur="confirmationFocus = false">
 
-      <div class="error-message-container">
-        <p class="error-message" v-if="nameFocus">{{ nameErrorMessage }}</p>
-        <p class="error-message" v-else-if="emailFocus">{{ emailErrorMessage }}</p>
-        <p class="error-message" v-else-if="passwordFocus">{{ passwordErrorMessage }}</p>
-        <p class="error-message" v-else>{{ confirmationErrorMessage }}</p>
-      </div>
+        <div class="error-message-wrapper">
+          <div class="error-message-container">
+            <p class="error-message" v-if="nameFocus">{{ nameErrorMessage }}</p>
+            <p class="error-message" v-else-if="emailFocus">{{ emailErrorMessage }}</p>
+            <p class="error-message" v-else-if="passwordFocus">{{ passwordErrorMessage }}</p>
+            <p class="error-message" v-else>{{ confirmationErrorMessage }}</p>
+          </div>
+        </div>
 
       <div class="submit">
         <button class="submit-button">Create Account</button>
@@ -186,8 +188,24 @@ export default {
   &:focus {outline: none;}
 }
 
+.error-message-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.error-message-container {
+  position: absolute;
+  width: 80%;
+}
+
+.error-message {
+  color: rgb(165, 50, 80);
+}
+
 .submit {
-  margin: 3rem 0;
+  margin: 2rem 0;
   text-align: center;
 }
 
