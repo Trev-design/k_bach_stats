@@ -22,7 +22,7 @@
         required 
         v-model="email"
         @focus="emailFocus = true"
-        @blur="emailFocus = true">
+        @blur="emailFocus = false">
 
       <label class="form-label" for="password">Password:</label>
       <input 
@@ -34,7 +34,7 @@
         @focus="passwordFocus = true"
         @blur="passwordFocus = false">
 
-      <label class="form-label" for="confirmation">Confirmation;</label>
+      <label class="form-label" for="confirmation">Confirmation:</label>
       <input 
         class="input-area" 
         id="confirmation" 
@@ -43,6 +43,13 @@
         v-model="confirmation"
         @focus="confirmationFocus = true"
         @blur="confirmationFocus = false">
+
+      <div class="error-message-container">
+        <p class="error-message" v-if="nameFocus">{{ nameErrorMessage }}</p>
+        <p class="error-message" v-else-if="emailFocus">{{ emailErrorMessage }}</p>
+        <p class="error-message" v-else-if="passwordFocus">{{ passwordErrorMessage }}</p>
+        <p class="error-message" v-else>{{ confirmationErrorMessage }}</p>
+      </div>
 
       <div class="submit">
         <button class="submit-button">Create Account</button>
@@ -87,32 +94,34 @@ export default {
     }
   },
   watch: {
-    name(current) {
-      if (current.length() < 4) {
+    userName() {
+      console.log("changed name")
+      if (this.userName.length > 0 && this.userName.length < 4) {
         this.nameErrorMessage = 'name must have mor than one character'
       } else {
         this.nameErrorMessage = ''
       }
     },
 
-    email(current) {
-      if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,4}$/.test(current)) {
-        this.nameErrorMessage = 'please enter a regular email address'
+    email() {
+      console.log('changed email')
+      if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,4}$/.test(this.email)) {
+        this.emailErrorMessage = 'please enter a regular email address'
       } else {
         this.emailErrorMessage = ''
       }
     },
 
-    password(current) {
-      if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!?&%$§#@€]).{10,}$/.test(current)) {
+    password() {
+      if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!?&%$§#@€]).{10,}$/.test(this.password)) {
         this.passwordErrorMessage = 'password needs to have et least 10 characters including lowercase letters, uppercase letters, digits and special characters'
       } else {
         this.passwordErrorMessage = ''
       }
     },
 
-    confirmation(current) {
-      if (current !== this.password) {
+    confirmation() {
+      if (this.confirmation !== this.password) {
         this.confirmationErrorMessage = 'confirmation does not match'
       } else {
         this.confirmationErrorMessage = ''
