@@ -44,7 +44,7 @@ const store = createStore({
   },
 
   actions: {
-    registerRequest({_commit}, userdata) {
+    registerRequest({}, userdata) {
       return new Promise((resolve, reject) => {
         const requestOptions = {
           method: 'POST',
@@ -57,7 +57,7 @@ const store = createStore({
             if (response.ok) {
               return response.json()
             } else {
-              reject(response.json().then((data) => data.message))
+              reject(response.json().then((data) => (data.message)))
             }
           })
           .then((data) => {
@@ -83,7 +83,7 @@ const store = createStore({
             if (response.ok) {
               return response.json()
             } else {
-              reject(response.json().then((data) => {console.log(data.message)}))
+              reject(response.json().then((data) => (data.message)))
             }
           })
           .then((data) => {
@@ -111,7 +111,7 @@ const store = createStore({
             if (response.ok) {
               return response.json()
             } else {
-              reject(response.json().then((data) => {data.message}))
+              reject(response.json().then((data) => (data.message)))
             }
           })
           .then((data) => {
@@ -137,7 +137,7 @@ const store = createStore({
             if (response.ok) {
               return response.json()
             } else {
-              reject(response.json().then((data) => {data.message}))
+              reject(response.json().then((data) => (data.message)))
             }
           })
           .then((data) => {
@@ -162,7 +162,7 @@ const store = createStore({
             if (response.ok) {
               return response.json()
             } else {
-              reject(response.json().then((data) => {data.message}))
+              reject(response.json().then((data) => (data.message)))
             }
           })
           .then((_data) => {
@@ -171,6 +171,29 @@ const store = createStore({
             commit('unsetAccessToken')
             resolve('OK')
           })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    },
+
+    newVerifyRequest({}, userdata) {
+      return new Promise((resolve, reject) => {
+        const requestOptions = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'include',
+          body: JSON.stringify(userdata)
+        }
+        fetch('http://localhost:4000/account/new_verify', requestOptions)
+          .then((response) => {
+            if (response.ok) {
+              return response.json()
+            } else {
+              reject(response.json().then((data) => (data.message)))
+            }
+          })
+          .then(resolve('OK'))
           .catch((error) => {
             reject(error)
           })

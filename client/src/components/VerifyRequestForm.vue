@@ -1,8 +1,11 @@
 <template>
   <section class="form-input-container">
+    <div class="verify-request-label">
+      <p class="verify-request-label-text">register</p>
+    </div>
     <form action="" class="input-form">
-      <label for="" class="input-label">Email:</label>
-      <input type="text" class="verify-request-input-area">
+      <label for="email" class="input-label">Email:</label>
+      <input type="text" class="verify-request-input-area" id="email" v-model="email">
     </form>
     <div class="error-message-container">
       <p class="error-message"></p>
@@ -13,7 +16,7 @@
       </div>
     </div>
     <div class="submit">
-      <button class="submit-button">Submit</button>
+      <button class="submit-button" @click="handleSubmit()">Submit</button>
     </div>
   </section>
 </template>
@@ -25,13 +28,18 @@ export default {
   data() {
     return {
       email: '',
-      errorMessage: 'aaaaaaaaa'
+      errorMessage: ''
     }
   },
 
   methods: {
     handleSubmit() {
-
+      this.$store.dispatch(
+        'newVerifyRequest',
+        {email: this.email}
+      )
+      .then((_ok) => {this.$router.push('/verify')})
+      .catch((err) => {this.errorMessage = err})
     }
   },
 }
@@ -39,7 +47,19 @@ export default {
 
 
 <style scoped>
-   .form-input-container {
+  .verify-request-label {
+    position: absolute;
+    top: -4rem;
+    width: 600px;
+  }
+
+  .verify-request-label-text {
+    padding-left: .5rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .form-input-container {
     width: 350px;
     height: 300px;
     position: relative;

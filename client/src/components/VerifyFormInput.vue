@@ -10,6 +10,7 @@
       </div>
 
       <button class="submit-button" @click="handleSubmit()">Submit</button>
+      <router-link class="new-verify-link" to="/new-verify">request new verify</router-link>
     </form>
   </section>
 </template>
@@ -105,5 +106,11 @@ export default {
   color: rgb(110, 170, 250);
   background-color: rgb(3, 6, 18);
   border: 1px solid rgb(110, 170, 250);
+  cursor: pointer;
+}
+
+.new-verify-link {
+  color: rgb(110, 170, 250);
+  text-decoration: none;
 }
 </style>
