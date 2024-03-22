@@ -33,7 +33,9 @@ defmodule AuthServer.MixProject do
       {:uuid, "~> 1.1"},
       {:bamboo, "~> 2.3"},
       {:oban, "~> 2.17"},
-      {:corsica, "~> 2.1"}
+      {:corsica, "~> 2.1"},
+      {:httpoison, "~> 2.2"},
+      {:amqp, "~> 3.3"}
     ]
   end
 end
