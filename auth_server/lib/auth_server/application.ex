@@ -15,9 +15,7 @@ defmodule AuthServer.Application do
         plug: AuthServer.Router,
         port: 4000
       },
-      AuthServer.Repo,
-      AuthServer.JobHandler.Repo,
-      {Oban, Application.fetch_env!(:auth_server, Oban)}
+      AuthServer.Repo
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

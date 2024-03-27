@@ -5,7 +5,6 @@ defmodule AuthServer.Routers.AccountRouter do
     SessionHandler,
     Schemas.Account,
     Schemas.User,
-    JobHandler.EmailJob,
     Routers.RouterHelpers
   }
 
@@ -177,15 +176,12 @@ defmodule AuthServer.Routers.AccountRouter do
     end
   end
 
-  defp verification_code_response(conn, id, name, email) do
+  defp verification_code_response(conn, id, name, _email) do
     random_number =
       for _x <- 1..7 do
         :rand.uniform(9) + 48
       end
       |> List.to_integer()
-
-      EmailJob.deliver(email, name, random_number)
-      |> IO.inspect()
 
       conn
       |> put_resp_content_type("application/json")

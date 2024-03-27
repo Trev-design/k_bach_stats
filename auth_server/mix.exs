@@ -31,8 +31,6 @@ defmodule AuthServer.MixProject do
       {:argon2_elixir, "~> 4.0"},
       {:joken, "~> 2.6"},
       {:uuid, "~> 1.1"},
-      {:bamboo, "~> 2.3"},
-      {:oban, "~> 2.17"},
       {:corsica, "~> 2.1"},
       {:httpoison, "~> 2.2"},
       {:amqp, "~> 3.3"}
