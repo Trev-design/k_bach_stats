@@ -11,6 +11,7 @@ func (server *app) handleSendVerify() http.HandlerFunc {
 		messageRequest := new(email.VerifyMessageRequest)
 		if err := readJSON(request, messageRequest); err != nil {
 			writeJSON(writer, http.StatusBadRequest, errorMessage{Message: err.Error()})
+			return
 		}
 
 		message := email.Message{

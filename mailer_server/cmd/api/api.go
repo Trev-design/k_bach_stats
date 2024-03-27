@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"log"
 	"mailer-server/cmd/email"
 	"net/http"
@@ -28,8 +27,6 @@ func (server *app) Run() {
 		Addr:    server.port,
 		Handler: server.routes(),
 	}
-
-	fmt.Println("created server")
 
 	if err := srv.ListenAndServe(); err != nil {
 		log.Fatal(err)

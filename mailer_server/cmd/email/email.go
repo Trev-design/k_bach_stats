@@ -72,7 +72,6 @@ func (email *Mail) ListenForMail() {
 }
 
 func (email *Mail) SendEmail(msg Message, errorChannel chan error) {
-	fmt.Println("i am in")
 	defer email.Wait.Done()
 
 	if msg.Template == "" {
@@ -93,21 +92,17 @@ func (email *Mail) SendEmail(msg Message, errorChannel chan error) {
 
 	msg.DataMap = data
 
-	fmt.Println("try to build html template")
 	formattedMessage, err := email.buildHTMLMessage(&msg)
 	if err != nil {
 		errorChannel <- err
 		fmt.Println("aaaaaaaa")
 	}
 
-	fmt.Println("try to build plain text template")
 	/*plainTextMessage, err := email.buildPlainTextMessage(&msg)
 	if err != nil {
 		errorChannel <- err
 		fmt.Println("bbbbbbbb")
 	}*/
-
-	fmt.Println("try to build smtp")
 
 	server := mail.NewSMTPClient()
 	server.Host = email.Host
@@ -119,14 +114,10 @@ func (email *Mail) SendEmail(msg Message, errorChannel chan error) {
 	server.ConnectTimeout = 10 * time.Second
 	server.SendTimeout = 10 * time.Second
 
-	fmt.Println("try to connect")
-
 	smtpClient, err := server.Connect()
 	if err != nil {
 		errorChannel <- err
 	}
-
-	fmt.Println("try to make the email")
 
 	emailToSend := mail.NewMSG()
 	emailToSend.SetFrom(msg.From).AddTo(msg.To).SetSubject(msg.Subject)
@@ -134,20 +125,15 @@ func (email *Mail) SendEmail(msg Message, errorChannel chan error) {
 	//emailToSend.SetBody(mail.TextPlain, plainTextMessage)
 	emailToSend.AddAlternative(mail.TextHTML, formattedMessage)
 
-	fmt.Println("try to set attacments")
 	if len(msg.Attachments) > 0 {
 		for _, attach := range msg.Attachments {
 			emailToSend.AddAttachment(attach)
 		}
 	}
 
-	fmt.Println("try to send")
-
 	if err = emailToSend.Send(smtpClient); err != nil {
 		errorChannel <- err
 	}
-
-	fmt.Println("done")
 }
 
 func (mail *Mail) buildHTMLMessage(msg *Message) (string, error) {
