@@ -21,6 +21,7 @@ func (server *app) Run() {
 	server.mailer = email.CreateMail(server.wait)
 
 	go server.mailer.ListenForMail()
+	go server.listenForShutDown()
 
 	err := http.ListenAndServe(server.port, server.routes())
 	if err != nil {
