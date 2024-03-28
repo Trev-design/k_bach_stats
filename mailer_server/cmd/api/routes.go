@@ -41,6 +41,7 @@ func (server *app) routes() http.Handler {
 	})
 
 	mux.Post("/send_verify_email", server.handleSendVerify())
+	mux.Post("/send_forgot_password_email", server.handleSendChangePass())
 
 	return mux
 }

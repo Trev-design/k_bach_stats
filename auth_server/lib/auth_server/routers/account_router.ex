@@ -89,7 +89,19 @@ defmodule AuthServer.Routers.AccountRouter do
   post "/new_verify" do
     case conn.body_params do
       %{"email" => email} ->
-        compute_new_verify_request(conn, email)
+        compute_new_verify_request(conn, email, "send_verify_email")
+
+      _invalid ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(500, Jason.encode!(%{message: "something went wrong"}))
+    end
+  end
+
+  post "/forgotten_password" do
+    case conn.body_params do
+      %{"email" => email} ->
+        compute_new_verify_request(conn, email, "send_forgot_password_email")
 
       _invalid ->
         conn
@@ -109,7 +121,7 @@ defmodule AuthServer.Routers.AccountRouter do
   defp make_response(conn, name, email, password, confirmation) do
     case compute_create_request(name, email, password, confirmation) do
       {200, %{id: id}} ->
-        verification_code_response(conn, id, name, email)
+        verification_code_response(conn, id, name, email, "send_verify_email")
 
       {status, response} ->
         conn
@@ -164,10 +176,10 @@ defmodule AuthServer.Routers.AccountRouter do
     end
   end
 
-  defp compute_new_verify_request(conn, email) do
+  defp compute_new_verify_request(conn, email, route) do
     case SessionHandler.get_by_email(email) do
       %Account{email: email, user: %{name: name, id: id}} ->
-        verification_code_response(conn, id, name, email)
+        verification_code_response(conn, id, name, email, route)
 
       nil ->
         conn
@@ -176,14 +188,14 @@ defmodule AuthServer.Routers.AccountRouter do
     end
   end
 
-  defp verification_code_response(conn, id, name, email) do
+  defp verification_code_response(conn, id, name, email, route) do
     random_number =
       for _x <- 1..7 do
         :rand.uniform(9) + 48
       end
       |> List.to_integer()
 
-    mailer_request(name, email, random_number)
+    mailer_request(email, "hello #{name} your verify code is #{random_number}", route)
 
     conn
     |> put_resp_content_type("application/json")
@@ -199,30 +211,36 @@ defmodule AuthServer.Routers.AccountRouter do
     |> send_resp(200, Jason.encode!(%{guest: name}))
   end
 
-  defp mailer_request(name, email, verify) do
+  defp mailer_request(email, data, route) do
     Task.Supervisor.start_child(
       MailRequest.Supervisor,
       fn ->
+        IO.puts("try to send email")
         HTTPoison.start()
-        with {:ok, %HTTPoison.AsyncResponse{}} <- make_email_response(name, email, verify) do
+        with {:ok, %HTTPoison.AsyncResponse{}} <- make_email_response(email, data, route) do
           receive do
-            %HTTPoison.AsyncStatus{code: 200} -> :ok
+            %HTTPoison.AsyncStatus{code: 200} ->
+              IO.puts("received an ok")
+              :ok
 
-            %HTTPoison.AsyncStatus{code: _invalid} -> :error
+            %HTTPoison.AsyncStatus{code: _invalid} ->
+              IO.puts("received an error")
+              :error
           end
+          IO.puts("finished")
         else
           _err -> :error
         end
       end)
   end
 
-  defp make_email_response(name, email, verify) do
+  defp make_email_response(email, data, route) do
     HTTPoison.post(
-      "127.0.0.1:8080/send_verify_email",
+      "127.0.0.1:8080/#{route}",
       Jason.encode!(%{
         to: email,
         subject: "your verify code",
-        data: "hello #{name} your verify code is #{verify}"}),
+        data: data}),
       ["Content-Type": "application/json"],
       [stream_to: self(), recv_timeout: 5 * 60 * 1000])
   end
