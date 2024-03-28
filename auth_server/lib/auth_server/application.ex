@@ -15,7 +15,8 @@ defmodule AuthServer.Application do
         plug: AuthServer.Router,
         port: 4000
       },
-      AuthServer.Repo
+      AuthServer.Repo,
+      {Task.Supervisor, name: MailRequest.Supervisor}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

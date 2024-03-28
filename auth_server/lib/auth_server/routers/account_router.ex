@@ -176,24 +176,54 @@ defmodule AuthServer.Routers.AccountRouter do
     end
   end
 
-  defp verification_code_response(conn, id, name, _email) do
+  defp verification_code_response(conn, id, name, email) do
     random_number =
       for _x <- 1..7 do
         :rand.uniform(9) + 48
       end
       |> List.to_integer()
 
-      conn
-      |> put_resp_content_type("application/json")
-      |> put_resp_cookie(
-        "_verify",
-        Jason.encode!(%{id: id, name: name, verify: random_number}),
-        http_only: true,
-        secure: true,
-        sign: true,
-        max_age: 60*60,
-        same_site: "Strict"
-      )
-      |> send_resp(200, Jason.encode!(%{guest: name}))
+    mailer_request(name, email, random_number)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> put_resp_cookie(
+      "_verify",
+      Jason.encode!(%{id: id, name: name, verify: random_number}),
+      http_only: true,
+      secure: true,
+      sign: true,
+      max_age: 60*60,
+      same_site: "Strict"
+    )
+    |> send_resp(200, Jason.encode!(%{guest: name}))
+  end
+
+  defp mailer_request(name, email, verify) do
+    Task.Supervisor.start_child(
+      MailRequest.Supervisor,
+      fn ->
+        HTTPoison.start()
+        with {:ok, %HTTPoison.AsyncResponse{}} <- make_email_response(name, email, verify) do
+          receive do
+            %HTTPoison.AsyncStatus{code: 200} -> :ok
+
+            %HTTPoison.AsyncStatus{code: _invalid} -> :error
+          end
+        else
+          _err -> :error
+        end
+      end)
+  end
+
+  defp make_email_response(name, email, verify) do
+    HTTPoison.post(
+      "127.0.0.1:8080/send_verify_email",
+      Jason.encode!(%{
+        to: email,
+        subject: "your verify code",
+        data: "hello #{name} your verify code is #{verify}"}),
+      ["Content-Type": "application/json"],
+      [stream_to: self(), recv_timeout: 5 * 60 * 1000])
   end
 end
