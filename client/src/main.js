@@ -8,6 +8,7 @@ import Register from './pages/Register.vue'
 import Signin from './pages/Signin.vue'
 import Verify from './pages/Verify.vue'
 import VerifyRequest from './pages/VerifyRequest.vue'
+import ForgottenPassword from './pages/ForgottenPassword.vue'
 
 const app = createApp(App)
 
@@ -16,7 +17,8 @@ const routes = [
   {path: "/register", component: Register},
   {path: "/signin", component: Signin},
   {path: "/verify", component: Verify},
-  {path: "/new-verify", component: VerifyRequest}
+  {path: "/new-verify", component: VerifyRequest},
+  {path: "/forgotten-password", component, ForgottenPassword}
 ]
 
 const router = createRouter(
@@ -198,6 +200,14 @@ const store = createStore({
             reject(error)
           })
       })
+    },
+
+    requestPasswordChange({}, userdata) {
+
+    },
+
+    changePassword({}, userdata) {
+      
     }
   }
 })
