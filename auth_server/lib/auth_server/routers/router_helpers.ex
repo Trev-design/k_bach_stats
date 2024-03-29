@@ -11,4 +11,11 @@ defmodule AuthServer.Routers.RouterHelpers do
       }
     )
   end
+
+  def create_verify_code() do
+    for _x <- 1..7 do
+      :rand.uniform(9) + 48
+    end
+    |> List.to_integer()
+  end
 end

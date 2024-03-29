@@ -48,6 +48,24 @@ defmodule AuthServer.SessionHandler do
     end
   end
 
+  def check_email_verification(verification, cookie) do
+    with {:ok, payload} <- Jason.decode(cookie),
+         {:ok, account} <- get_account(payload["id"]),
+         {:ok, _integer} <- verification_integer(verification)
+    do
+      {:ok, account}
+    else
+      error -> error
+    end
+  end
+
+  def get_account(id) do
+    case Repo.get(Account, id) do
+      %Account{} = account -> {:ok, account}
+      nil                  -> {:error, "no account with this id"}
+    end
+  end
+
   def get_user(id) do
     case User |> Repo.get(id) |> Repo.preload(:role) do
       %User{} = user -> {:ok, user}
@@ -96,6 +114,17 @@ defmodule AuthServer.SessionHandler do
     |> Repo.update()
   end
 
+  def update_password(old_account, new_password) do
+    with {:ok, password}             <- try_make_password_hash(new_password),
+         {:ok, %Account{} = account} <- update_password_in_account(old_account, password)
+    do
+      {:ok, account}
+    else
+      {:error, %Ecto.Changeset{} = changeset} -> {:error, errors(changeset.errors)}
+      error                                   -> error
+    end
+  end
+
   defp check_email(email) do
     case Regex.match?(~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,4}$/, email) do
       true  -> {:ok, "email valid"}
@@ -108,5 +137,11 @@ defmodule AuthServer.SessionHandler do
       {integer, ""} -> {:ok, integer}
       _invalid      -> {:error, "verification not just an integer"}
     end
+  end
+
+  defp update_password_in_account(old_account, new_password) do
+    old_account
+    |> Account.changeset(%{password: new_password})
+    |> Repo.update()
   end
 end

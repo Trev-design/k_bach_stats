@@ -1,4 +1,5 @@
 defmodule AuthServer.Routers.AccountRouter do
+
   use Plug.Router
 
   alias AuthServer.{
@@ -110,6 +111,18 @@ defmodule AuthServer.Routers.AccountRouter do
     end
   end
 
+  put "/change_password/:id" do
+    case conn.body_params do
+      %{"verify" => verify, "password" => password, "confirmation" => confirmation} ->
+        compute_change_password_request(conn, verify, password, confirmation)
+
+      _invalid ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(500, Jason.encode!(%{message: "something went wrong"}))
+    end
+  end
+
   defp compute_create_request(name, email, password, confirmation) do
     if password == confirmation do
       SessionHandler.register(name, email, password)
@@ -178,9 +191,19 @@ defmodule AuthServer.Routers.AccountRouter do
 
   defp compute_new_verify_request(conn, email, route) do
     case SessionHandler.get_by_email(email) do
-      %Account{email: email, user: %{name: name, id: id}} ->
-        verification_code_response(conn, id, name, email, route)
+      %Account{id: account_id, email: email, user: %{name: name, id: user_id}} ->
+        cond do
+          route == "send_forgot_password_email" ->
+            verification_code_response(conn, account_id, name, email, route)
 
+          route == "send_verify_email" ->
+            verification_code_response(conn, user_id, name, email, route)
+
+          true ->
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(500, Jason.encode!(%{message: "something went wrong"}))
+        end
       nil ->
         conn
         |> put_resp_content_type("application/json")
@@ -188,12 +211,39 @@ defmodule AuthServer.Routers.AccountRouter do
     end
   end
 
-  defp verification_code_response(conn, id, name, email, route) do
-    random_number =
-      for _x <- 1..7 do
-        :rand.uniform(9) + 48
+  defp compute_change_password_request(conn, verify, password, confirmation) do
+    new_conn = fetch_cookies(conn, signed: ~w(_verify))
+    cookie = new_conn.cookies["_verify"]
+    if cookie == nil do
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(401, Jason.encode!(%{message: "unauthorized"}))
+    else
+      with {:ok, %Account{} = account} <- SessionHandler.check_email_verification(verify, cookie),
+           true                        <- password == confirmation,
+           {:ok, %Account{}}           <- SessionHandler.update_password(account, password)
+      do
+        conn
+        |> put_resp_content_type("application/json")
+        |> fetch_session()
+        |> delete_resp_cookie("_verify")
+        |> send_resp(200, Jason.encode!(%{message: "changed password successful"}))
+      else
+        {:error, error} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(500, Jason.encode!(%{message: error}))
+
+        false ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(500, Jason.encode!(%{message: "password does not match"}))
       end
-      |> List.to_integer()
+    end
+  end
+
+  defp verification_code_response(conn, id, name, email, route) do
+    random_number = RouterHelpers.create_verify_code()
 
     mailer_request(email, "hello #{name} your verify code is #{random_number}", route)
 
