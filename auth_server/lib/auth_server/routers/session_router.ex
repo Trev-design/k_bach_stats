@@ -10,7 +10,7 @@ defmodule AuthServer.Routers.SessionRouter do
   plug Corsica,
     origins: "*",
     allow_headers: ["accept", "content-type", "authorization"],
-    allow_methods: ["GET", "POST", "OPTIONS"],
+    allow_methods: ["GET", "POST", "PUT", "OPTIONS"],
     allow_credentials: true
 
   plug Plug.Logger

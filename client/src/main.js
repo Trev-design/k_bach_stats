@@ -195,19 +195,55 @@ const store = createStore({
               reject(response.json().then((data) => (data.message)))
             }
           })
-          .then(resolve('OK'))
+          .then((_data) => {resolve('OK')})
           .catch((error) => {
             reject(error)
           })
       })
     },
 
-    requestPasswordChange({}, userdata) {
+    requestNewPasswordChange({}, userdata) {
+      return new Promise((resolve, reject) => {
+        const requestOptions = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'include',
+          body: JSON.stringify(userdata)
+        }
 
+        fetch('http://localhost:4000/account/forgotten_password', requestOptions)
+        .then((response) => {
+          if (response.ok) {
+            return response.json()
+          }
+
+          reject(response.json().then((data) => (data.message)))
+        })
+        .then((_data) => {resolve('OK')})
+        .catch((error) => {reject(error)})
+      })
     },
 
     changePassword({}, userdata) {
-      
+      return new Promise((resolve, reject) => {
+        const requestOptions = {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'include',
+          body: JSON.stringify(userdata)
+        }
+
+        fetch('http://localhost:4000/account/change_password', requestOptions)
+        .then((response) => {
+          if (response.ok) {
+            return response.json()
+          }
+
+          reject(response.json().then((data) => (data.message)))
+        })
+        .then((_data) => {resolve('OK')})
+        .catch((error) => {reject(error)})
+      })
     }
   }
 })

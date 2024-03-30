@@ -12,7 +12,7 @@ defmodule AuthServer.Routers.AccountRouter do
   plug Corsica,
     origins: "*",
     allow_headers: ["accept", "content-type", "authorization"],
-    allow_methods: ["GET", "POST", "OPTIONS"],
+    allow_methods: ["GET", "POST", "PUT", "OPTIONS"],
     allow_credentials: true
 
   plug Plug.Logger
@@ -111,7 +111,7 @@ defmodule AuthServer.Routers.AccountRouter do
     end
   end
 
-  put "/change_password/:id" do
+  put "/change_password" do
     case conn.body_params do
       %{"verify" => verify, "password" => password, "confirmation" => confirmation} ->
         compute_change_password_request(conn, verify, password, confirmation)

@@ -8,7 +8,7 @@
         <label for="email" class="form-label" required>Email</label>
         <input 
           type="email" 
-          class="input-area" 
+          class="input-area"
           id="email" required 
           v-model="email">
 
