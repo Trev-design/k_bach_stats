@@ -202,7 +202,7 @@ const store = createStore({
       })
     },
 
-    requestNewPasswordChange({}, userdata) {
+    requestNewPassword({}, userdata) {
       return new Promise((resolve, reject) => {
         const requestOptions = {
           method: 'POST',
@@ -220,11 +220,11 @@ const store = createStore({
           reject(response.json().then((data) => (data.message)))
         })
         .then((_data) => {resolve('OK')})
-        .catch((error) => {reject(error)})
+        .catch((error) => {reject(error.message)})
       })
     },
 
-    changePassword({}, userdata) {
+    requestChangePassword({}, userdata) {
       return new Promise((resolve, reject) => {
         const requestOptions = {
           method: 'PUT',
@@ -242,7 +242,7 @@ const store = createStore({
           reject(response.json().then((data) => (data.message)))
         })
         .then((_data) => {resolve('OK')})
-        .catch((error) => {reject(error)})
+        .catch((error) => {reject(error.message)})
       })
     }
   }
