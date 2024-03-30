@@ -2,7 +2,7 @@
   <div>
     <section v-if="canChange" class="forgot-password-form-container">
       <div class="new-password-label">
-        <p class="new-password-labeltext"></p>
+        <p class="new-password-labeltext">Forgot Password</p>
       </div>
       <form action="" class="forgot-password-input-form">
         <label for="email" class="form-label" required>Email</label>
@@ -11,11 +11,16 @@
           class="input-area" 
           id="email" required 
           v-model="email">
+
+          <div class="submit">
+            <button class="submit-button" @click="handleNewPasswordSubmit">New password</button>
+          </div>
       </form>
     </section>
+
     <section v-else class="change-password-form-container">
       <div class="new-password-label">
-        <p class="new-password-labeltext"></p>
+        <p class="new-password-labeltext">Create Password</p>
       </div>
       <form action="" class="change-password-input-form">
         <label for="password" class="form-label">Password</label>
@@ -57,7 +62,7 @@
         </div>
 
         <div class="submit">
-          <button class="submit-button">Change Password</button>
+          <button class="submit-button" @click="handleCreatePasswordSubmit">Change Password</button>
         </div>
       </form>
     </section>
@@ -85,11 +90,27 @@ export default {
   ),
 
   methods: {
+    handleNewPasswordSubmit() {
 
+    },
+
+    handleCreatePasswordSubmit() {
+
+    }
   },
 
   watch: {
+    password() {
 
+    },
+
+    confirmation() {
+
+    },
+
+    verify() {
+
+    }
   }
 }
 </script>
