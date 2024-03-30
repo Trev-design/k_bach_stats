@@ -141,7 +141,7 @@ defmodule AuthServer.SessionHandler do
 
   defp update_password_in_account(old_account, new_password) do
     old_account
-    |> Account.changeset(%{password: new_password})
+    |> Ecto.Changeset.cast(%{password_hash: new_password}, [:password_hash])
     |> Repo.update()
   end
 end

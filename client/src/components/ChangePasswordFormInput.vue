@@ -1,6 +1,6 @@
 <template>
   <div>
-    <section v-if="canChange" class="forgot-password-form-container">
+    <section v-if="!canChange" class="forgot-password-form-container">
       <div class="new-password-label">
         <p class="new-password-labeltext">Forgot Password</p>
       </div>
@@ -118,9 +118,9 @@ export default {
           confirmation: this.confirmation,
           verify: this.verify
         }
-        .then((_ok) => {this.$router.push('/signin')})
-        .catch((error) => {this.serverErrorMessage = error})
       )
+      .then((_ok) => {this.$router.push('/signin')})
+      .catch((error) => {this.serverErrorMessage = error})
     }
   },
 
@@ -170,6 +170,7 @@ export default {
   width: 350px;
   height: 400px;
   position: relative;
+  background-color: rgb(3, 6, 18);
 
   &::before {
     content: '';

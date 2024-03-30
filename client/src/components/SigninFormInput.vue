@@ -13,6 +13,7 @@
       <div class="submit">
         <button class="submit-button" @click="handleSubmit()">Submit</button>
       </div>
+      <router-link to="/forgot-password">forgot password</router-link>
     </form>
   </section>
 </template>
