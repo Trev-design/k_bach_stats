@@ -18,7 +18,7 @@ const routes = [
   {path: "/signin", component: Signin},
   {path: "/verify", component: Verify},
   {path: "/new-verify", component: VerifyRequest},
-  {path: "/forgotten-password", component, ForgottenPassword}
+  {path: "/forgotten-password", component: ForgottenPassword}
 ]
 
 const router = createRouter(
