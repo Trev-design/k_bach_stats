@@ -9,6 +9,7 @@ defmodule AuthServer.Application do
   def start(_type, _args) do
     children = [
       AuthServer.VerifyStore,
+      AuthServer.RabbitMQ,
       {
         Bandit,
         scheme: :http,
