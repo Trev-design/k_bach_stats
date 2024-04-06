@@ -1,4 +1,4 @@
-module session
+module internal-auth
 
 go 1.21.5
 
