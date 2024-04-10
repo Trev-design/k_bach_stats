@@ -8,7 +8,6 @@ defmodule AuthServer.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      AuthServer.VerifyStore,
       AuthServer.RabbitMQ,
       {
         Bandit,
@@ -17,7 +16,21 @@ defmodule AuthServer.Application do
         port: 4000
       },
       AuthServer.Repo,
-      {Task.Supervisor, name: MailRequest.Supervisor}
+      {Task.Supervisor, name: MailRequest.Supervisor},
+      {
+        Redix,
+        host: "localhost",
+        port: 6379,
+        database: 0,
+        name: :verify_user_session
+      },
+      {
+        Redix,
+        host: "localhost",
+        port: 6379,
+        database: 1,
+        name: :change_password_session
+      }
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
