@@ -15,6 +15,7 @@ defmodule AuthServer.Routers.AccountRouter do
     allow_methods: ["GET", "POST", "PUT", "OPTIONS"],
     allow_credentials: true
 
+
   plug Plug.Logger
 
   plug :match
