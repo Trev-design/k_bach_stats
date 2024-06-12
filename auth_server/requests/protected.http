@@ -1,0 +1,7 @@
+GET http://localhost:4000/account/session/refresh
+Content-Type: application/json
+
+###
+
+GET http://localhost:4000/account/session/signout
+Content-Type: application/json

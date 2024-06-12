@@ -1,0 +1,30 @@
+# invalid verify session
+POST http://localhost:4000/account/verify/user
+Content-Type: application/json
+UserID: "kakdjsdkf"
+
+{
+    "verification": "2118531"
+}
+
+###
+
+# invalid verify code
+POST  http://localhost:4000/account/verify/user
+Content-Type: application/json
+UserID: 41223527-7181-4d73-8e90-adb38da4faa3
+
+{
+    "verification": "6768396"
+}
+
+###
+
+# valid verify session
+POST http://localhost:4000/account/verify/user
+Content-Type: application/json
+UserID: "valid"
+
+{
+    "verification": "vdc8e658a-f371-4537-a17b-020835c03138"  
+}

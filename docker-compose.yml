@@ -22,12 +22,14 @@ services:
   rabbitMQ:
     image: 'rabbitmq:3.13-management'
     ports:
+      - "5552:5552"
       - "5672:5672"
       - "15672:15672"
     restart: always
     environment:
       RABBITMQ_DEFAULT_USER: IAmTheUser
       RABBITMQ_DEFAULT_PASS: ThisIsMyPassword
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: '-rabbitmq_stream advertised_host localhost -rabbit loopback_users "none"'
 
   
   redisDB:
