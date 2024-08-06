@@ -62,6 +62,8 @@ func (server *RabbitServer) consumeQueue(messages <-chan amqp.Delivery, fun cons
 
 		if err := fun(body); err != nil {
 			log.Printf("could not send data: %v", err)
+		} else {
+			message.Ack(false)
 		}
 	}
 }
