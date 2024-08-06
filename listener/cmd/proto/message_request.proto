@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package validation;
+
+option go_package =  "./proto";
+
+message Email {
+    string kind = 1;
+    string validation = 2;
+    string name = 3;
+}
+
+message EmailRequest {
+    Email email = 1;
+}
+
+message EmailResponse {
+    string result = 1;
+}
+
+service ValidationService {
+    rpc SendValidationEmail(EmailRequest) returns (EmailResponse);
+}

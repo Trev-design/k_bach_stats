@@ -8,7 +8,6 @@ defmodule AuthServer.Accounts do
 
   alias AuthServer.Accounts.Account
 
-
   def list_accounts do
     Repo.all(Account)
   end

@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package user_modify;
+
+option go_package =  "./proto";
+
+message User {
+    string id = 1;
+    string name = 2; 
+}
+
+message CreateUserRequest {
+    User user = 1;
+}
+
+message UpdateUserRequest {
+    User user = 1;
+}
+
+message DeleteUserRequest {
+    string id = 1;
+}
+
+message ModifyUserResponse {
+    string result = 1;
+}
+
+service UserModifyService {
+    rpc CreateUser(CreateUserRequest) returns (ModifyUserResponse);
+    rpc UpdateUser(UpdateUserRequest) returns (ModifyUserResponse);
+    rpc DeleteUser(DeleteUserRequest) returns (ModifyUserResponse);
+}
