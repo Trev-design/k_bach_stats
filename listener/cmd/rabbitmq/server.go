@@ -2,16 +2,21 @@ package rabbitmq
 
 import (
 	"encoding/json"
+	"listener/cmd/grpcclient"
 	"listener/cmd/messagetypes"
 	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	//"gorm.io/gorm"
+	"gorm.io/gorm"
 )
 
-type consumerFn func(message *messagetypes.Message) error
+type consumerFn func(
+	message *messagetypes.Message,
+	clients *grpcclient.GRPCClientStructure,
+	db *gorm.DB,
+) error
 
-func (server *RabbitServer) Consume() error {
+func (server *RabbitServer) Consume(clients *grpcclient.GRPCClientStructure, db *gorm.DB) error {
 	validationBus, err := server.createConsumer(
 		"validation",
 		"validation_mail_service",
@@ -30,8 +35,8 @@ func (server *RabbitServer) Consume() error {
 
 	forever := make(chan bool)
 
-	go server.consumeQueue(validationBus, computeEmailMessage)
-	go server.consumeQueue(modifyUserBus, computeModifyUserMessage)
+	go server.consumeQueue(validationBus, computeEmailMessage, clients, db)
+	go server.consumeQueue(modifyUserBus, computeModifyUserMessage, clients, db)
 
 	<-forever
 
@@ -52,7 +57,13 @@ func (server *RabbitServer) createConsumer(queue, consumerTag string) (<-chan am
 	)
 }
 
-func (server *RabbitServer) consumeQueue(messages <-chan amqp.Delivery, fun consumerFn) {
+func (server *RabbitServer) consumeQueue(
+	messages <-chan amqp.Delivery,
+	fun consumerFn,
+	clients *grpcclient.GRPCClientStructure,
+	db *gorm.DB,
+) {
+
 	for message := range messages {
 		body := new(messagetypes.Message)
 		err := json.Unmarshal(message.Body, body)
@@ -60,7 +71,7 @@ func (server *RabbitServer) consumeQueue(messages <-chan amqp.Delivery, fun cons
 			log.Printf("could not parse json: %v\n", err)
 		}
 
-		if err := fun(body); err != nil {
+		if err := fun(body, clients, db); err != nil {
 			log.Printf("could not send data: %v", err)
 		} else {
 			message.Ack(false)

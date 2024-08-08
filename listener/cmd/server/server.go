@@ -1,14 +1,16 @@
 package server
 
 import (
+	"listener/cmd/grpcclient"
 	"listener/cmd/rabbitmq"
 
 	"gorm.io/gorm"
 )
 
 type application struct {
-	rabbitServer *rabbitmq.RabbitServer
-	database     *gorm.DB
+	rabbitServer  *rabbitmq.RabbitServer
+	grpcStructure *grpcclient.GRPCClientStructure
+	database      *gorm.DB
 }
 
 func StartAndListen() error {
@@ -16,6 +18,8 @@ func StartAndListen() error {
 	if err != nil {
 		return err
 	}
+	defer app.grpcStructure.CloseLoggerConnection()
+	defer app.grpcStructure.CloseValidationEmailConnection()
 
-	return app.rabbitServer.Consume()
+	return app.rabbitServer.Consume(app.grpcStructure, app.database)
 }

@@ -1,6 +1,11 @@
+using LoggingService.Data;
 using LoggingService.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("Postgres");
+builder.Services.AddDbContext<AppDBContext>(option => option.UseNpgsql(connectionString));
 
 // Add services to the container.
 builder.Services.AddGrpc();

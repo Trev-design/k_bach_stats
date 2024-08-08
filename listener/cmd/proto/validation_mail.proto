@@ -4,14 +4,11 @@ package validation;
 
 option go_package =  "./proto";
 
-message Email {
-    string kind = 1;
-    string validation = 2;
-    string name = 3;
-}
-
 message EmailRequest {
-    Email email = 1;
+    string email = 1;
+    string kind = 2;
+    string validation = 3;
+    string name = 4;
 }
 
 message EmailResponse {

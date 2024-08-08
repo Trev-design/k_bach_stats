@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"listener/cmd/database"
+	"listener/cmd/grpcclient"
 	"listener/cmd/rabbitmq"
 )
 
@@ -32,6 +33,12 @@ func setup() (*application, error) {
 		return nil, err
 	}
 	app.database = db
+
+	grpcStructure, err := grpcclient.SetupClientStructure()
+	if err != nil {
+		return nil, err
+	}
+	app.grpcStructure = grpcStructure
 
 	return app, nil
 }
