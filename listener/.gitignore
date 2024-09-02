@@ -1,6 +1,0 @@
-/cmd/proto/message_request_grpc.pb.go
-/cmd/proto/message_request.pb.go
-/cmd/proto/user_modification_grpc.pb.go
-/cmd/proto/user_modification.pb.go
-/cmd/proto/error_logging_grpc.pb.go
-/cmd/proto/error_logging.pb.go
