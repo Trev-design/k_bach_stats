@@ -6,13 +6,20 @@
 
 
 get_private_key() ->
+    case file:read_file("private.pem") of
+        {ok, Bin}  -> Bin;
+        {error, _} -> generate_pems()
+    end.
+
+
+generate_pems() ->
     Priv = public_key:generate_key({rsa, 4096, 65537}),
     Pub = #'RSAPublicKey'{modulus = Priv#'RSAPrivateKey'.modulus, publicExponent = Priv#'RSAPrivateKey'.publicExponent},
-    {_, PrivPem} = generate_pems(Pub, Priv),
+    {_, PrivPem} = generate_pems_if_not_exist(Pub, Priv),
     PrivPem.
 
 
-generate_pems(Pub, Priv) ->
+generate_pems_if_not_exist(Pub, Priv) ->
     PubPem = encoded_key_pem('RSAPublicKey', Pub),
     PrivPem = encoded_key_pem('RSAPrivateKey', Priv),
 
