@@ -25,15 +25,18 @@ defmodule AuthService.Rabbitmq.HandlerFunctions do
 
   @spec declare_queue(channel :: AMQP.Channel.t(), queue :: String.t(), durable :: boolean(), auto_delete :: boolean()) :: AMQP.Channel.t()
   def declare_queue(channel, queue, durable, auto_delete) do
-    :ok = Queue.declare(
+    case Queue.declare(
       channel,
       queue,
       durable: durable,
       auto_delete: auto_delete,
       exclusive: false,
       nowait: false)
-
-    channel
+    do
+      :ok      -> channel
+      {:ok, _} -> channel
+      _invalid -> raise "invalid queue declare"
+    end
   end
 
   @spec bind_queue(channel :: AMQP.Channel.t(), exchange :: String.t(), routing_key :: String.t(), queue :: String.t()) :: AMQP.Channel.t()

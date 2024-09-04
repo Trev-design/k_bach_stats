@@ -1,0 +1,10 @@
+package templates
+
+templ VerifyUser(verification, name, purpose string) {
+    <div style="width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: start;">
+        <div style="height: 4rem; display: flex; align-items: center; padding-bottom: 2rem;">
+            <h2>Hello {name}</h2>
+        </div>
+        <p>to {purpose} enter this number: {verification}</p>
+    </div>
+}

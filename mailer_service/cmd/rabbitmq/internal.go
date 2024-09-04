@@ -75,10 +75,10 @@ func (client *RabbitClient) BindQueue(queueName, routinKey, exchangeName string)
 	)
 }
 
-func (client *RabbitClient) CreateConsumer(queueName, consumerTag string) (<-chan amqp.Delivery, error) {
+func (client *RabbitClient) CreateConsumer(queueName string) (<-chan amqp.Delivery, error) {
 	return client.Channel.Consume(
 		queueName,
-		consumerTag,
+		"",
 		false,
 		false,
 		false,

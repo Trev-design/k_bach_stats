@@ -19,6 +19,8 @@ defmodule AuthService.Application do
       {Poolex, crypto_pool()},
       {Task.Supervisor, name: PurgeHelper.Supervisor},
 
+      {AuthService.Rabbitmq.Mailer, []},
+
       {Redix, redix_spec()}
     ]
 
