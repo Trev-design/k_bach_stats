@@ -13,7 +13,7 @@ defmodule AuthServiceWeb.AccountController do
     Roles.Role,
     Helpers,
     VerifyCryptoData.Access,
-    Rabbitmq.Mailer
+    Rabbitmq.Handler
   }
 
   @expiry 60 * 120
@@ -28,8 +28,8 @@ defmodule AuthServiceWeb.AccountController do
          {:ok, "OK"}                                     <- Redix.command(:verify_session_store, ["SET", id, cypher, "EX", @expiry])
     do
       Logger.info("Hello #{name} here is your mega cool verify code: #{verify_code}")
-      Mailer.send_verify_email(user, email, name, verify_code)
-      MessageHandler.create_account_response(conn, id, name)
+      Handler.send_verify_email(user, email, name, verify_code)
+      MessageHandler.create_account_response(conn, %{id: id, name: name})
     else
       {:error, _reason} -> MessageHandler.error_response(conn, 500, "Something went wrong")
       :error            -> MessageHandler.error_response(conn, 500, "Something went wrong")

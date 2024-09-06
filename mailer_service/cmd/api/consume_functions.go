@@ -38,7 +38,7 @@ func (application *app) prepareAndSend(message amqp.Delivery) {
 			To:      payload.Email,
 			Subject: kind,
 			Payload: &email.ValidationMessage{
-				Kind:             payload.Kind,
+				Kind:             kind,
 				Name:             payload.Name,
 				ValidationNumber: payload.ValidationNumber,
 			},

@@ -7,10 +7,16 @@ defmodule AuthServiceWeb.MessageHandler do
     |> send_resp(status, Jason.encode!(%{message: message}))
   end
 
-  def create_account_response(conn, account, username) do
+  def create_account_response(conn, credentials) do
     conn
     |> put_resp_content_type("application/json")
-    |> put_resp_header("account", account)
-    |> send_resp(201, Jason.encode!(%{user: username}))
+    |> send_resp(201, Jason.encode!(credentials))
+  end
+
+  def session_response(conn, credentials, refresh) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> put_resp_cookie("_auth_service_key", refresh, http_only: true, secure: true, max_age: 24*60*60, sign: true)
+    |> send_resp(201, Jason.encode!(credentials))
   end
 end

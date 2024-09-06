@@ -8,9 +8,9 @@ defmodule AuthService.VerifyCryptoData.Purger do
   def init(nil), do: {:ok, nil}
 
   @impl GenServer
-  def handle_call({:handle_purge, terms}, _from, state) do
+  def handle_call({:purge, terms}, _from, state) do
     result = HandlerFunctions.purge_transaction(terms)
-    Process.sleep(5000)
+    Process.sleep(2000)
     {:reply, result, state}
   end
 end

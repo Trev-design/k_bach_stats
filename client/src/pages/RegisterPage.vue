@@ -99,11 +99,25 @@ export default {
         body: JSON.stringify(request)
       })
       .then(response => {
-        const account = response.headers.get("account")
-        localStorage.setItem("account", account)
+        if (!response.ok) {
+          throw new Error('invalid credentials')
+        }
         return response.json()
       })
-      .then(data => console.log(data.user))
+      .then(data => {
+        if(!data.name) {
+          throw new Error("invalid credentials")
+        }
+
+        if(!data.id) {
+          throw new Error("invalid credentials")
+        }
+
+        localStorage.setItem('account', data.id)
+        localStorage.setItem('username', data.name)
+        
+        this.$router.push('/verify')
+      })
       .catch(err => console.log(err))
     }
   }

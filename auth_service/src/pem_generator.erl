@@ -4,7 +4,6 @@
 
 -export([get_private_key/0]).
 
-
 get_private_key() ->
     case file:read_file("private.pem") of
         {ok, Bin}  -> Bin;

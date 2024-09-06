@@ -10,7 +10,7 @@
         @focussed="inputType='EMAIL'"
         @blurred="inputType='NONE'"
       />
-      <BaseInputSubmit/>
+      <BaseInputSubmit @click="verifyAccountRequest()"/>
     </BaseInputForm>
   </section>
 </template>
@@ -34,6 +34,39 @@ export default {
   data() {
     return {
       verifyInput: ''
+    }
+  },
+
+  methods: {
+    verifyAccountRequest() {
+      const payload = {
+        verify: this.verifyInput
+      }
+
+      fetch('http://localhost:4000/verify/account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'userid': localStorage.getItem('account')
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('invalid request')
+        }
+
+        return response.json()
+      })
+      .then(data => {
+        if (!data.token) {
+          throw new Error('invalid token')
+        }
+        this.$store.dispatch('setJWT', data.token)
+        localStorage.setItem('username', data.user)
+        this.$router.push(`/home/${localStorage.getItem('account')}`)
+      })
+      .catch(error => console.log(error))
     }
   }
 }

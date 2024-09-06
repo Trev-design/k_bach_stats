@@ -11,7 +11,9 @@ defmodule AuthService.Accounts do
     Repo.all(Account)
   end
 
-  def get_account!(id), do: Repo.get!(Account, id)
+  def get_full_account(id), do: Account |> Repo.get(id) |> Repo.preload([:user, :role])
+
+  def get_account(id), do: Repo.get(Account, id)
 
   def create_account(attrs \\ %{}) do
     %Account{}

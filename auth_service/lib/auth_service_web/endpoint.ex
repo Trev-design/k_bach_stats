@@ -26,7 +26,9 @@ defmodule AuthServiceWeb.Endpoint do
     only: AuthServiceWeb.static_paths()
 
 
-  plug CORSPlug
+  plug CORSPlug,
+    headers: ["userid", "content-type"],
+    methods: ["GET", "POST", "OPTIONS"]
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

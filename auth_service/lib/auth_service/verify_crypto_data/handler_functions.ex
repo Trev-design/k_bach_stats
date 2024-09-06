@@ -1,4 +1,6 @@
 defmodule AuthService.VerifyCryptoData.HandlerFunctions do
+
+  require Logger
   def create_store() do
     :mnesia.start()
     :mnesia.create_schema([node()])
@@ -26,10 +28,16 @@ defmodule AuthService.VerifyCryptoData.HandlerFunctions do
     end
 
     case :mnesia.activity(:transaction, transaction, [], :mnesia_frag) do
-      {:atomic, {_, _, iv, _, _}} ->
-        :crypto.crypto_one_time(:aes_256_0fb, key, iv, cypher, false)
+      {_, _, iv, _, _} = rec ->
+        IO.inspect(rec)
+        plain = :crypto.crypto_one_time(:aes_256_ofb, key, iv, cypher, false)
+        Logger.info(plain)
+        payload = Jason.decode!(plain)
+        payload["verify"]
 
-      _invalid -> :something_went_wrong
+      invalid ->
+          Logger.info(invalid)
+          :something_went_wrong
     end
   end
 
@@ -41,7 +49,7 @@ defmodule AuthService.VerifyCryptoData.HandlerFunctions do
         VerifyData,
         [{{:"$1", :"$2", :_, :"$3", :"$4"},
         [{:or, {:<, :"$3", current_time}, {:==, :"$4", true}}],
-        [{:"$1", :"$2"}]}])
+        [:"$1", :"$2"]}])
       do
         []    -> nil
         terms -> terms
@@ -49,14 +57,15 @@ defmodule AuthService.VerifyCryptoData.HandlerFunctions do
     end
 
     case :mnesia.activity(:transaction, transaction, [], :mnesia_frag) do
-      {:atomic, terms} -> terms
       {:aborted, _}    -> nil
+      terms            -> terms
     end
   end
 
   def purge_transaction(terms) do
     transaction = fn ->
-      Enum.each(terms, fn {VerifyData, id} ->
+      IO.inspect(terms)
+      Enum.each(terms, fn id ->
         :mnesia.delete(VerifyData, id, :write)
       end)
     end

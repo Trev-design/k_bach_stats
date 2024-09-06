@@ -21,7 +21,7 @@ defmodule AuthService.VerifyCryptoData.Store do
     {:noreply, state}
   end
 
-  def handle_cast({:decrypt, id, cypher, pid}, _from, state) do
+  def handle_cast({:decrypt, id, cypher, pid}, state) do
     result = Task.await(StoreHelpers.decrypt(id, state.key, cypher))
     send(pid, result)
     {:noreply, state}

@@ -7,7 +7,8 @@ import SigninPage from './pages/SigninPage.vue'
 import VerifyPage from './pages/VerifyPage.vue'
 import NewVerifyPage from './pages/NewVerifyPage.vue'
 import HomePage from './pages/HomePage.vue'
-import Vuex from 'vuex'
+import Home from './pages/Home.vue'
+import {createStore} from 'vuex'
 
 
 const app = createApp(App)
@@ -17,7 +18,8 @@ const routes = [
   {path: '/register', component: RegisterPage},
   {path: '/signin', component: SigninPage},
   {path: '/verify', component: VerifyPage},
-  {path: '/new-verify', component: NewVerifyPage}
+  {path: '/new-verify', component: NewVerifyPage},
+  {path: '/account/:id', component: Home}
 ]
 
 const router = createRouter({
@@ -26,6 +28,29 @@ const router = createRouter({
   linkActiveClass: 'active'
 })
 
+const store = createStore({
+  state: {
+    jwt: null
+  },
+
+  mutations: {
+    setJWT(state, jwt) {
+      state.jwt = jwt
+    }
+  },
+
+  actions: {
+    setJWT({commit}, token) {
+      commit('setJWT', token)
+    },
+
+    removeJWT({commit}) {
+      commit('setJWT', null)
+    }
+  }
+})
+
 app.use(router)
+app.use(store)
 
 app.mount('#app')

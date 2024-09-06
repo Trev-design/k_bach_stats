@@ -1,16 +1,24 @@
 defmodule AuthService.VerifyCryptoData.PurgeHelper do
+  require Logger
 
   alias AuthService.VerifyCryptoData.HandlerFunctions
   def prepare_purge() do
-    Task.Supervisor.start_child(Purgehelper.Supervisor, &make_purge/0)
+    Task.Supervisor.start_child(PurgeHelper.Supervisor, fn -> make_purge() end)
   end
 
   defp make_purge() do
-    HandlerFunctions.get_deletables_transaction()
-    |> Stream.chunk_every(10)
-    |> Stream.map(&handle_purge/1)
-    |> Stream.each(fn task -> Task.await(task) end)
-    |> Stream.run()
+    case HandlerFunctions.get_deletables_transaction() do
+      nil   ->
+        Logger.info("No messages to delete")
+        {:ok, :no_deletables}
+      terms ->
+        Logger.info("yaaaaaaahoooooooooo")
+        terms
+        |> Stream.chunk_every(10)
+        |> Stream.map(fn chunk -> handle_purge(chunk) end)
+        |> Stream.each(fn task -> Task.await(task) end)
+        |> Stream.run()
+    end
   end
 
   defp handle_purge(terms) do
@@ -19,8 +27,7 @@ defmodule AuthService.VerifyCryptoData.PurgeHelper do
         :purge,
         fn pid ->
           GenServer.call(pid, {:purge, terms})
-        end,
-        checkout_timeout: 60000
+        end
       )
     end)
   end

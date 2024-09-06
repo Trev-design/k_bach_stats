@@ -19,7 +19,7 @@ defmodule AuthService.Application do
       {Poolex, crypto_pool()},
       {Task.Supervisor, name: PurgeHelper.Supervisor},
 
-      {AuthService.Rabbitmq.Mailer, []},
+      {AuthService.Rabbitmq.Handler, []},
 
       {Redix, redix_spec()}
     ]
@@ -41,7 +41,7 @@ defmodule AuthService.Application do
   defp verify_storage_props() do
     [
       key: :crypto.strong_rand_bytes(32),
-      ttl: 1000 * 60 * 45
+      ttl: 10000
     ]
   end
 
