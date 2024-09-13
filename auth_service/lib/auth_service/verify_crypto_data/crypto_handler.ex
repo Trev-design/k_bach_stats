@@ -1,8 +1,7 @@
 defmodule AuthService.VerifyCryptoData.CryptoHandler do
   alias AuthService.VerifyCryptoData.HandlerFunctions
+
   use GenServer
-
-
   def start_link(), do: GenServer.start_link(__MODULE__, nil)
 
   @impl GenServer

@@ -19,9 +19,9 @@ defmodule AuthService.Application do
       {Poolex, crypto_pool()},
       {Task.Supervisor, name: PurgeHelper.Supervisor},
 
-      {AuthService.Rabbitmq.Handler, []},
+      {Redix, redix_spec()},
 
-      {Redix, redix_spec()}
+      {AuthService.Rabbitmq.RabbitInstance, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

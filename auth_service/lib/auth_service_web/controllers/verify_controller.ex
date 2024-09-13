@@ -6,8 +6,7 @@ defmodule AuthServiceWeb.VerifyController do
     VerifyCryptoData.Access,
     Accounts,
     Accounts.Account,
-    Jwt,
-    Rabbitmq
+    Jwt
   }
 
   require Logger
@@ -37,7 +36,6 @@ defmodule AuthServiceWeb.VerifyController do
 
     case Jwt.create_token_pair(id, name, session) do
       {:ok, _jwt, _refresh} = result->
-        Rabbitmq.Handler.create_session(id, name, session)
         result
 
       invalid    -> invalid
