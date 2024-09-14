@@ -4,14 +4,9 @@ using UserManager.Redis.Models;
 
 namespace UserManager.Redis.Data;
 
-public class RedisSessionRepo : ISessionRepo
+public class RedisSessionRepo(IConnectionMultiplexer redis) : ISessionRepo
 {
-    private readonly IConnectionMultiplexer _redis;
-
-    public RedisSessionRepo(IConnectionMultiplexer redis)
-    {
-        _redis = redis;
-    }
+    private readonly IConnectionMultiplexer _redis = redis;
 
     public async Task CreateSessionAsync(Session session)
     {

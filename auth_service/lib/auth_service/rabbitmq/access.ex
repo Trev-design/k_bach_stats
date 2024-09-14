@@ -1,4 +1,4 @@
-defmodule AuthService.Rabbitmq.PublishAccess do
+defmodule AuthService.Rabbitmq.Access do
 
   def publish_verify_message(validation, username, email, account) do
     Task.await(handle_publish(fn pid ->

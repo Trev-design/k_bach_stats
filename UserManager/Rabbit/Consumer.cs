@@ -30,6 +30,11 @@ public class Consumer
         _connection = connectionFactory.CreateConnection();
 
         _channel = _connection.CreateModel();
+        _channel.ExchangeDeclare("session", "direct", true, false, null);
+        _channel.QueueDeclare("start_user_session", true, false, false, null);
+        _channel.QueueDeclare("stop_user_session", true, false, false, null);
+        _channel.QueueBind("start_user_session", "session", "send_session_credentials", null);
+        _channel.QueueBind("stop_user_session", "session", "remove_user_session", null);
     }
 
     public async Task ConsumeSessionRequests(CancellationToken cancellationToken)

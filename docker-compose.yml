@@ -37,3 +37,15 @@ services:
     ports:
       - "6379:6379"
     restart: always 
+
+
+  mySQL:
+    image: mysql 
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ThisIsTheRootPassword
+      MYSQL_DATABASE: user_database
+      MYSQL_USER: IAmTheUser
+      MYSQL_PASSWORD: ThisIsMyPassword
