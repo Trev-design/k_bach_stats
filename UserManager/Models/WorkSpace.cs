@@ -1,14 +1,24 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace UserManager.Models;
 
-public class Workspace
+public class WorkSpace
 {
     [Key]
-    public string Id { get; set; } = new Guid().ToString();
+    [Column(TypeName = "binary(16)")]
+    public Guid Id { get; set;} = Guid.NewGuid();
 
     [Required]
-    public required Contact Admin { get; set; }
-    
-    public List<Contact>? Collaborators { get; set; }
+    public required string Name { get; set;}
+
+    [Required]
+    public required Guid AccountId { get; set;}
+
+    public Account? Account { get; set;}
+
+    public ICollection<Contact>? Contacts { get; set;}
+
+    public DateTime CreatedAt { get; set;} = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set;} = DateTime.UtcNow;
 }

@@ -1,14 +1,23 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace UserManager.Models;
 
-public class User
+public class User 
 {
     [Key]
-    public string Id { get; set; } = new Guid().ToString();
+    [Column(TypeName = "binary(16)")]
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     [Required]
-    public required string Name { get; set; }
+    [Column(TypeName = "binary(16)")]
+    public required Guid AccountId { get; set; }
 
-    public List<User>? Friends { get; set; }
+    public Account? UserAccount { get; set; }
+
+    public Profile? Profile { get; set; }
+
+    public ICollection<Contact>? Contacts { get; set; }
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

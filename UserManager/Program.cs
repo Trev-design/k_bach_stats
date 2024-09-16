@@ -1,13 +1,21 @@
+using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
+using UserManager.Data;
 using UserManager.Queries;
 using UserManager.Redis.Data;
 using UserManager.Serices;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connString = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new ArgumentException("connection does not exist");
+var redisConnString = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new ArgumentException("connection does not exist");
+var mySQLConnString = builder.Configuration.GetConnectionString("MySqlConnection") ?? throw new ArgumentException("connection does not exist");
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(opt => ConnectionMultiplexer.Connect(connString));
+builder.Services.AddDbContext<UserStoreContext>(options => options.UseMySql(
+    mySQLConnString,
+    new MySqlServerVersion(new Version(9, 0, 1))
+));
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(opt => ConnectionMultiplexer.Connect(redisConnString));
 builder.Services.AddSingleton<ISessionRepo, RedisSessionRepo>();
 builder.Services.AddHostedService<RabbitConsumerService>();
 builder.Services.AddGraphQLServer()
