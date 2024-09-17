@@ -16,7 +16,7 @@ builder.Services.AddDbContext<UserStoreContext>(options => options.UseMySql(
 ));
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(opt => ConnectionMultiplexer.Connect(redisConnString));
-builder.Services.AddSingleton<ISessionRepo, RedisSessionRepo>();
+builder.Services.AddScoped<ISessionRepo, RedisSessionRepo>();
 builder.Services.AddHostedService<RabbitConsumerService>();
 builder.Services.AddGraphQLServer()
     .AddQueryType<UserQuery>();
@@ -25,6 +25,7 @@ var app = builder.Build();
 app.MapGraphQL();
 //app.UseHttpsRedirection();
 
-
+Console.WriteLine("yeeeah");
 app.Run();
+Console.WriteLine("Ooooh");
 

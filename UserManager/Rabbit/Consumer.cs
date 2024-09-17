@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -8,15 +9,19 @@ namespace UserManager.Rabbit;
 
 public class Consumer
 {
-    private readonly ISessionRepo _redis;
     private readonly IConnection _connection;
     private readonly IModel _channel;
     private string? _startSessionConsumerTag;
     private string? _stopSessionConsumerTag;
+    private readonly UserHandler _userHandler;
+    private readonly SessionHandler _sessionHandler;
 
-    public Consumer(ISessionRepo redis)
+    private int _messageCount = 0;
+
+    public Consumer(IServiceScopeFactory scopeFactory)
     {
-        _redis = redis;
+        _userHandler = new(scopeFactory);
+        _sessionHandler = new(scopeFactory);
 
         var connectionFactory = new ConnectionFactory()
         {
@@ -39,61 +44,70 @@ public class Consumer
 
     public async Task ConsumeSessionRequests(CancellationToken cancellationToken)
     {
-        await Task.Run(() => {
-            var consumer = new AsyncEventingBasicConsumer(_channel);
-            consumer.Received += async (chan, args) => {
-                await HandleStartSessionMessage(args);
-            };
+        var consumer = new AsyncEventingBasicConsumer(_channel);
+        consumer.Received += async (chan, args) => {
+            await HandleStartSessionMessage(args);
+        };
 
-            var consumer2 = new AsyncEventingBasicConsumer(_channel);
-            consumer2.Received += async (chan, args) => {
-                await HandleStopSessionMessage(args);
-            };
+        var consumer2 = new AsyncEventingBasicConsumer(_channel);
+        consumer2.Received += async (chan, args) => {
+            await HandleStopSessionMessage(args);
+        };
 
-            _startSessionConsumerTag = _channel.BasicConsume("start_user_session", false, consumer);
-            _stopSessionConsumerTag = _channel.BasicConsume("stop_user_session", false, consumer2);
-        }, cancellationToken);
-
+        _startSessionConsumerTag = _channel.BasicConsume("start_user_session", false, consumer);
+        _stopSessionConsumerTag = _channel.BasicConsume("stop_user_session", false, consumer2);
+        await Task.Delay(Timeout.Infinite, cancellationToken);
     }
 
     public void StopConsumer()
     {
-        _channel.BasicCancel(_startSessionConsumerTag);
-        _channel.BasicCancel(_stopSessionConsumerTag);
+        Console.WriteLine("IAmOut");
+        if (_startSessionConsumerTag != null)
+        {
+            _channel.BasicCancel(_startSessionConsumerTag);
+        }
+        
+        if (_stopSessionConsumerTag != null)
+        {
+            _channel.BasicCancel(_stopSessionConsumerTag);
+        }
+
+        while (_messageCount > 0) {}
+
         _channel.Close();
         _connection.Close();
     }
 
     private async Task HandleStartSessionMessage(BasicDeliverEventArgs args)
     {
-        var body = args.Body.ToString();
-        Session? session = JsonSerializer.Deserialize<Session>(body);
-        if (session == null) return;
-        await _redis.CreateSessionAsync(session);
-        _channel.BasicAck(args.DeliveryTag, false);
+        Interlocked.Increment(ref _messageCount);
+
+        try {
+            await _sessionHandler.StartSession(args.Body);
+        }
+        catch (Exception ex) {
+            _channel.BasicNack(args.DeliveryTag, false, false);
+            Console.WriteLine(ex.Message);
+        }
+        finally {
+            Interlocked.Decrement(ref _messageCount);
+        }
     }
 
     private async Task HandleStopSessionMessage(BasicDeliverEventArgs args)
     {
-        var body = args.Body.ToString();
-        Session? session = JsonSerializer.Deserialize<Session>(body);
+        Interlocked.Increment(ref _messageCount);
 
-        if (session == null) 
-        {
-            _channel.BasicNack(args.DeliveryTag, false, false);
-            return;
+        try {
+            await _sessionHandler.StopSession(args.Body);
         }
-
-        await _redis.GetSession(session.ID);
-
-        if (session == null) 
-        {
+        catch (Exception ex) {
+            Console.WriteLine(ex.Message);
             _channel.BasicNack(args.DeliveryTag, false, false);
-            return;
         }
-
-        await _redis.DeleteSessionAsync(session.ID);
-        _channel.BasicAck(args.DeliveryTag, false);
+        finally {
+            Interlocked.Decrement(ref _messageCount);
+        }
     }
 }
 

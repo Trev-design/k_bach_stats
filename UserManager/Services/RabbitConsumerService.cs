@@ -1,15 +1,17 @@
+using UserManager.Data;
 using UserManager.Rabbit;
 using UserManager.Redis.Data;
 
 namespace UserManager.Serices;
 
-public class RabbitConsumerService(ISessionRepo repo) : IHostedService
+public class RabbitConsumerService(IServiceScopeFactory scopeFactory) : IHostedService
 {
-    private readonly Consumer _consumer = new(repo);
+    private readonly Consumer _consumer = new(scopeFactory);
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public Task StartAsync(CancellationToken cancellationToken)
     {
-        await _consumer.ConsumeSessionRequests(cancellationToken);
+        _ = _consumer.ConsumeSessionRequests(cancellationToken);
+        return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
