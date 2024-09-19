@@ -24,7 +24,7 @@ public class UserHandler(IServiceScopeFactory scopeFactory)
 
         var newProfile = new Profile { UserId = newUser.Id };
 
-        var newContact = new Contact { ProfileId = newProfile.Id, Name = data.UserName, Email = data.Email };
+        var newContact = new Contact { ProfileId = newProfile.Id, Name = data.Username, Email = data.Email };
 
         newAccount.AccountUser = newUser;
         newUser.Profile = newProfile;

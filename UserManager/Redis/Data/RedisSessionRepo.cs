@@ -16,7 +16,7 @@ public class RedisSessionRepo(IConnectionMultiplexer redis) : ISessionRepo
         var serialSession = JsonSerializer.Serialize(session);
         var expiryTime = DateTimeOffset.Now.AddSeconds(60 * 60 *24);
         var expiry = expiryTime.DateTime.Subtract(DateTime.Now);
-        await db.StringSetAsync(session.ID, serialSession, expiry);
+        await db.StringSetAsync(session.Id, serialSession, expiry);
     }
 
     public async Task DeleteSessionAsync(string sessionId)
