@@ -30,6 +30,10 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config  :auth_service, Oban,
+  repo: AuthService.Repo,
+  queues: [verify_user: 2, authorize_user: 2, enroll_user: 2]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

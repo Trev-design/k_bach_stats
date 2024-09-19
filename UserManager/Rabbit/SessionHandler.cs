@@ -28,8 +28,8 @@ public class SessionHandler(IServiceScopeFactory scopeFactory)
         string jsonData = Encoding.UTF8.GetString(body.Span);
         Session session = JsonSerializer.Deserialize<Session>(jsonData) ?? throw new ArgumentException("invalid credentials");
 
-        Session sessionToDelete = await context.GetSession(session.ID) ?? throw new ArgumentException("invalid session");
+        Session sessionToDelete = await context.GetSession(session.Id) ?? throw new ArgumentException("invalid session");
 
-        await context.DeleteSessionAsync(sessionToDelete.ID);
+        await context.DeleteSessionAsync(sessionToDelete.Id);
     }
 }

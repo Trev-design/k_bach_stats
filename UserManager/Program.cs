@@ -3,7 +3,7 @@ using StackExchange.Redis;
 using UserManager.Data;
 using UserManager.Queries;
 using UserManager.Redis.Data;
-using UserManager.Serices;
+using UserManager.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

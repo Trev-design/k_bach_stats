@@ -2,7 +2,7 @@ using UserManager.Data;
 using UserManager.Rabbit;
 using UserManager.Redis.Data;
 
-namespace UserManager.Serices;
+namespace UserManager.Services;
 
 public class RabbitConsumerService(IServiceScopeFactory scopeFactory) : IHostedService
 {

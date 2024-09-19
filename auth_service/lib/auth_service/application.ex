@@ -14,6 +14,8 @@ defmodule AuthService.Application do
       {Phoenix.PubSub, name: AuthService.PubSub},
       AuthServiceWeb.Endpoint,
 
+      {Oban, Application.get_env(:auth_service, Oban)},
+
       {AuthService.VerifyCryptoData.Store, verify_storage_props()},
       {Poolex, purge_pool()},
       {Poolex, crypto_pool()},

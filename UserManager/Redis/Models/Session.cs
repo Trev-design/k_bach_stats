@@ -5,7 +5,7 @@ namespace UserManager.Redis.Models;
 public class Session 
 {
     [Required]
-    public required string ID { get; set; }
+    public required string Id { get; set; }
 
     [Required]
     public required string Name { get; set; }

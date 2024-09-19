@@ -52,7 +52,8 @@ defmodule AuthService.MixProject do
       {:joken, "~> 2.6"},
       {:redix, "~> 1.5"},
       {:poolex, "~> 0.10.0"},
-      {:cors_plug, "~> 3.0"}
+      {:cors_plug, "~> 3.0"},
+      {:oban, "~> 2.18"}
     ]
   end
 
