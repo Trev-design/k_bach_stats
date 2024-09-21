@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 using UserManager.Data;
 using UserManager.Queries;
+using UserManager.Rabbit;
 using UserManager.Redis.Data;
 using UserManager.Services;
 
@@ -15,9 +16,13 @@ builder.Services.AddDbContext<UserStoreContext>(options => options.UseMySql(
     new MySqlServerVersion(new Version(9, 0, 1))
 ));
 
+builder.Services.AddSingleton<RabbitConn>();
 builder.Services.AddSingleton<IConnectionMultiplexer>(opt => ConnectionMultiplexer.Connect(redisConnString));
 builder.Services.AddScoped<ISessionRepo, RedisSessionRepo>();
-builder.Services.AddHostedService<RabbitConsumerService>();
+builder.Services.AddHostedService<StartSessionService>();
+builder.Services.AddHostedService<StopSessionService>();
+builder.Services.AddHostedService<AddUserService>();
+builder.Services.AddHostedService<DeleteUserService>();
 builder.Services.AddGraphQLServer()
     .AddQueryType<UserQuery>();
 

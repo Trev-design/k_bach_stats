@@ -25,10 +25,10 @@ defmodule AuthServiceWeb.AccountController do
          {:ok, %Role{}}                                  <- Roles.create_role(account, %{}),
          verify_code                                     <- Helpers.verify_code(),
          {:ok, cypher}                                   <- VerifyCryptoData.Access.encrypted(id, Jason.encode!(%{id: id, verify: verify_code})),
-         {:ok, "OK"}                                     <- Redix.command(:verify_session_store, ["SET", id, cypher, "EX", @expiry])
+         {:ok, "OK"}                                     <- Redix.command(:verify_session_store, ["SET", id, cypher, "EX", @expiry]),
+         {:ok, :published}                               <- Rabbitmq.Access.publish_verify_message(verify_code, name, email, id)
     do
       Logger.info("Hello #{name} here is your mega cool verify code: #{verify_code}")
-      Rabbitmq.Access.publish_verify_message(verify_code, name, email, id)
       MessageHandler.create_account_response(conn, %{id: id, name: name})
     else
       {:error, _reason} -> MessageHandler.error_response(conn, 500, "Something went wrong")

@@ -28,11 +28,13 @@ defmodule AuthService.Rabbitmq.HandlerFunctions do
       routing_key,
       payload,
       persistent: true,
-      mandatory: true,
+      mandatory: false,
       correlation_id: Uniq.UUID.uuid4(),
       content_type: "application/json"
     )
   end
+
+  def confirm(channel), do: AMQP.Confirm.wait_for_confirms(channel)
 
   def close_channel(channel), do: Channel.close(channel)
   def close_connection(connection), do: Connection.close(connection)

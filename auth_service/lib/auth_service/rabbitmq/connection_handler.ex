@@ -16,20 +16,27 @@ defmodule AuthService.Rabbitmq.ConnectionHandler do
     {:ok, connection}
   end
 
-  def handle_info({:declare_channel, pid}, connection) do
-    send(pid, {:get_connection, connection})
-    {:noreply, connection}
+  def declare_channel(pid), do: GenServer.call(:rmq_connection, {:declare_channel, pid})
+  def stop_channel(channel), do: GenServer.call(:rmq_connection, {:stop_channel, channel})
+
+  def handle_call({:declare_channel, pid}, _from, connection) do
+    {:ok, channel} = HandlerFunctions.setup_channel(connection)
+    :ok = ChannelHandler.set_channel(channel, pid)
+    {:reply, channel, connection}
   end
 
-  def handle_info({:stop_channel, channel}, connection) do
+  def handle_call({:stop_channel, channel}, _from, connection) do
     ChannelHandler.remove_channel(channel.pid)
     HandlerFunctions.close_channel(channel)
-    {:noreply, connection}
+    {:reply, :ok, connection}
   end
 
   def terminate(reason, connection) do
     ChannelHandler.get_all_channels()
-    |> Stream.each(fn channel -> HandlerFunctions.close_channel(channel) end)
+    |> Stream.each(fn channel ->
+      ChannelHandler.remove_channel(channel.pid)
+      HandlerFunctions.close_channel(channel)
+    end)
     |> Stream.run()
 
     HandlerFunctions.close_connection(connection)

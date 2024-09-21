@@ -1,16 +1,15 @@
-using UserManager.Data;
+
 using UserManager.Rabbit;
-using UserManager.Redis.Data;
 
 namespace UserManager.Services;
 
-public class RabbitConsumerService(IServiceScopeFactory scopeFactory) : IHostedService
+public class AddUserService(IServiceScopeFactory scopeFactory, RabbitConn conn) : IHostedService
 {
-    private readonly Consumer _consumer = new(scopeFactory);
+    private readonly AddUserConsumer _consumer = new("account", "add_account", "add_account_request", conn, scopeFactory);
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _ = _consumer.ConsumeSessionRequests(cancellationToken);
+        _consumer.Consume(cancellationToken);
         return Task.CompletedTask;
     }
 
@@ -20,5 +19,3 @@ public class RabbitConsumerService(IServiceScopeFactory scopeFactory) : IHostedS
         return Task.CompletedTask;
     }
 }
-
-

@@ -15,7 +15,7 @@ public class UserHandler(IServiceScopeFactory scopeFactory)
         using var scope = _scopeFactory.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<UserStoreContext>();
 
-        string jsonData = Encoding.UTF8.GetString(body.Span);
+        string jsonData = Encoding.UTF8.GetString(body.ToArray());
         AccountData data = JsonSerializer.Deserialize<AccountData>(jsonData) ?? throw new ArgumentException("invalid credentials");
 
         var newAccount = new Account { Entity = data.Entity };
@@ -30,6 +30,8 @@ public class UserHandler(IServiceScopeFactory scopeFactory)
         newUser.Profile = newProfile;
         newProfile.Contact = newContact;
 
+        Console.WriteLine("push user in database");
+
         await context.Accounts.AddAsync(newAccount);
         await context.SaveChangesAsync();
     }
@@ -39,7 +41,7 @@ public class UserHandler(IServiceScopeFactory scopeFactory)
         using var scope = _scopeFactory.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<UserStoreContext>();
 
-        string jsonData = Encoding.UTF8.GetString(body.Span);
+        string jsonData = Encoding.UTF8.GetString(body.ToArray());
         DeleteAccountData accountToDelete = JsonSerializer.Deserialize<DeleteAccountData>(jsonData) ?? throw new ArgumentException("invalid data");
 
         Account? account;
