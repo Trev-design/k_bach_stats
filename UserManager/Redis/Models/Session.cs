@@ -17,4 +17,8 @@ public class Session
     [JsonPropertyName("account")]
     public required string Account { get; set; }
 
+    [Required]
+    [JsonPropertyName("abo_type")]
+    public required string Abo { get; set; }
+
 }

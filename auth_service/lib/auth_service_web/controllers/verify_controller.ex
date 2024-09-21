@@ -6,8 +6,10 @@ defmodule AuthServiceWeb.VerifyController do
     VerifyCryptoData.Access,
     Accounts,
     Accounts.Account,
-    Jwt,
-    Rabbitmq
+    Rabbitmq,
+    Helpers,
+    Roles.Role,
+    Roles
   }
 
   require Logger
@@ -19,9 +21,10 @@ defmodule AuthServiceWeb.VerifyController do
          {:ok, plain}          <- Access.decrypted(account_id, cypher),
          true                  <- verify_correct?(plain, verify),
          %Account{} = account  <- Accounts.get_full_account(account_id),
+         {:ok, %Role{} = role} <- Roles.update_role(account.role, %{abo_type: "COMUNITY_USER", verified: true}),
          session               <- Uniq.UUID.uuid4(),
-         {:ok, jwt, refresh}   <- create_session(account, session),
-         {:ok, :enrolled_user} <- Rabbitmq.Access.publish_enroll_user(account, session)
+         {:ok, jwt, refresh}   <- Helpers.create_session(account, session, role.abo_type),
+         {:ok, :enrolled_user} <- Rabbitmq.Access.publish_enroll_user(account, session, role.abo_type)
     do
       MessageHandler.session_response(conn, %{user: account.user.name, token: jwt}, refresh)
 
@@ -32,16 +35,23 @@ defmodule AuthServiceWeb.VerifyController do
     end
   end
 
-  defp create_session(account, session) do
-    id = account.user.id
-    name = account.user.name
+  def forgotten_password(conn, %{"verify" => verify, "password" => password, "confirmation" => confirmation}) do
+    account_id = conn.assigns[:account]
 
-    case Jwt.create_token_pair(id, name, session) do
-      {:ok, _jwt, _refresh} = result->
-        Rabbitmq.Access.publish_session_message(name, id, session)
-        result
+    with {:ok, cypher}        <- get_verify_cypher(account_id),
+         {:ok, plain}         <- Access.decrypted(account_id, cypher),
+         true                 <- verify_correct?(plain, verify),
+         %Account{} = account <- Accounts.get_full_account(account_id),
+         {:ok, :verified}     <- validate_verify_status(account.role.verified),
+         {:ok, %Account{}}    <- Accounts.update_account(account, %{password: password, password_confirmation: confirmation}),
+         session              <- Uniq.UUID.uuid4(),
+         {:ok, jwt, refresh}  <- Helpers.create_session(account, session, account.role.abo_type),
+         {:ok, :published}    <- Rabbitmq.Access.publish_session_message(account.user.name, account.id, session, account.role.abo_type)
+    do
+      MessageHandler.session_response(conn, %{user: account.user.name, token: jwt}, refresh)
 
-      invalid    -> invalid
+    else
+      _invalid -> MessageHandler.error_response(conn, 500, "something went wrong")
     end
   end
 
@@ -52,6 +62,13 @@ defmodule AuthServiceWeb.VerifyController do
       {:ok, nil}      -> {:error, :expired}
       {:ok, _} = item -> item
       _invalid        -> {:error, :something_went_wrong}
+    end
+  end
+
+  defp validate_verify_status(verified) do
+    case verified do
+      true  -> {:ok, :verified}
+      false -> {:error, :not_verified}
     end
   end
 end

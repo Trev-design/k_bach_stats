@@ -13,15 +13,15 @@ alias AuthService.Accounts.Account
     end))
   end
 
-  def publish_session_message(username, account, session) do
+  def publish_session_message(username, account, session, abo) do
     Task.await(handle_publish(fn pid ->
-      GenServer.call(pid, {:session, username, account, session})
+      GenServer.call(pid, {:session, username, account, session, abo})
     end))
   end
 
-  def publish_enroll_user(%Account{} = account, session) do
+  def publish_enroll_user(%Account{} = account, session, role) do
     Task.await(handle_publish(fn pid ->
-      GenServer.call(pid, {:enroll_account, account, session})
+      GenServer.call(pid, {:enroll_account, account, session, role})
     end))
   end
 

@@ -17,6 +17,12 @@ defmodule AuthServiceWeb.MessageHandler do
     conn
     |> put_resp_content_type("application/json")
     |> put_resp_cookie("_auth_service_key", refresh, http_only: true, secure: true, max_age: 24*60*60, sign: true)
-    |> send_resp(201, Jason.encode!(credentials))
+    |> send_resp(200, Jason.encode!(credentials))
+  end
+
+  def new_verify_response(conn, message, id) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{success: message, id: id}))
   end
 end

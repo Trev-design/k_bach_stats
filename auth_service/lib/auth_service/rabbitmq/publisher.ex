@@ -65,7 +65,7 @@ defmodule AuthService.Rabbitmq.Publisher do
     end
   end
 
-  def handle_call({:session, username, account, id}, _from, channel) do
+  def handle_call({:session, username, account, id, abo}, _from, channel) do
     result =
       HandlerFunctions.publish(
         channel,
@@ -74,7 +74,8 @@ defmodule AuthService.Rabbitmq.Publisher do
         Jason.encode!(%{
           name: username,
           account: account,
-          id: id}))
+          id: id,
+          abo_type: abo}))
 
     case result do
       :ok -> {:reply, :published, channel}
@@ -84,8 +85,8 @@ defmodule AuthService.Rabbitmq.Publisher do
     end
   end
 
-  def handle_call({:enroll_account, %Account{} = account, id}, _from, channel) do
-    user_account_payload = Jason.encode!(%{entity: account.id, username: account.user.id, email: account.email})
+  def handle_call({:enroll_account, %Account{} = account, id, abo}, _from, channel) do
+    user_account_payload = Jason.encode!(%{entity: account.id, username: account.user.id, email: account.email, abo_type: abo})
     session_payload = Jason.encode!(%{name: account.user.name, account: account.id, id: id})
 
     account_result =

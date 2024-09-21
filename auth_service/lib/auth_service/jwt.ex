@@ -6,7 +6,7 @@ defmodule AuthService.Jwt do
   @jwt_signer Joken.Signer.create("RS256", %{"pem" => :pem_generator.get_private_key()})
   @refresh_signer Joken.Signer.create("HS256", "a7fzdsgigj8erjre76tdsgv67fhakdhufz76ert6fdjkdhgaslalaaljdsuhfewilasdhjewuifh98efuz")
 
-  def create_token_pair(id, name, session) do
+  def create_token_pair(id, name, session, abo) do
     generate_token_pair(
       %{
         "id" => id,
@@ -16,7 +16,8 @@ defmodule AuthService.Jwt do
         "id" => id,
         "name" => name,
         "exp" => Joken.current_time() + (60 * 15),
-        "session_id" => session
+        "session_id" => session,
+        "abo" => abo
       }
     )
   end

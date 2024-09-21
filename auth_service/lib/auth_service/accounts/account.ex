@@ -30,6 +30,15 @@ defmodule AuthService.Accounts.Account do
     |> put_password_hash()
   end
 
+  def new_password_changeset(account, attrs) do
+    account
+    |> cast(attrs, [:password, :password_confirmation])
+    |> validate_required([:password, :password_confirmation])
+    |> validate_format(:password, ~r/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, message: "invalid_password")
+    |> validate_confirmation(:password, message: "confirmation does not match")
+    |> put_password_hash()
+  end
+
   defp put_password_hash(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
     change(changeset, password_hash: Argon2.hash_pwd_salt(password))
   end

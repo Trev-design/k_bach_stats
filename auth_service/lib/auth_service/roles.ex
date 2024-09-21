@@ -24,7 +24,7 @@ defmodule AuthService.Roles do
 
   def update_role(%Role{} = role, attrs) do
     role
-    |> Role.changeset(attrs)
+    |> Ecto.Changeset.change(attrs)
     |> Repo.update()
   end
 

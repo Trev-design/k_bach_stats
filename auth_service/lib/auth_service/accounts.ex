@@ -11,9 +11,11 @@ defmodule AuthService.Accounts do
     Repo.all(Account)
   end
 
+  def get_full_account_by_email(email), do: Account |> Repo.get_by(email: email) |> Repo.preload([:user, :role])
   def get_full_account(id), do: Account |> Repo.get(id) |> Repo.preload([:user, :role])
 
   def get_account(id), do: Repo.get(Account, id)
+  def get_account_by_email(email), do: Account |> Repo.get_by(email: email)
 
   def create_account(attrs \\ %{}) do
     %Account{}
@@ -23,7 +25,7 @@ defmodule AuthService.Accounts do
 
   def update_account(%Account{} = account, attrs) do
     account
-    |> Account.changeset(attrs)
+    |> Account.new_password_changeset(attrs)
     |> Repo.update()
   end
 

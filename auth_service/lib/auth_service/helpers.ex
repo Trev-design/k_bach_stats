@@ -1,6 +1,8 @@
 defmodule AuthService.Helpers do
   require Logger
 
+  alias AuthService.Jwt
+
   def verify_code() do
     for _x <- 1..7 do
       :rand.uniform(9) + 48
@@ -14,5 +16,12 @@ defmodule AuthService.Helpers do
     error_list
     |> Keyword.values()
     |> Enum.map(&elem(&1, 0))
+  end
+
+  def create_session(account, session, abo) do
+    id = account.user.id
+    name = account.user.name
+
+    Jwt.create_token_pair(id, name, session, abo)
   end
 end

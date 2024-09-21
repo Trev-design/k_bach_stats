@@ -14,6 +14,8 @@ defmodule AuthServiceWeb.Router do
     pipe_through :api
 
     post "/signup", AccountController, :signup
+    post "/signin", AccountController, :signin
+    post "/new_verify", AccountController, :request_new_verify
   end
 
   scope "/verify", AuthServiceWeb do
