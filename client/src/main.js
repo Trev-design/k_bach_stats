@@ -18,7 +18,7 @@ const routes = [
   {path: '/register', component: RegisterPage},
   {path: '/signin', component: SigninPage},
   {path: '/verify', component: VerifyPage},
-  {path: '/new-verify', component: NewVerifyPage},
+  {path: '/new-verify', component: NewVerifyPage, props: {action: 'new_verify'}},
   {path: '/account/:id', component: Home}
 ]
 

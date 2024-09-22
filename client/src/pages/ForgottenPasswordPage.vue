@@ -1,22 +1,28 @@
 <template>
-  <section class="signin-page-container">
-    <BaseInputHeader headerText="Signin"/>
-    <baseInputForm>
-      <BaseInput 
-        inputID="emailInput"
+  <section class="forgotten_password_page_container">
+    <BaseInputHeader headerText="New Password"/>
+    <BaseInputForm>
+      <BaseInput
+        inputID="verifyinput"
         inputType="text"
-        inputName="email"
-        v-model:inputValue="emailInput"
+        inputName="verification code"
+        v-model:inputValue="verifyInput"
       />
-      <BaseInput 
-        inputID="passwordInput"
+
+      <BaseInput
+        inputID="passwordinput"
         inputType="password"
         inputName="password"
         v-model:inputValue="passwordInput"
       />
-      <BaseProviderSelect/>
-      <BaseInputSubmit @click="signinRequest()"/>
-    </baseInputForm>
+
+      <BaseInput
+        inputID="confirmationinput"
+        inputType="password"
+        inputName="confirmation"
+        v-model:inputValue="confirmationInput" 
+      />
+    </BaseInputForm>
   </section>
 </template>
 
@@ -25,37 +31,38 @@ import BaseInput from '../components/BaseInput.vue'
 import BaseInputForm from '../components/BaseInputForm.vue'
 import BaseInputHeader from '../components/BaseInputHeader.vue'
 import BaseInputSubmit from '../components/BaseInputSubmit.vue'
-import BaseProviderSelect from '../components/BaseProviderSelect.vue'
 
 export default {
-  name: 'SigninPage',
-
+  name: 'ForgottenPasswordPage',
+  
   components: {
     BaseInput,
     BaseInputForm,
     BaseInputHeader,
-    BaseInputSubmit,
-    BaseProviderSelect
+    BaseInputSubmit
   },
 
   data() {
     return {
-      emailInput: '',
-      passwordInput: ''
+      verifyInput: '',
+      passwordInput: '',
+      confirmationInput: ''
     }
   },
 
   methods: {
-    signinRequest() {
+    newPasswordRequest() {
       const payload = {
-        email: this.emailInput,
-        password: this.passwordInput
+        verify: this.verifyInput,
+        password: this.passwordInput,
+        confirmation: this.confirmationInput
       }
 
-      fetch('http://localhost:4000/account/signin', {
+      fetch('http://localhost:4000/forgotten_password', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'userid': localStorage.getItem('account')
         },
         body: JSON.stringify(payload)
       })
@@ -68,21 +75,19 @@ export default {
       })
       .then(data => {
         if (!data.token) {
-          throw new Error('invalid request')
+          throw new Error('invalid token')
         }
-
         this.$store.dispatch('setJWT', data.token)
         localStorage.setItem('username', data.user)
-        this.$router.push(`/home/${localStorage.getItem('account')}`)
+        this.$router.push(`/home/${localStorage.getItem('account')}`)        
       })
-      .catch(error => console.log(error))
     }
   }
 }
 </script>
 
 <style scoped>
-.signin-page-container {
+.forgotten_password_page_container {
   width: 400px;
   display: flex;
   flex-direction: column;

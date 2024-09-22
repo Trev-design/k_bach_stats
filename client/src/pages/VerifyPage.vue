@@ -7,8 +7,6 @@
         inputType="text"
         inputName="verification code"
         v-model:inputValue="verifyInput"
-        @focussed="inputType='EMAIL'"
-        @blurred="inputType='NONE'"
       />
       <BaseInputSubmit @click="verifyAccountRequest()"/>
     </BaseInputForm>

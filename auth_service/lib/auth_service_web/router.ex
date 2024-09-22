@@ -23,4 +23,10 @@ defmodule AuthServiceWeb.Router do
 
     post "/account", VerifyController, :verify
   end
+
+  scope "/forgotten_password", AuthServiceWeb do
+    pipe_through [:api, :verify]
+
+    post "/", VerifyController, :forgotten_password
+  end
 end

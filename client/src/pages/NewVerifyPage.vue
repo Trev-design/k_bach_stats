@@ -10,7 +10,7 @@
         @focussed="inputType='EMAIL'"
         @blurred="inputType='NONE'"
       />
-      <BaseInputSubmit/>
+      <BaseInputSubmit @click="newVerifyRequest()"/>
     </BaseInputForm>
   </section>
 </template>
@@ -34,6 +34,45 @@ export default {
   data() {
     return {
       emailInput: ''
+    }
+  },
+
+  props: ['action'],
+
+  methods: {
+    newVerifyRequest() {
+      const payload = {
+        email: this.emailInput,
+        kind: this.action
+      }
+
+      fetch('http://localhost:4000/verify/account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('invalid request')
+        }
+
+        return response.json()
+      })
+      .then(data => {
+        if (!data.id) {
+          throw new Error('something went wrong')
+        }
+        localStorage.setItem('account', data.id)
+        
+        if (this.action === 'new_verify') {
+          this.$router.push('/verify')
+        } else {
+          this.$router.push('/forgotten_password')
+        }
+      })
+      .catch(error => console.log(error))
     }
   }
 }
