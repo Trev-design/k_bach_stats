@@ -22,6 +22,7 @@ defmodule AuthService.Application do
       {Task.Supervisor, name: PurgeHelper.Supervisor},
 
       {Redix, redix_spec()},
+      {Redic, redix_session_spec()},
 
       {AuthService.Rabbitmq.RabbitInstance, []}
     ]
@@ -71,6 +72,15 @@ defmodule AuthService.Application do
       port: 6379,
       database: 0,
       name: :verify_session_store
+    ]
+  end
+
+  defp redix_session_spec() do
+    [
+      host: "localhost",
+      port: 6379,
+      database: 1,
+      name: :user_auth_session_store
     ]
   end
 end

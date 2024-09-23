@@ -22,9 +22,10 @@ defmodule AuthServiceWeb.VerifyController do
          true                  <- verify_correct?(plain, verify),
          %Account{} = account  <- Accounts.get_full_account(account_id),
          {:ok, %Role{} = role} <- Roles.update_role(account.role, %{abo_type: "COMUNITY_USER", verified: true}),
-         session               <- Uniq.UUID.uuid4(),
-         {:ok, jwt, refresh}   <- Helpers.create_session(account, session, role.abo_type),
-         {:ok, :enrolled_user} <- Rabbitmq.Access.publish_enroll_user(account, session, role.abo_type)
+         session_id            <- Uniq.UUID.uuid4(),
+         {:ok, jwt, refresh}   <- Helpers.create_session(account, session_id, role.abo_type),
+         {:ok, "OK"}           <- Redix.command(:user_auth_session_store, ["SET", account.user.id, session_id, "EX", 60 * 60 * 24]),
+         {:ok, :enrolled_user} <- Rabbitmq.Access.publish_enroll_user(account, session_id, role.abo_type)
     do
       MessageHandler.session_response(conn, %{user: account.user.name, token: jwt}, refresh)
 
@@ -44,9 +45,10 @@ defmodule AuthServiceWeb.VerifyController do
          %Account{} = account <- Accounts.get_full_account(account_id),
          {:ok, :verified}     <- validate_verify_status(account.role.verified),
          {:ok, %Account{}}    <- Accounts.update_account(account, %{password: password, password_confirmation: confirmation}),
-         session              <- Uniq.UUID.uuid4(),
-         {:ok, jwt, refresh}  <- Helpers.create_session(account, session, account.role.abo_type),
-         {:ok, :published}    <- Rabbitmq.Access.publish_session_message(account.user.name, account.id, session, account.role.abo_type)
+         session_id           <- Uniq.UUID.uuid4(),
+         {:ok, jwt, refresh}  <- Helpers.create_session(account, session_id, account.role.abo_type),
+         {:ok, "OK"}          <- Redix.command(:user_auth_session_store, ["SET", account.user.id, session_id, "EX", 60 * 60 * 24]),
+         {:ok, :published}    <- Rabbitmq.Access.publish_session_message(account.user.name, account.id, session_id, account.role.abo_type)
     do
       MessageHandler.session_response(conn, %{user: account.user.name, token: jwt}, refresh)
 

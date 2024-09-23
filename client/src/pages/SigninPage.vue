@@ -67,13 +67,15 @@ export default {
         return response.json()
       })
       .then(data => {
-        if (!data.token) {
-          throw new Error('invalid request')
+        if (!data.jwt) {
+          throw new Error('invalid token')
         }
 
-        this.$store.dispatch('setJWT', data.token)
+        console.log(data.jwt)
+
+        this.$store.dispatch('setJWT', data.jwt)
         localStorage.setItem('username', data.user)
-        this.$router.push(`/home/${localStorage.getItem('account')}`)
+        this.$router.push(`account/${localStorage.getItem('account')}`)
       })
       .catch(error => console.log(error))
     }

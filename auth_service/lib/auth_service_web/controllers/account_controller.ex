@@ -41,6 +41,7 @@ defmodule AuthServiceWeb.AccountController do
          true                 <- Argon2.verify_pass(password, account.password_hash),
          session_id           <- Uniq.UUID.uuid4(),
          {:ok, jwt, refresh}  <- Helpers.create_session(account, session_id, account.role.abo_type),
+         {:ok, "OK"}          <- Redix.command(:user_auth_session_store, ["SET", account.user.id, session_id, "EX", 60 * 60 * 24]),
          {:ok, :published}    <- Rabbitmq.Access.publish_session_message(account.user.name, account.id, session_id, account.role.abo_type)
     do
       MessageHandler.session_response(conn, %{user: account.user.name, jwt: jwt}, refresh)

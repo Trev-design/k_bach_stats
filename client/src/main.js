@@ -19,7 +19,7 @@ const routes = [
   {path: '/signin', component: SigninPage},
   {path: '/verify', component: VerifyPage},
   {path: '/new-verify', component: NewVerifyPage, props: {action: 'new_verify'}},
-  {path: '/account/:id', component: Home}
+  {path: '/account/:id', component: Home, meta: {requiredAuth: true}}
 ]
 
 const router = createRouter({
@@ -47,6 +47,21 @@ const store = createStore({
     removeJWT({commit}) {
       commit('setJWT', null)
     }
+  },
+
+  getters: {
+    isAuthenticated(state) {return state.jwt != null}
+  }
+})
+
+router.beforeEach((to, from, next) => {
+  console.log(to.meta)
+  if (to.meta.requiredAuth && !store.getters.isAuthenticated) {
+    console.log("try to check authentication")
+    next('/signin')
+  } else {
+    console.log("no reason to check auth")
+    next()
   }
 })
 
@@ -54,3 +69,4 @@ app.use(router)
 app.use(store)
 
 app.mount('#app')
+

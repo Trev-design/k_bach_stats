@@ -20,8 +20,17 @@ defmodule AuthService.Helpers do
 
   def create_session(account, session, abo) do
     id = account.user.id
+    entity = account.id
     name = account.user.name
 
-    Jwt.create_token_pair(id, name, session, abo)
+    Jwt.create_token_pair(id, entity, name, session, abo)
+  end
+
+  def get_session_id(id) do
+    case Redix.command(:user_auth_session_store, ["GET", id]) do
+      {:ok, nil}            -> {:error, "invalid session"}
+      {:ok, _} = session_id -> {:ok, session_id}
+      _invalid              -> {:error, "something went wrong"}
+    end
   end
 end

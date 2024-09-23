@@ -62,7 +62,7 @@ export default {
         }
         this.$store.dispatch('setJWT', data.token)
         localStorage.setItem('username', data.user)
-        this.$router.push(`/home/${localStorage.getItem('account')}`)
+        this.$router.push(`account/${localStorage.getItem('account')}`)
       })
       .catch(error => console.log(error))
     }
