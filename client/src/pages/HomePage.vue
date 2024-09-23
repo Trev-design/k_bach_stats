@@ -1,5 +1,5 @@
 <template>
-  <section class="homepage-con">
+  <section class="homepage-container">
     <Topbar/>
     <Sidebar/>
     <section class="homepage-content-container">
@@ -21,6 +21,10 @@ export default {
 </script>
 
 <style scoped>
+.homepage-container {
+  width: 100%;
+  height: 100%;
+}
 
 .homepage-content-container {
   position: relative;
