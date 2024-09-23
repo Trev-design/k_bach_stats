@@ -1,15 +1,23 @@
 <script>
-import BaseInput from './components/BaseInput.vue';
 export default {
   name: 'App',
-  components: {
-    BaseInput
-  },
   data() {
     return {
-      nameInput: ''
+      refreshInterval: null
     }
-  }
+  },
+
+  created() {this.startRefreshInterval()},
+
+  methods: {
+    startRefreshInterval() {
+      this.refreshInterval = setInterval(() => {
+        this.$store.dispatch('refreshSession').catch(error => console.log(error))
+      }, 600000)
+    }
+  },
+
+  beforeUnmount() {clearInterval(this.refreshInterval)}
 }
 </script>
 

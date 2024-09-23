@@ -46,6 +46,32 @@ const store = createStore({
 
     removeJWT({commit}) {
       commit('setJWT', null)
+    },
+
+    refreshSession({commit}) {
+      return new Promise((resolve, reject) => {
+        fetch('http://localhost:4000/session/refresh', {
+          method: 'GET',
+          headers: {'Content-Type': 'application/json'}        
+        })
+        .then(response => {
+          if (!response.ok) {
+            data = response.json()
+            reject(data.message)
+          }
+
+          return response.json()
+        })
+        .then(data => {
+          if (!data.jwt) {
+            reject('something went wrong')
+          }
+
+          commit('setJWT', data.jwt)
+          resolve()
+        })
+        .catch(error => reject(error));
+      })
     }
   },
 

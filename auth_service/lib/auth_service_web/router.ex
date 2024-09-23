@@ -10,6 +10,10 @@ defmodule AuthServiceWeb.Router do
     plug AuthServiceWeb.VerifyPlug
   end
 
+  pipeline :auth do
+    plug AuthServiceWeb.AuthPlug
+  end
+
   scope "/account", AuthServiceWeb do
     pipe_through :api
 
@@ -28,5 +32,12 @@ defmodule AuthServiceWeb.Router do
     pipe_through [:api, :verify]
 
     post "/", VerifyController, :forgotten_password
+  end
+
+  scope "/session", AuthServiceWeb do
+    pipe_through [:api, :auth]
+
+    get "/refresh", SessionController, :refresh_session
+    get "/signout", SessionController, :signout
   end
 end
