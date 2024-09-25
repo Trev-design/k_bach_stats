@@ -19,7 +19,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .input-header-container {
   width: 80%;
   height: 6rem;

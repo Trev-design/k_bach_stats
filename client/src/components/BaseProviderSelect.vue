@@ -50,7 +50,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .provider-select-container {
   width: 72%;
   display: flex;

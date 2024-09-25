@@ -15,7 +15,7 @@ const app = createApp(App)
 
 const routes = [
   {path: '/', component: HomePage},
-  {path: '/register', component: RegisterPage},
+  {path: '/signup', component: RegisterPage},
   {path: '/signin', component: SigninPage},
   {path: '/verify', component: VerifyPage},
   {path: '/new-verify', component: NewVerifyPage, props: {action: 'new_verify'}},

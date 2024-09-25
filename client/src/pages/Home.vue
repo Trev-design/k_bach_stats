@@ -9,14 +9,10 @@
 </template>
 
 <script>
-import Sidebar from '../components/Sidebar.vue'
-import Topbar from '../components/Topbar.vue'
 
 export default {
   name: 'Home',
   components: {
-    Sidebar,
-    Topbar
   }
 }
 </script>

@@ -1,7 +1,9 @@
 <template>
   <section class="homepage-container">
-    <Topbar/>
-    <Sidebar/>
+    <Topbar>
+      <Navlink dest="signin"/>
+      <Navlink dest="signup"/>
+    </Topbar>
     <section class="homepage-content-container">
 
     </section>
@@ -9,13 +11,14 @@
 </template>
 
 <script>
-import Sidebar from '../components/Sidebar.vue';
-import Topbar from '../components/Topbar.vue';
+import Topbar from '../components/Topbar.vue'
+import Navlink from '../components/Navlink.vue'
+
 export default {
   name: 'HomePage',
   components: {
-    Sidebar,
-    Topbar
+    Topbar,
+    Navlink
   }
 }
 </script>

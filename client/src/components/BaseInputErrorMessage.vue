@@ -17,7 +17,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .error-message-container {
   margin: 1.5rem 0;
   width: 70%;
