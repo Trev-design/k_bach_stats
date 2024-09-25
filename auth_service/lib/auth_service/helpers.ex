@@ -29,7 +29,7 @@ defmodule AuthService.Helpers do
   def get_session_id(id) do
     case Redix.command(:user_auth_session_store, ["GET", id]) do
       {:ok, nil}            -> {:error, "invalid session"}
-      {:ok, _} = session_id -> {:ok, session_id}
+      {:ok, _} = session_id -> session_id
       _invalid              -> {:error, "something went wrong"}
     end
   end

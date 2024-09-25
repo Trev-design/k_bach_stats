@@ -43,9 +43,10 @@ export default {
 
       fetch('http://localhost:4000/verify/account', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'userid': localStorage.getItem('account')
+          'userid': localStorage.getItem('account'),
         },
         body: JSON.stringify(payload)
       })

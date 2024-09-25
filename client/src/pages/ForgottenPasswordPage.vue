@@ -60,6 +60,7 @@ export default {
 
       fetch('http://localhost:4000/forgotten_password', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'userid': localStorage.getItem('account')

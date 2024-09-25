@@ -8,9 +8,10 @@ defmodule AuthServiceWeb.SessionController do
     account = conn.assigns[:account]
 
     with {:ok, session_id}   <- Helpers.get_session_id(account.user.id),
-         {:ok, jwt, refresh} <- Helpers.create_session(account, session_id, account.role.abo_type),
+         {:ok, jwt, refresh} <- Helpers.create_session(account, IO.inspect(session_id), account.role.abo_type),
          {:ok, "OK"}         <- Redix.command(:user_auth_session_store, ["SET", account.user.id, session_id, "EX", 60 * 60 * 24])
     do
+      IO.inspect(jwt)
       MessageHandler.session_response(conn, %{jwt: jwt}, refresh)
 
     else

@@ -27,6 +27,7 @@ defmodule AuthServiceWeb.Endpoint do
 
 
   plug CORSPlug,
+    origin: ~r/http?.*/,
     headers: ["userid", "content-type"],
     methods: ["GET", "POST", "OPTIONS"]
 

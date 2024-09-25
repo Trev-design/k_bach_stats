@@ -51,6 +51,7 @@ const store = createStore({
     refreshSession({commit}) {
       return new Promise((resolve, reject) => {
         fetch('http://localhost:4000/session/refresh', {
+          credentials: 'include',
           method: 'GET',
           headers: {'Content-Type': 'application/json'}        
         })

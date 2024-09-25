@@ -48,6 +48,7 @@ export default {
 
       fetch('http://localhost:4000/verify/account', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

@@ -93,6 +93,7 @@ export default {
 
       fetch('http://localhost:4000/account/signup', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },

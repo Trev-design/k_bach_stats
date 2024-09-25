@@ -13,7 +13,7 @@ export default {
     startRefreshInterval() {
       this.refreshInterval = setInterval(() => {
         this.$store.dispatch('refreshSession').catch(error => console.log(error))
-      }, 600000)
+      }, 60000)
     }
   },
 

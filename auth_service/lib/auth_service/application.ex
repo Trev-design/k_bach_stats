@@ -21,8 +21,8 @@ defmodule AuthService.Application do
       {Poolex, crypto_pool()},
       {Task.Supervisor, name: PurgeHelper.Supervisor},
 
-      {Redix, redix_spec()},
-      {Redic, redix_session_spec()},
+      Supervisor.child_spec({Redix, redix_spec()}, id: :crypto_redix),
+      Supervisor.child_spec({Redix, redix_session_spec()}, id: :session_id_redix),
 
       {AuthService.Rabbitmq.RabbitInstance, []}
     ]

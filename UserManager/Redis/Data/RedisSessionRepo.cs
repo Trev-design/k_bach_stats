@@ -18,7 +18,7 @@ public class RedisSessionRepo : ISessionRepo
     {
         ArgumentNullException.ThrowIfNull(session);
 
-        var db = _redis.GetDatabase(1);
+        var db = _redis.GetDatabase(2);
         var serialSession = JsonSerializer.Serialize(session);
         var expiryTime = DateTimeOffset.Now.AddSeconds(60 * 60 *24);
         var expiry = expiryTime.DateTime.Subtract(DateTime.Now);
@@ -32,7 +32,7 @@ public class RedisSessionRepo : ISessionRepo
             throw new ArgumentNullException(sessionId);
         }
 
-        var db = _redis.GetDatabase(1);
+        var db = _redis.GetDatabase(2);
         await db.KeyDeleteAsync(sessionId);
     }
 
@@ -43,7 +43,7 @@ public class RedisSessionRepo : ISessionRepo
             throw new ArgumentNullException(sessionId);    
         }
 
-        var db = _redis.GetDatabase(1);
+        var db = _redis.GetDatabase(2);
         string? sessionString = await db.StringGetAsync(sessionId);
 
         if (sessionString == null)
