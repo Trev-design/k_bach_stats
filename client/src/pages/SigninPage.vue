@@ -76,6 +76,7 @@ export default {
 
         this.$store.dispatch('setJWT', data.jwt)
         localStorage.setItem('username', data.user)
+        localStorage.setItem('account', data.account)
         this.$router.push(`account/${localStorage.getItem('account')}`)
       })
       .catch(error => console.log(error))

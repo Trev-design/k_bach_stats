@@ -1,9 +1,28 @@
 <script>
+import Topbar from './components/Topbar.vue'
+import Navlink from './components/Navlink.vue'
+import SignoutButton from './components/SignoutButton.vue'
+
 export default {
   name: 'App',
+  components: {
+    Topbar,
+    Navlink,
+    SignoutButton
+  },
   data() {
     return {
       refreshInterval: null
+    }
+  },
+
+  computed: {
+    username() {
+      return localStorage.getItem('username')
+    },
+
+    account() {
+      return localStorage.getItem('account')
     }
   },
 
@@ -22,6 +41,10 @@ export default {
 </script>
 
 <template>
+  <Topbar v-if="$store.getters.isAuthenticated">
+    <Navlink :dest="`account/${account}`">{{ username }}</Navlink>
+    <SignoutButton/>
+  </Topbar>
   <router-view></router-view>
 </template>
 

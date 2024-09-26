@@ -73,6 +73,30 @@ const store = createStore({
         })
         .catch(error => reject(error));
       })
+    },
+
+    signout({commit}) {
+      return new Promise((resolve, reject) => {
+        fetch("http://localhost:4000/session/signout", {
+          credentials: 'include',
+          method: 'GET',
+          headers: {'Content-Type': 'application/json'}
+        })
+        .then(response => {
+          if (!response.ok) {
+            reject('something went wrong')
+          }
+
+          return response.json()
+        })
+        .then(_data => {
+          commit('setJWT', null)
+          localStorage.removeItem('username')
+          localStorage.removeItem('account')
+          resolve()
+        })
+        .catch(_error => reject('something went wrong'))
+      })
     }
   },
 
@@ -85,7 +109,7 @@ router.beforeEach((to, from, next) => {
   console.log(to.meta)
   if (to.meta.requiredAuth && !store.getters.isAuthenticated) {
     console.log("try to check authentication")
-    next('/signin')
+    store.dispatch('refreshSession').catch(_error => next('/signin'))
   } else {
     console.log("no reason to check auth")
     next()
