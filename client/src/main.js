@@ -9,9 +9,18 @@ import NewVerifyPage from './pages/NewVerifyPage.vue'
 import HomePage from './pages/HomePage.vue'
 import Home from './pages/Home.vue'
 import {createStore} from 'vuex'
+import { ApolloClient, InMemoryCache } from '@apollo/client/core'
+import { createApolloProvider } from '@vue/apollo-option'
 
 
 const app = createApp(App)
+
+const apolloClient = new ApolloClient({
+  cache: new InMemoryCache(),
+  uri: "http://localhost:5148/graphql"
+})
+
+const apolloProvider = createApolloProvider({defaultClient: apolloClient})
 
 const routes = [
   {path: '/', component: HomePage},
@@ -116,6 +125,7 @@ router.beforeEach((to, from, next) => {
   }
 })
 
+app.use(apolloProvider)
 app.use(router)
 app.use(store)
 

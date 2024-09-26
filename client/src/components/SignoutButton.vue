@@ -17,6 +17,7 @@ export default {
 <style>
 .signout-button {
   position: relative;
+  text-decoration: none;
   border: none;
   font-size: 1.4rem;
   margin-right: 1.8rem;
