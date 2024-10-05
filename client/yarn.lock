@@ -275,6 +275,13 @@
   resolved "https://registry.yarnpkg.com/@vitejs/plugin-vue/-/plugin-vue-5.1.2.tgz#f11091e0130eca6c1ca8cfb85ee71ea53b255d31"
   integrity sha512-nY9IwH12qeiJqumTCLJLE7IiNx7HZ39cbHaysEUd+Myvbz9KAqd2yq+U01Kab1R/H1BmiyM2ShTYlNH32Fzo3A==
 
+"@vue/apollo-components@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@vue/apollo-components/-/apollo-components-4.0.0.tgz#93f603bc17e6f1924a8edcc0f749a007affd86a5"
+  integrity sha512-py5gYgYQWgg56eJj5O1n8YugCYcMcu9lTtMCjwlh+QokYGXpdf5ejgSzY0j4gGcj51MgkucxF3fYQT3Xaffaqw==
+  dependencies:
+    "@vue/apollo-option" "^4.0.0"
+
 "@vue/apollo-composable@^4.2.1":
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/@vue/apollo-composable/-/apollo-composable-4.2.1.tgz#acc46e71f52bec60ec91fd059753a3cdfee75b86"
@@ -284,7 +291,7 @@
     ts-essentials "^9.4.0"
     vue-demi "^0.14.6"
 
-"@vue/apollo-option@^4.2.0":
+"@vue/apollo-option@^4.0.0", "@vue/apollo-option@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@vue/apollo-option/-/apollo-option-4.2.0.tgz#c81dd22198680953063276a83a4ebcb1baf9bd93"
   integrity sha512-JYqtSY+dHoOM10o2L+EVY+nDxsmT9lb1Z3Z7VBzBQ3f0np+A1TFldZw9gYNbSS6QYgyGw376+Z/EtOqJ9JoaZw==
@@ -466,6 +473,11 @@ graphql-tag@^2.12.6:
   integrity sha512-FdSNcu2QQcWnM2VNvSCCDCVS5PpPqpzgFT8+GXzqJuoDd0CBncxCY278u4mhRO7tMgo2JjgJA5aZ+nWSQ/Z+xg==
   dependencies:
     tslib "^2.1.0"
+
+graphql@^16.9.0:
+  version "16.9.0"
+  resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.9.0.tgz#1c310e63f16a49ce1fbb230bd0a000e99f6f115f"
+  integrity sha512-GGTKBX4SD7Wdb8mqeDLni2oaRGYQWjWHGKPQ24ZMnUtKfcsVoiv4uX8+LJr1K6U5VW2Lu1BwJnj7uiori0YtRw==
 
 hoist-non-react-statics@^3.3.2:
   version "3.3.2"

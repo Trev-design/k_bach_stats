@@ -86,7 +86,7 @@ defmodule AuthService.Rabbitmq.Publisher do
   end
 
   def handle_call({:enroll_account, %Account{} = account, id, abo}, _from, channel) do
-    user_account_payload = Jason.encode!(%{entity: account.id, username: account.user.id, email: account.email})
+    user_account_payload = Jason.encode!(%{entity: account.id, username: account.user.name, email: account.email})
     session_payload = Jason.encode!(%{name: account.user.name, account: account.id, id: id, abo_type: abo})
 
     account_result =

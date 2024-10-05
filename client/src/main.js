@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, provide } from 'vue'
 import './style.css'
 import App from './App.vue'
 import { createRouter, createWebHashHistory} from 'vue-router'
@@ -9,18 +9,13 @@ import NewVerifyPage from './pages/NewVerifyPage.vue'
 import HomePage from './pages/HomePage.vue'
 import Home from './pages/Home.vue'
 import {createStore} from 'vuex'
-import { ApolloClient, InMemoryCache } from '@apollo/client/core'
+import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client/core'
 import { createApolloProvider } from '@vue/apollo-option'
+import { setContext } from '@apollo/client/link/context'
+import VueApolloComponents from '@vue/apollo-components'
+import { provideApolloClient } from '@vue/apollo-composable'
+import { h } from 'vue'
 
-
-const app = createApp(App)
-
-const apolloClient = new ApolloClient({
-  cache: new InMemoryCache(),
-  uri: "http://localhost:5148/graphql"
-})
-
-const apolloProvider = createApolloProvider({defaultClient: apolloClient})
 
 const routes = [
   {path: '/', component: HomePage},
@@ -110,7 +105,8 @@ const store = createStore({
   },
 
   getters: {
-    isAuthenticated(state) {return state.jwt != null}
+    isAuthenticated(state) {return state.jwt != null},
+    token(state) {return state.jwt}
   }
 })
 
@@ -125,9 +121,40 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-app.use(apolloProvider)
+const authLink = setContext((_, { headers }) => {
+  const authToken = store.getters.token
+
+  return {
+    headers: {
+      ...headers,
+      Authorization: authToken ? `Baerer ${authToken}` : ''
+    }
+  }
+})
+
+const httpLink = createHttpLink({
+  uri: "http://localhost:5148/graphql",
+  credentials: 'include'
+})
+
+const apolloClient = new ApolloClient({
+  cache: new InMemoryCache(),
+  link: authLink.concat(httpLink)
+})
+
+//const apolloProvider = createApolloProvider({defaultClient: apolloClient})
+
+const app = createApp({
+  setup() {
+    provideApolloClient(apolloClient)
+  },
+
+  render: () => h(App)
+})
+
 app.use(router)
 app.use(store)
+app.use(VueApolloComponents)
 
 app.mount('#app')
 

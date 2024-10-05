@@ -41,11 +41,13 @@ export default {
 </script>
 
 <template>
-  <Topbar v-if="$store.getters.isAuthenticated">
-    <Navlink :dest="`account/${account}`">{{ username }}</Navlink>
-    <SignoutButton/>
-  </Topbar>
-  <router-view></router-view>
+  <div>
+    <Topbar v-if="$store.getters.isAuthenticated">
+      <Navlink :dest="`account/${account}`">{{ username }}</Navlink>
+      <SignoutButton/>
+    </Topbar>
+    <router-view></router-view>
+  </div>
 </template>
 
 <style scoped>

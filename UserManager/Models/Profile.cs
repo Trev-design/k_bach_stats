@@ -14,7 +14,6 @@ public class Profile
     [Required]
     [Column(TypeName = "binary(16)")]
     public required Guid UserId { get; set; }
-
     public Contact? Contact { get; set; }
 
     public User? User { get; set; }

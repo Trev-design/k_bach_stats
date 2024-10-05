@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import { ssrModuleExportsKey } from 'vite/runtime'
 import BaseInput from '../components/BaseInput.vue'
 import BaseInputForm from '../components/BaseInputForm.vue'
 import BaseInputHeader from '../components/BaseInputHeader.vue'
@@ -77,6 +78,7 @@ export default {
         this.$store.dispatch('setJWT', data.jwt)
         localStorage.setItem('username', data.user)
         localStorage.setItem('account', data.account)
+  
         this.$router.push(`account/${localStorage.getItem('account')}`)
       })
       .catch(error => console.log(error))

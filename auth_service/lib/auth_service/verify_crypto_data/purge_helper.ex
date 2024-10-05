@@ -1,5 +1,4 @@
 defmodule AuthService.VerifyCryptoData.PurgeHelper do
-  require Logger
 
   alias AuthService.VerifyCryptoData.HandlerFunctions
   def prepare_purge() do
@@ -9,10 +8,8 @@ defmodule AuthService.VerifyCryptoData.PurgeHelper do
   defp make_purge() do
     case HandlerFunctions.get_deletables_transaction() do
       nil   ->
-        Logger.info("No messages to delete")
         {:ok, :no_deletables}
       terms ->
-        Logger.info("yaaaaaaahoooooooooo")
         terms
         |> Stream.chunk_every(10)
         |> Stream.map(fn chunk -> handle_purge(chunk) end)

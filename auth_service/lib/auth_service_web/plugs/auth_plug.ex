@@ -11,7 +11,7 @@ defmodule AuthServiceWeb.AuthPlug do
 
   def call(conn, _opts) do
     new_conn = fetch_cookies(conn, signed: ~w(_auth_service_key))
-    cookie = IO.inspect(new_conn.cookies["_auth_service_key"])
+    cookie = new_conn.cookies["_auth_service_key"]
 
     if cookie == nil do
       MessageHandler.error_response(conn, 401, "invalid session") |> halt()

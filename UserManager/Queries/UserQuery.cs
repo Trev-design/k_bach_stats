@@ -1,9 +1,24 @@
+using Microsoft.EntityFrameworkCore;
+using UserManager.Data;
+using UserManager.Models;
+
 namespace UserManager.Queries;
 
 public class UserQuery
 {
-    public required string Name { get; set; } = "affe";
-    public required string Email { get; set;} = "jim@pan.zee";
+    public async Task<Account> GetAccount([Service] UserStoreContext dbContext, [Service] HttpContextAccessor context)
+    {
+        Console.WriteLine("oooooohjaa");
 
-    public required string ID { get; set; } = "19eba54hs-ca64-9eb3-925c4b8e37a";
+        var entity = context.HttpContext?.Items["entity"] as string ?? throw new GraphQLException("invalid session");
+
+        var account = await dbContext.Accounts
+            .Include(account => account.AccountUser)
+            .ThenInclude(user => user != null ? user.Profile : null)
+            .ThenInclude(profile => profile != null ? profile.Contact : null)
+            .Include(account => account.WorkSpaces)
+            .FirstOrDefaultAsync(account => account.Entity == entity) ?? throw new GraphQLException("invalid entity");
+
+        return account;
+    }
 }

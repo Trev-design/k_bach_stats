@@ -1,7 +1,5 @@
 <template>
   <section class="home-container">
-    <Sidebar />
-    <Topbar/>
     <section class="home-account-content-container">
 
     </section>
@@ -9,10 +7,33 @@
 </template>
 
 <script>
+import { useQuery } from '@vue/apollo-composable';
+import { GET_ACCOUNT } from '../queries';
+
 
 export default {
   name: 'Home',
-  components: {
+
+  setup() {
+    const getAccountDetails = () => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(useQuery(GET_ACCOUNT))
+        }, 200)
+      })
+    }
+    
+    const {result, loading, error} = getAccountDetails()
+
+    console.log(result)
+    console.log(loading)
+    console.log(error)
+
+    return {
+      data: result,
+      loading,
+      error
+    }
   }
 }
 </script>
