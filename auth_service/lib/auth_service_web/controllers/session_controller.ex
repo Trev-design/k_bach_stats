@@ -1,6 +1,10 @@
 defmodule AuthServiceWeb.SessionController do
   alias AuthServiceWeb.MessageHandler
-  alias AuthService.Helpers
+  alias AuthService.{
+    Helpers,
+    Accounts.Account,
+    Rabbitmq.Access
+  }
 
   use AuthServiceWeb, :controller
 
@@ -19,14 +23,32 @@ defmodule AuthServiceWeb.SessionController do
   end
 
   def signout(conn, _params) do
-    account = conn.assigns[:account]
 
-    Redix.command(:user_auth_session_store, ["DEL", account.user.id])
+    with %Account{} = account <- conn.assigns[:account],
+         {:ok, session_id}    <- Helpers.get_session_id(account.user.id),
+         {:ok, "OK"}          <- Redix.command(:user_auth_session_store, ["DEL", account.user.id])
+    do
+      Access.publish_remove_session(account, session_id)
+      conn
+      |> clear_session()
+      |> configure_session(drop: true)
+      |> delete_resp_cookie("_auth_service_key")
+      |> MessageHandler.error_response(200, "see you")
 
-    conn
-    |> clear_session()
-    |> configure_session(drop: true)
-    |> delete_resp_cookie("_auth_service_key")
-    |> MessageHandler.error_response(200, "see you")
+    else
+      {:ok, nil} ->
+        conn
+        |> clear_session()
+        |> configure_session(drop: true)
+        |> delete_resp_cookie("_auth_service_key")
+        |> MessageHandler.error_response(200, "see you")
+
+      _invalid ->
+        conn
+        |> clear_session()
+        |> configure_session(drop: true)
+        |> delete_resp_cookie("_auth_service_key")
+        |> MessageHandler.error_response(200, "see you")
+    end
   end
 end

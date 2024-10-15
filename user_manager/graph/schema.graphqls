@@ -1,0 +1,84 @@
+type User {
+  id: ID!
+  entity: String!
+  profile: Profile!
+  workspaces: [Workspace!]!
+}
+
+type Profile {
+  id: ID!
+  bio: String!
+  contact: Contact!
+}
+
+type Contact {
+  id: ID!
+  name: String!
+  email: String!
+  imageFilePath: String!
+}
+
+type Workspace {
+  id: ID!
+  name: String!
+}
+
+type CompleteWorkspace {
+  id: ID!
+  name: String!
+  contacts: [Contact!]!
+  news: [InvitationInfo!]!
+}
+
+type InvitationInfo {
+  id: ID!
+  info: String!
+}
+
+type JoinRequestInfo {
+  id: ID!
+  info: String!
+}
+
+type JoinRequest {
+  id: ID!
+  info: String!
+  reason: String!
+}
+
+type Invitation {
+  id: ID!
+  info: String!
+}
+
+type Query {
+  getUser(entity: String!): User!
+  getInvitationInfos(userID: ID!): [InvitationInfo!]!
+  getJoinRequestInfos(workspaceID: ID!): [JoinRequestInfo!]!
+  lookupWorkspace(workspaceID: ID!): CompleteWorkspace!
+}
+
+type Mutation {
+  createWorkspace(input: WorkspaceCredentials!): Workspace!
+  sendInvitation(credentials: InvitationCredentials!): String!
+  sendJoinRequest(credentials: JoinRequestCredentials!): String!
+}
+
+input WorkspaceCredentials {
+  userID: ID!
+  name: String!
+}
+
+input InvitationCredentials{
+  invitorID: ID!
+  receiverID: ID!
+  workspaceID: ID!
+  info: String!
+}
+
+input JoinRequestCredentials{
+  workspaceID: ID!
+  requestID: ID!
+  info: String!
+  reason: String!
+}

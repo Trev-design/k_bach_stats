@@ -9,7 +9,7 @@ build_mailer_server:
 	cd mailer_service && go run ./\cmd/\server/\main.go & 
 
 build_user_manager_service:
-	cd UserManager && dotnet run & 
+	cd user_manager && go run server.go & 
 
 build_client: 
 	cd client && yarn dev & 

@@ -1,12 +1,11 @@
 import gql from "graphql-tag"
 
 export const GET_ACCOUNT = gql`
-query GetAccount {
-  account {
+query GetAccount($entity: String!) {
+  account(entity: $entity) {
     id
     accountUser {
       id
-      username
       profile {
         description
         contact {

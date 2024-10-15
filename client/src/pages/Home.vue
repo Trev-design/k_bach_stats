@@ -18,21 +18,19 @@ export default {
     const getAccountDetails = () => {
       return new Promise((resolve) => {
         setTimeout(() => {
-          resolve(useQuery(GET_ACCOUNT))
-        }, 200)
+          const {result, loading, error} = useQuery(GET_ACCOUNT, {})
+          console.log(result)
+          console.log(loading)
+          console.log(error)
+          resolve(result)
+        }, 2000)
       })
     }
-    
-    const {result, loading, error} = getAccountDetails()
 
-    console.log(result)
-    console.log(loading)
-    console.log(error)
+    getAccountDetails()
 
     return {
-      data: result,
-      loading,
-      error
+      data: null
     }
   }
 }

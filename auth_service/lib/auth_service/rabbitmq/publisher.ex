@@ -120,6 +120,23 @@ defmodule AuthService.Rabbitmq.Publisher do
     end
   end
 
+  def handle_call({:remove_session, %Account{} = account, session}, _from, channel) do
+    HandlerFunctions.publish(
+      channel,
+      "session",
+      "remove_session",
+      Jason.encode!(
+        %{
+          name: account.user.name,
+          account: account.id,
+          id: session,
+          abo_type: account.role.abo_type
+        }
+      ))
+
+    {:reply, :removed_session, channel}
+  end
+
   def terminate(reason, channel) do
     Logger.info("i am terminating here")
     Logger.info(reason)

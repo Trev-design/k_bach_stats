@@ -1,0 +1,22 @@
+package database
+
+import "user_manager/graph/model"
+
+type UserHandler interface {
+	AddUser(payload []byte) error
+	RemoveUser(payload []byte) error
+}
+
+type SessionHandler interface {
+	CheckSession(token string) error
+}
+
+type StoreHandler interface {
+	GetUserFromDB(entity string) (*model.User, error)
+	GetInvitationInfosFromDB(userID string) ([]*model.InvitationInfo, error)
+	GetJoinRequestInfosFromDB(workspaceID string) ([]*model.JoinRequestInfo, error)
+	GetWorkspaceFromDB(workspaceID string) (*model.CompleteWorkspace, error)
+	CreateNewWorkspace(credentials model.WorkspaceCredentials) error
+	PushInvitation(credentials model.InvitationCredentials) error
+	PushJoinRequest(credentials model.JoinRequestCredentials) error
+}

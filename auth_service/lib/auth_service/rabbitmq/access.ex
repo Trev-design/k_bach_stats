@@ -1,6 +1,5 @@
 defmodule AuthService.Rabbitmq.Access do
-alias AuthService.Accounts.Account
-
+  alias AuthService.Accounts.Account
   def publish_verify_message(validation, username, email, account) do
     Task.await(handle_publish(fn pid ->
       GenServer.call(pid, {:verify_email, username, account, email, validation})
@@ -22,6 +21,12 @@ alias AuthService.Accounts.Account
   def publish_enroll_user(%Account{} = account, session, role) do
     Task.await(handle_publish(fn pid ->
       GenServer.call(pid, {:enroll_account, account, session, role})
+    end))
+  end
+
+  def publish_remove_session(%Account{} = account, session) do
+    Task.await(handle_publish(fn pid ->
+      GenServer.call(pid, {:remove_session, account, session})
     end))
   end
 
