@@ -3,10 +3,11 @@
 package model
 
 type CompleteWorkspace struct {
-	ID       string            `json:"id"`
-	Name     string            `json:"name"`
-	Contacts []*Contact        `json:"contacts"`
-	News     []*InvitationInfo `json:"news"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Contacts    []*Contact        `json:"contacts"`
+	News        []*InvitationInfo `json:"news"`
 }
 
 type Contact struct {
@@ -66,6 +67,7 @@ type Query struct {
 type User struct {
 	ID         string       `json:"id"`
 	Entity     string       `json:"entity"`
+	Requests   int          `json:"requests"`
 	Profile    *Profile     `json:"profile"`
 	Workspaces []*Workspace `json:"workspaces"`
 }
@@ -76,6 +78,7 @@ type Workspace struct {
 }
 
 type WorkspaceCredentials struct {
-	UserID string `json:"userID"`
-	Name   string `json:"name"`
+	UserID      string `json:"userID"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }

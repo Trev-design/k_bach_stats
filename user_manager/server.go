@@ -7,12 +7,13 @@ import (
 	"os"
 	"user_manager/api"
 	"user_manager/graph"
+	"user_manager/middleware"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 )
 
-const defaultPort = "8080"
+const defaultPort = "4004"
 
 func main() {
 	port := os.Getenv("PORT")
@@ -39,10 +40,10 @@ func main() {
 	go app.Consumer.ComputeMessages("add_user", app.DBIsntance, app.ErrorChannel)
 	go app.Consumer.ComputeMessages("remove_user", app.DBIsntance, app.ErrorChannel)
 
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{Database: app.DBIsntance}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	http.Handle("/query", middleware.EnableCORS(middleware.Auth(app.Session, srv)))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

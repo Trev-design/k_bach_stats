@@ -1,8 +1,9 @@
 type User {
   id: ID!
   entity: String!
+  requests: Int!
   profile: Profile!
-  workspaces: [Workspace!]!
+  workspaces: [Workspace!]! 
 }
 
 type Profile {
@@ -26,6 +27,7 @@ type Workspace {
 type CompleteWorkspace {
   id: ID!
   name: String!
+  description: String!
   contacts: [Contact!]!
   news: [InvitationInfo!]!
 }
@@ -67,6 +69,7 @@ type Mutation {
 input WorkspaceCredentials {
   userID: ID!
   name: String!
+  description: String!
 }
 
 input InvitationCredentials{

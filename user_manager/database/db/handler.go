@@ -60,7 +60,13 @@ func (db *Database) GetUserFromDB(entity string) (*model.User, error) {
 	}
 	defer rows.Close()
 
-	user := &model.User{Workspaces: make([]*model.Workspace, 0)}
+	user := &model.User{
+		Profile: &model.Profile{
+			Contact: &model.Contact{},
+		},
+		Workspaces: make([]*model.Workspace, 0),
+	}
+
 	var workspace_id sql.NullString
 	var workspace_name sql.NullString
 
@@ -68,6 +74,7 @@ func (db *Database) GetUserFromDB(entity string) (*model.User, error) {
 		if err := rows.Scan(
 			&user.ID,
 			&user.Entity,
+			&user.Requests,
 			&user.Profile.ID,
 			&user.Profile.Bio,
 			&user.Profile.Contact.ID,
@@ -82,8 +89,15 @@ func (db *Database) GetUserFromDB(entity string) (*model.User, error) {
 
 		if workspace_id.Valid && workspace_name.Valid {
 			workspace := &model.Workspace{ID: workspace_id.String, Name: workspace_name.String}
+			if err := uuidFromBin(&workspace.ID); err != nil {
+				return nil, err
+			}
 			user.Workspaces = append(user.Workspaces, workspace)
 		}
+	}
+
+	if err := uuidFromBin(&user.ID, &user.Profile.ID, &user.Profile.Contact.ID); err != nil {
+		return nil, err
 	}
 
 	return user, nil
@@ -113,6 +127,19 @@ func (db *Database) PushJoinRequest(credentials model.JoinRequestCredentials) er
 	panic(fmt.Errorf("not implemented"))
 }
 
+func uuidFromBin(binaryIDs ...*string) error {
+	for _, id := range binaryIDs {
+		guid, err := uuid.FromBytes([]byte(*id))
+		if err != nil {
+			return err
+		}
+
+		*id = guid.String()
+	}
+
+	return nil
+}
+
 func (db *Database) insertUserCredentials(kind, foreignKey string, user *UserPayload) (string, error) {
 	guid := uuid.New().String()
 
@@ -120,9 +147,9 @@ func (db *Database) insertUserCredentials(kind, foreignKey string, user *UserPay
 	case "user":
 		return guid, db.insertItem(insertNewUser, guid, user.Entity)
 	case "profile":
-		return guid, db.insertItem(insertNewProfile, guid, foreignKey)
+		return guid, db.insertItem(insertNewProfile, guid, "", foreignKey)
 	case "contact":
-		return guid, db.insertItem(insertNewContact, guid, user.Username, user.Email, foreignKey)
+		return guid, db.insertItem(insertNewContact, guid, user.Username, user.Email, "", foreignKey)
 	default:
 		return "", errors.New("invalid insert option")
 	}

@@ -2,8 +2,12 @@ package redissession
 
 import (
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -16,7 +20,7 @@ import (
 const dayInSeconds = 60 * 60 * 24
 
 type SessionClient struct {
-	Secret []byte
+	Secret *rsa.PublicKey
 	*redis.Client
 }
 
@@ -39,9 +43,21 @@ func Setup() (*SessionClient, error) {
 		return nil, err
 	}
 
-	key, err := os.ReadFile("public.pem")
+	pemFile, err := os.ReadFile("public.pem")
 	if err != nil {
 		return nil, err
+	}
+
+	log.Println("decode pem content")
+
+	block, _ := pem.Decode(pemFile)
+	if block == nil {
+		return nil, fmt.Errorf("could not decode pem")
+	}
+
+	key, err := x509.ParsePKCS1PublicKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse key: %v", err)
 	}
 
 	return &SessionClient{Client: client, Secret: key}, nil
@@ -85,6 +101,7 @@ func (client *SessionClient) CheckSession(token string) error {
 
 	if _, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			fmt.Println("false signing method")
 			return nil, errors.New("false signing method")
 		}
 		return client.Secret, nil
@@ -93,8 +110,11 @@ func (client *SessionClient) CheckSession(token string) error {
 		return err
 	}
 
+	fmt.Println(claims)
+
 	payload, err := client.Get(context.Background(), claims.Session).Result()
 	if err != nil {
+		fmt.Println("session not found")
 		return err
 	}
 
@@ -105,14 +125,17 @@ func (client *SessionClient) CheckSession(token string) error {
 	}
 
 	if session.Account != claims.Account {
+		fmt.Println("account not found")
 		return errors.New("invalid account")
 	}
 
-	if session.ID != claims.ID {
-		return errors.New("invalid ACCOUNT")
-	}
+	// if session.ID != claims.ID {
+	// 	fmt.Println("session not found iiiiiiiiiiiiiiiiiiih")
+	// 	return errors.New("invalid ACCOUNT")
+	// }
 
 	if session.Name != claims.Name {
+		fmt.Println("session not found IIIIIIIIIIIIIIIIIIIIIIIIII")
 		return errors.New("INVALID ACCOUNT")
 	}
 

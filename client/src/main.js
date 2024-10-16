@@ -127,13 +127,13 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      Authorization: authToken ? `Baerer ${authToken}` : ''
+      Authorization: authToken ? `Bearer ${authToken}` : ''
     }
   }
 })
 
 const httpLink = createHttpLink({
-  uri: "http://localhost:5148/graphql",
+  uri: "http://localhost:4004/query",
   credentials: 'include'
 })
 

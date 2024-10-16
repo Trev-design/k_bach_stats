@@ -18,7 +18,7 @@ export default {
     const getAccountDetails = () => {
       return new Promise((resolve) => {
         setTimeout(() => {
-          const {result, loading, error} = useQuery(GET_ACCOUNT, {})
+          const {result, loading, error} = useQuery(GET_ACCOUNT, {entity: localStorage.getItem('account')})
           console.log(result)
           console.log(loading)
           console.log(error)

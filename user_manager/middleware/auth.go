@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -29,12 +30,15 @@ func Auth(sessionHandler database.SessionHandler, next http.Handler) http.Handle
 		}
 
 		headerParts := strings.Split(authHeader, " ")
+		fmt.Println(headerParts)
+		fmt.Printf("the length of the header array is: %d\n", len(headerParts))
 		if len(headerParts) != 2 {
 			log.Println("invalid auth header")
 			writer.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
+		fmt.Printf("the head of the header is : %s\n", headerParts[0])
 		if headerParts[0] != "Bearer" {
 			log.Println("invalid auth header")
 			writer.WriteHeader(http.StatusBadRequest)
