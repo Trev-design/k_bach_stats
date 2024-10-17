@@ -26,7 +26,7 @@ defmodule AuthServiceWeb.SessionController do
 
     with %Account{} = account <- conn.assigns[:account],
          {:ok, session_id}    <- Helpers.get_session_id(account.user.id),
-         {:ok, "OK"}          <- Redix.command(:user_auth_session_store, ["DEL", account.user.id])
+         {:ok, _}          <- Redix.command(:user_auth_session_store, ["DEL", account.user.id])
     do
       Access.publish_remove_session(account, session_id)
       conn
@@ -36,19 +36,12 @@ defmodule AuthServiceWeb.SessionController do
       |> MessageHandler.error_response(200, "see you")
 
     else
-      {:ok, nil} ->
-        conn
-        |> clear_session()
-        |> configure_session(drop: true)
-        |> delete_resp_cookie("_auth_service_key")
-        |> MessageHandler.error_response(200, "see you")
-
       _invalid ->
         conn
         |> clear_session()
         |> configure_session(drop: true)
         |> delete_resp_cookie("_auth_service_key")
-        |> MessageHandler.error_response(200, "see you")
+        |> MessageHandler.error_response(422, "see you")
     end
   end
 end

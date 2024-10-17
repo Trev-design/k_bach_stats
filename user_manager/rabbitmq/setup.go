@@ -20,7 +20,7 @@ func Setup() (*RabbitConsumerStructure, error) {
 		return nil, err
 	}
 
-	removeSession, err := setupChannels("remove_session_consumer", "stop_user_session", "session", "remove_user_session", conn)
+	removeSession, err := setupChannels("remove_session_consumer", "stop_user_session", "session", "remove_session", conn)
 	if err != nil {
 		return nil, err
 	}

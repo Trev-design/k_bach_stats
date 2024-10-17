@@ -1,13 +1,13 @@
 <script>
 import Topbar from './components/Topbar.vue'
-import Navlink from './components/Navlink.vue'
+import BackToHomeButton from './components/BackToHomeButton.vue';
 import SignoutButton from './components/SignoutButton.vue'
 
 export default {
   name: 'App',
   components: {
     Topbar,
-    Navlink,
+    BackToHomeButton,
     SignoutButton
   },
   data() {
@@ -43,7 +43,7 @@ export default {
 <template>
   <div>
     <Topbar v-if="$store.getters.isAuthenticated">
-      <Navlink :dest="`account/${account}`">{{ username }}</Navlink>
+      <BackToHomeButton/>
       <SignoutButton/>
     </Topbar>
     <router-view></router-view>
