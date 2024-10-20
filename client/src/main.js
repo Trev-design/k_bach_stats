@@ -15,6 +15,7 @@ import { setContext } from '@apollo/client/link/context'
 import VueApolloComponents from '@vue/apollo-components'
 import { provideApolloClient } from '@vue/apollo-composable'
 import { h } from 'vue'
+import Profile from './pages/Profile.vue'
 
 
 const routes = [
@@ -23,7 +24,8 @@ const routes = [
   {path: '/signin', component: SigninPage},
   {path: '/verify', component: VerifyPage},
   {path: '/new-verify', component: NewVerifyPage, props: {action: 'new_verify'}},
-  {path: '/account/:id', component: Home, meta: {requiredAuth: true}}
+  {path: '/account/:id', component: Home, meta: {requiredAuth: true}},
+  {path: '/account/:id/:name', component: Profile, meta: {requiredAuth: true}}
 ]
 
 const router = createRouter({
@@ -62,14 +64,14 @@ const store = createStore({
         .then(response => {
           if (!response.ok) {
             data = response.json()
-            reject(data.message)
+            return reject(data.message)
           }
 
           return response.json()
         })
         .then(data => {
           if (!data.jwt) {
-            reject('something went wrong')
+            return reject('something went wrong')
           }
 
           commit('setJWT', data.jwt)
@@ -88,7 +90,7 @@ const store = createStore({
         })
         .then(response => {
           if (!response.ok) {
-            reject('something went wrong')
+            return reject('something went wrong')
           }
 
           return response.json()
@@ -100,6 +102,36 @@ const store = createStore({
           resolve()
         })
         .catch(_error => reject('something went wrong'))
+      })
+    },
+
+    initialData({state}) {
+      return new Promise((resolve, reject) => {
+        fetch('http://localhost:4004/initial', {
+          credentials: 'include',
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.jwt}`
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            return reject('something went wrong')
+          }
+
+          return response.json()
+        })
+        .then(data => {
+          console.log(data.id)
+          if (!data.id) {
+            return reject('something went wrong')
+          }
+
+          localStorage.setItem('initialUser', data.id)
+          resolve()
+        })
+        .catch(_err => reject('something went wrong'))
       })
     }
   },

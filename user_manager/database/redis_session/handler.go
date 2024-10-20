@@ -11,7 +11,6 @@ import (
 	"log"
 	"os"
 	"time"
-	"user_manager/middleware"
 
 	"github.com/golang-jwt/jwt/v5"
 	redis "github.com/redis/go-redis/v9"
@@ -29,6 +28,14 @@ type Session struct {
 	Account string `json:"account"`
 	ID      string `json:"id"`
 	AboType string `json:"abo_type"`
+}
+
+type Claims struct {
+	Name    string `json:"name"`
+	Account string `json:"entity"`
+	AboType string `json:"abo"`
+	Session string `json:"session_id"`
+	jwt.RegisteredClaims
 }
 
 func Setup() (*SessionClient, error) {
@@ -97,7 +104,7 @@ func (client *SessionClient) RemoveUser(payload []byte) error {
 }
 
 func (client *SessionClient) CheckSession(token string) error {
-	claims := new(middleware.Claims)
+	claims := new(Claims)
 
 	if _, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
@@ -140,4 +147,21 @@ func (client *SessionClient) CheckSession(token string) error {
 	}
 
 	return nil
+}
+
+func (client *SessionClient) InitialAuth(token string) (string, error) {
+	claims := new(Claims)
+
+	if _, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			fmt.Println("false signing method")
+			return nil, errors.New("false signing method")
+		}
+		return client.Secret, nil
+	}); err != nil {
+		log.Println(err.Error())
+		return "", err
+	}
+
+	return claims.Account, nil
 }

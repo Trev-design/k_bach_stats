@@ -20,6 +20,8 @@ type ServerOptions struct {
 	Session  string
 }
 
+type ContextKey string
+
 func (options *ServerOptions) Setup() (*App, error) {
 	log.Println("init session")
 	session, err := redissession.Setup()

@@ -32,6 +32,10 @@ const (
 	JOIN profiles p ON u.id = p.user_id
 	JOIN contacts c ON p.id = c.profile_id
 	LEFT JOIN workspaces w ON u.id = w.user_id 
-	WHERE u.entity = ?;
+	WHERE u.id = UNHEX(REPLACE(?, "-", ""));
+	`
+
+	userCredentials = `
+	SELECT u.id FROM users u WHERE u.entity = ?;
 	`
 )

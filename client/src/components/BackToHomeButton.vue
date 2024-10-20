@@ -10,7 +10,7 @@ export default {
 
   methods: {
     redirectToHome() {
-      this.$router.push(`/${this.account}/${this.user}`)
+      this.$router.push(`/account/${this.account}/${this.user}`)
     }
   },
 

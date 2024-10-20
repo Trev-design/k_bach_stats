@@ -9,9 +9,11 @@ type UserHandler interface {
 
 type SessionHandler interface {
 	CheckSession(token string) error
+	InitialAuth(token string) (string, error)
 }
 
 type StoreHandler interface {
+	InitialCredentials(entity string) (string, error)
 	GetUserFromDB(entity string) (*model.User, error)
 	GetInvitationInfosFromDB(userID string) ([]*model.InvitationInfo, error)
 	GetJoinRequestInfosFromDB(workspaceID string) ([]*model.JoinRequestInfo, error)

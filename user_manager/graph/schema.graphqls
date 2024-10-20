@@ -54,10 +54,10 @@ type Invitation {
 }
 
 type Query {
-  getUser(entity: String!): User!
-  getInvitationInfos(userID: ID!): [InvitationInfo!]!
-  getJoinRequestInfos(workspaceID: ID!): [JoinRequestInfo!]!
-  lookupWorkspace(workspaceID: ID!): CompleteWorkspace!
+  getUser(userID: String!): User!
+  getInvitationInfos(userID: String!): [InvitationInfo!]!
+  getJoinRequestInfos(workspaceID: String!): [JoinRequestInfo!]!
+  lookupWorkspace(workspaceID: String!): CompleteWorkspace!
 }
 
 type Mutation {

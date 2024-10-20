@@ -53,6 +53,19 @@ func (db *Database) RemoveUser(payload []byte) error {
 	return db.removeItem(removeUser, deletable.Entity)
 }
 
+func (db *Database) InitialCredentials(entity string) (string, error) {
+	var id sql.NullString
+	if err := db.QueryRow(userCredentials, entity).Scan(&id); err != nil {
+		return "", err
+	}
+
+	if !id.Valid {
+		return "", errors.New("no user found")
+	}
+
+	return id.String, nil
+}
+
 func (db *Database) GetUserFromDB(entity string) (*model.User, error) {
 	rows, err := db.Query(selectUser, entity)
 	if err != nil {

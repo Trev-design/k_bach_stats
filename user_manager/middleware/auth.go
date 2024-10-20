@@ -6,17 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"user_manager/database"
-
-	"github.com/golang-jwt/jwt/v5"
 )
-
-type Claims struct {
-	Name    string `json:"name"`
-	Account string `json:"entity"`
-	AboType string `json:"abo"`
-	Session string `json:"session_id"`
-	jwt.RegisteredClaims
-}
 
 func Auth(sessionHandler database.SessionHandler, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {

@@ -1,16 +1,13 @@
 import gql from "graphql-tag"
 
 export const GET_ACCOUNT = gql`
-query getUser($entity: String!) {
-  getUser(entity: $entity) {
-    id
+query getUser($userID: String!) {
+  getUser(userID: $userID) {
     entity
     requests
     profile {
-      id
       bio
       contact {
-        id
         name
         email
         imageFilePath

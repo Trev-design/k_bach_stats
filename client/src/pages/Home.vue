@@ -7,31 +7,10 @@
 </template>
 
 <script>
-import { useQuery } from '@vue/apollo-composable';
-import { GET_ACCOUNT } from '../queries';
-
-
 export default {
   name: 'Home',
-
-  setup() {
-    const getAccountDetails = () => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const {result, loading, error} = useQuery(GET_ACCOUNT, {entity: localStorage.getItem('account')})
-          console.log(result)
-          console.log(loading)
-          console.log(error)
-          resolve(result)
-        }, 2000)
-      })
-    }
-
-    getAccountDetails()
-
-    return {
-      data: null
-    }
+  async created() {
+    await this.$store.dispatch('initialData').catch(_err => console.log('could not fetch userid'))
   }
 }
 </script>

@@ -26,8 +26,8 @@ func (r *mutationResolver) SendJoinRequest(ctx context.Context, credentials mode
 }
 
 // GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context, entity string) (*model.User, error) {
-	return r.Database.GetUserFromDB(entity)
+func (r *queryResolver) GetUser(ctx context.Context, userID string) (*model.User, error) {
+	return r.Database.GetUserFromDB(userID)
 }
 
 // GetInvitationInfos is the resolver for the getInvitationInfos field.
