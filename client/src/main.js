@@ -174,7 +174,7 @@ const apolloClient = new ApolloClient({
   link: authLink.concat(httpLink)
 })
 
-//const apolloProvider = createApolloProvider({defaultClient: apolloClient})
+const apolloProvider = createApolloProvider({defaultClient: apolloClient})
 
 const app = createApp({
   setup() {
@@ -186,6 +186,7 @@ const app = createApp({
 
 app.use(router)
 app.use(store)
+app.use(apolloProvider)
 app.use(VueApolloComponents)
 
 app.mount('#app')

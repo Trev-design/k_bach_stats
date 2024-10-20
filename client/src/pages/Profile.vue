@@ -21,8 +21,8 @@
 </template>
 
 <script>
-import { useQuery } from '@vue/apollo-composable';
 import { GET_ACCOUNT } from '../queries'
+
 export default {
   name: 'Profile',
 
@@ -32,36 +32,26 @@ export default {
       email: '',
       imageFilePath: '',
       bio: '',
-      workspaces: [],
+      workspaces: []
     }
   },
 
-  methods: {
-    fetchData() {
-      const id = localStorage.getItem('initialUser')
-      const {result, loading, error} = useQuery(GET_ACCOUNT, {userID: id})
-      console.log(loading)
-      console.log(result.value)
-      console.log(error)
+  async mounted() {
+    const id = localStorage.getItem('initialUser')
+      const { data } = await this.$apollo.query({
+        query: GET_ACCOUNT,
+        variables: {userID: id}
+      })
 
-      this.name = result.value.getUser.profile.contact.name
-      this.email = result.value.getUser.profile.contact.email
-      this.imageFilePath = result.value.getUser.profile.contact.imageFilePath
-      this.bio = result.value.getUser.profile.bio
-
-      console.log(result.value.getUser.profile.contact.name)
-      console.log(result.value.getUser.profile.contact.email)
-
-      if (result.value.getUser.workspaces.length > 0) {
-        this.workspaces.push(...result.value.getUser.workspaces)
+      this.name = data.getUser.profile.contact.name
+      this.email = data.getUser.profile.contact.email
+      this.imageFilePath = data.getUser.profile.contact.imageFilePath
+      this.bio = data.getUser.profile.bio
+      
+      if (data.getUser.workspaces.length > 0) {
+        this.workspaces.push(...data.getUser.workspaces)
       }
-      console.log(`feched data for ${result.value.getUser.entity}`)
-    }
-  },
-
-  mounted() {
-    this.fetchData()
-  },
+  }
 }
 </script>
 
