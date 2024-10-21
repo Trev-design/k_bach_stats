@@ -1,18 +1,20 @@
 <script>
-import Topbar from './components/Topbar.vue'
-import BackToHomeButton from './components/BackToHomeButton.vue';
+import BackToHomeButton from './components/BackToHomeButton.vue'
 import SignoutButton from './components/SignoutButton.vue'
+import ProtectedTopBar from './components/ProtectedTopBar.vue'
 
 export default {
   name: 'App',
   components: {
-    Topbar,
+    ProtectedTopBar,
     BackToHomeButton,
     SignoutButton
   },
+
   data() {
     return {
-      refreshInterval: null
+      refreshInterval: null,
+      isUnfold: false
     }
   },
 
@@ -42,10 +44,13 @@ export default {
 
 <template>
   <div>
-    <Topbar v-if="$store.getters.isAuthenticated">
+    <ProtectedTopBar 
+      v-if="$store.getters.isAuthenticated" 
+      v-model:isUnfold="isUnfold"
+      @unfold="isUnfold = !isUnfold">
       <BackToHomeButton/>
       <SignoutButton/>
-    </Topbar>
+    </ProtectedTopBar>
     <router-view></router-view>
   </div>
 </template>
