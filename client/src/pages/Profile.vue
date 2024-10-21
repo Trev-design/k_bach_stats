@@ -6,17 +6,17 @@
         <h3 class="name"> {{ name }} </h3>
       </div>
       <div class="profile-details">
-        <p class="name-field"> {{ name }} </p>
-        <p class="email-f"> {{ email }} </p>
+        <p class="detail-field"> {{ name }} </p>
+        <p class="detail-field"> {{ email }} </p>
       </div>
     </section>
     <div class="profile-edit">
       <router-link class="edit-router-link">settings</router-link>
       <router-link class="edit-router-link">edit profile</router-link>
     </div>
-    <section class="workspace">
-
-    </section>
+    <div class="bio-container">
+      <p class="bio"></p>
+    </div>
   </section>
 </template>
 
@@ -59,21 +59,64 @@ export default {
 .profile-page-container {
   display: flex;
   flex-direction: column;
-  width: 100vw;
+  width: 85vw;
 }
 
 .profile-details-container {
   display: flex;
   flex-direction: row;
-  width: 100vw;
+  justify-content: space-arround;
   height: 200px;
-  justify-content: space-around
 }
 
 .profile-image-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: left;
+  width: 40%;
+  padding-left: 16rem;
+}
+
+.profile-image {
+  width: 80px;
+  height: 80px;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: left;
+}
+
+.name {
+  font-size: 1.1rem;
+  color: rgb(170, 225, 205);
+}
+
+.profile-edit {
+  display: flex;
+  justify-content: right;
   align-items: center;
 }
+
+.edit-router-link {
+  text-decoration: none;
+  padding: 0 0.75rem;
+  font-size: 1.1rem;
+  color: rgb(100, 175, 125);
+  transition: all 0.3s ease;
+}
+
+.edit-router-link:hover {
+  color: rgb(215, 125, 225);
+}
+
+.detail-field {
+  font-size: 1.1rem;
+  color: rgb(170, 225, 205);
+  padding: 0.6rem 0;
+}
+
 </style>
