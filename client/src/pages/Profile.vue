@@ -36,7 +36,7 @@ export default {
     }
   },
 
-  async mounted() {
+  async created() {
     const id = localStorage.getItem('initialUser')
       const { data } = await this.$apollo.query({
         query: GET_ACCOUNT,
@@ -75,7 +75,7 @@ export default {
   justify-content: center;
   align-items: left;
   width: 40%;
-  padding-left: 16rem;
+  padding-left: 200px;
 }
 
 .profile-image {

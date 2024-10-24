@@ -2,13 +2,15 @@
 import BackToHomeButton from './components/BackToHomeButton.vue'
 import SignoutButton from './components/SignoutButton.vue'
 import ProtectedTopBar from './components/ProtectedTopBar.vue'
+import ProtectedSidebar from './components/ProtectedSidebar.vue'
 
 export default {
   name: 'App',
   components: {
     ProtectedTopBar,
     BackToHomeButton,
-    SignoutButton
+    SignoutButton,
+    ProtectedSidebar
   },
 
   data() {
@@ -51,6 +53,10 @@ export default {
       <BackToHomeButton/>
       <SignoutButton/>
     </ProtectedTopBar>
+    <ProtectedSidebar 
+      v-if="$store.getters.isAuthenticated" 
+      v-model:isUnfold="isUnfold"
+    />
     <router-view></router-view>
   </div>
 </template>
