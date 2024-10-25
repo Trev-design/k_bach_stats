@@ -2,6 +2,16 @@
 
 package model
 
+type BioCredentials struct {
+	UserID string `json:"userID"`
+	Input  string `json:"input"`
+}
+
+type ChangeNameCredentials struct {
+	UserID  string `json:"userID"`
+	Newname string `json:"newname"`
+}
+
 type CompleteWorkspace struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -30,8 +40,9 @@ type InvitationCredentials struct {
 }
 
 type InvitationInfo struct {
-	ID   string `json:"id"`
-	Info string `json:"info"`
+	ID     string `json:"id"`
+	Info   string `json:"info"`
+	UserID string `json:"userID"`
 }
 
 type JoinRequest struct {
@@ -48,8 +59,9 @@ type JoinRequestCredentials struct {
 }
 
 type JoinRequestInfo struct {
-	ID   string `json:"id"`
-	Info string `json:"info"`
+	ID            string `json:"id"`
+	Info          string `json:"info"`
+	JoinRequestID string `json:"joinRequestID"`
 }
 
 type Mutation struct {

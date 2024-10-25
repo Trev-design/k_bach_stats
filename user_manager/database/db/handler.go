@@ -117,15 +117,150 @@ func (db *Database) GetUserFromDB(entity string) (*model.User, error) {
 }
 
 func (db *Database) GetInvitationInfosFromDB(userID string) ([]*model.InvitationInfo, error) {
-	panic(fmt.Errorf("not implemented"))
+	rows, err := db.Query(invitationInfos, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	invitationInfos := make([]*model.InvitationInfo, 0)
+
+	for rows.Next() {
+		invitationInfo := new(model.InvitationInfo)
+		if err := rows.Scan(
+			&invitationInfo.ID,
+			&invitationInfo.Info,
+			&invitationInfo.UserID,
+		); err != nil {
+			return nil, err
+		}
+
+		if err := uuidFromBin(
+			&invitationInfo.ID,
+			&invitationInfo.UserID,
+		); err != nil {
+			return nil, err
+		}
+
+		invitationInfos = append(invitationInfos, invitationInfo)
+	}
+
+	return invitationInfos, nil
 }
 
 func (db *Database) GetJoinRequestInfosFromDB(workspaceID string) ([]*model.JoinRequestInfo, error) {
-	panic(fmt.Errorf("not implemented"))
+	rows, err := db.Query(joinRequestInfos, workspaceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	requests := make([]*model.JoinRequestInfo, 0)
+
+	for rows.Next() {
+		request := new(model.JoinRequestInfo)
+
+		if err := rows.Scan(
+			&request.ID,
+			&request.Info,
+			&request.JoinRequestID,
+		); err != nil {
+			return nil, err
+		}
+
+		if err := uuidFromBin(
+			&request.ID,
+			&request.JoinRequestID,
+		); err != nil {
+			return nil, err
+		}
+
+		requests = append(requests, request)
+	}
+
+	return requests, nil
 }
 
 func (db *Database) GetWorkspaceFromDB(workspaceID string) (*model.CompleteWorkspace, error) {
-	panic(fmt.Errorf("not implemented"))
+	rows, err := db.Query(completeWorkspace, workspaceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	workspace := &model.CompleteWorkspace{
+		Contacts: make([]*model.Contact, 0),
+		News:     make([]*model.InvitationInfo, 0),
+	}
+
+	var contactID sql.NullString
+	var contactName sql.NullString
+	var contactEmail sql.NullString
+	var contactImagefilePath sql.NullString
+
+	var invitationInfoID sql.NullString
+	var invitationInfoInfo sql.NullString
+	var invitationInfoInvitationID sql.NullString
+
+	for rows.Next() {
+		if err := rows.Scan(
+			&workspace.ID,
+			&workspace.Name,
+			&workspace.Description,
+			&contactID,
+			&contactName,
+			&contactEmail,
+			&contactImagefilePath,
+			&invitationInfoID,
+			&invitationInfoInfo,
+			&invitationInfoInvitationID,
+		); err != nil {
+			return nil, err
+		}
+
+		if validvalues(
+			contactID,
+			contactName,
+			contactEmail,
+			contactImagefilePath,
+		) {
+			contact := &model.Contact{
+				ID:            contactID.String,
+				Name:          contactName.String,
+				Email:         contactEmail.String,
+				ImageFilePath: contactImagefilePath.String,
+			}
+
+			if err := uuidFromBin(&contact.ID); err != nil {
+				return nil, err
+			}
+
+			workspace.Contacts = append(workspace.Contacts, contact)
+		}
+
+		if validvalues(
+			invitationInfoID,
+			invitationInfoInfo,
+			invitationInfoInvitationID,
+		) {
+			invitationInfo := &model.InvitationInfo{
+				ID:     invitationInfoID.String,
+				Info:   invitationInfoInfo.String,
+				UserID: invitationInfoInvitationID.String,
+			}
+
+			if err := uuidFromBin(
+				&invitationInfo.ID,
+				&invitationInfo.UserID,
+			); err != nil {
+				return nil, err
+			}
+
+			workspace.News = append(workspace.News, invitationInfo)
+		}
+	}
+
+	return workspace, nil
 }
 
 func (db *Database) CreateNewWorkspace(credentials model.WorkspaceCredentials) error {
@@ -138,6 +273,30 @@ func (db *Database) PushInvitation(credentials model.InvitationCredentials) erro
 
 func (db *Database) PushJoinRequest(credentials model.JoinRequestCredentials) error {
 	panic(fmt.Errorf("not implemented"))
+}
+
+func (db *Database) UpdateBio(credentials model.BioCredentials) error {
+	if _, err := db.Exec(
+		updateBio,
+		credentials.Input,
+		credentials.UserID,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *Database) UpdateName(credentials model.ChangeNameCredentials) error {
+	if _, err := db.Exec(
+		updateName,
+		credentials.Newname,
+		credentials.UserID,
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func uuidFromBin(binaryIDs ...*string) error {
@@ -180,4 +339,14 @@ func (db *Database) removeItem(query string, args ...any) error {
 		return err
 	}
 	return nil
+}
+
+func validvalues(strings ...sql.NullString) bool {
+	for _, val := range strings {
+		if !val.Valid {
+			return false
+		}
+	}
+
+	return true
 }

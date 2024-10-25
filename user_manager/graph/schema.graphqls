@@ -35,11 +35,13 @@ type CompleteWorkspace {
 type InvitationInfo {
   id: ID!
   info: String!
+  userID: ID!
 }
 
 type JoinRequestInfo {
   id: ID!
   info: String!
+  joinRequestID: ID!
 }
 
 type JoinRequest {
@@ -61,27 +63,39 @@ type Query {
 }
 
 type Mutation {
+  changeName(input: ChangeNameCredentials!): String!
+  addBio(input: BioCredentials!): String!
   createWorkspace(input: WorkspaceCredentials!): Workspace!
   sendInvitation(credentials: InvitationCredentials!): String!
   sendJoinRequest(credentials: JoinRequestCredentials!): String!
 }
 
+input ChangeNameCredentials {
+  userID: String!
+  newname: String!
+}
+
+input BioCredentials {
+  userID: String!
+  input: String!
+}
+
 input WorkspaceCredentials {
-  userID: ID!
+  userID: String!
   name: String!
   description: String!
 }
 
 input InvitationCredentials{
-  invitorID: ID!
-  receiverID: ID!
-  workspaceID: ID!
+  invitorID: String!
+  receiverID: String!
+  workspaceID: String!
   info: String!
 }
 
 input JoinRequestCredentials{
-  workspaceID: ID!
-  requestID: ID!
+  workspaceID: String!
+  requestID: String!
   info: String!
   reason: String!
 }

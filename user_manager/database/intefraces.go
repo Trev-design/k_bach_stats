@@ -21,4 +21,6 @@ type StoreHandler interface {
 	CreateNewWorkspace(credentials model.WorkspaceCredentials) error
 	PushInvitation(credentials model.InvitationCredentials) error
 	PushJoinRequest(credentials model.JoinRequestCredentials) error
+	UpdateBio(credentials model.BioCredentials) error
+	UpdateName(credentials model.ChangeNameCredentials) error
 }

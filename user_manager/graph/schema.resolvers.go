@@ -10,6 +10,16 @@ import (
 	"user_manager/graph/model"
 )
 
+// ChangeName is the resolver for the changeName field.
+func (r *mutationResolver) ChangeName(ctx context.Context, input model.ChangeNameCredentials) (string, error) {
+	panic(fmt.Errorf("not implemented: ChangeName - changeName"))
+}
+
+// AddBio is the resolver for the addBio field.
+func (r *mutationResolver) AddBio(ctx context.Context, input model.BioCredentials) (string, error) {
+	panic(fmt.Errorf("not implemented: AddBio - addBio"))
+}
+
 // CreateWorkspace is the resolver for the createWorkspace field.
 func (r *mutationResolver) CreateWorkspace(ctx context.Context, input model.WorkspaceCredentials) (*model.Workspace, error) {
 	panic(fmt.Errorf("not implemented: CreateWorkspace - createWorkspace"))

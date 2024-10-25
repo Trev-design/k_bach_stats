@@ -38,4 +38,49 @@ const (
 	userCredentials = `
 	SELECT u.id FROM users u WHERE u.entity = ?;
 	`
+
+	updateBio = `
+	UPDATE profiles SET bio = ? WHERE id = UNHEX(REPLACE(?, "-", ""));
+	`
+
+	updateName = `
+	UPDATE contacts SET name = ? WHERE id = UNHEX(REPLACE(?, "-", ""))
+	`
+
+	joinRequestInfos = `
+	SELECT 
+		jri.id
+		jri.info,
+		jri.join_request_id
+	FROM join_request_infos jri
+	WHERE jri.user_id = UNHEX(REPLACE(?, "-", ""));
+	`
+
+	invitationInfos = `
+	SELECT 
+		i.id,
+		i.info,
+		i.invitation_id
+	FROM invitation_infos i
+	WHERE i.workspace_id = UNHEX(REPLACE(?, "-", ""));
+	`
+
+	completeWorkspace = `
+	SELECT
+		w.id,
+		w.name,
+		w.description,
+		c.id,
+		c.name,
+		c.email,
+		c.image_file_path,
+		i.id,
+		i.info,
+		i.invitation_id
+	FROM workspaces w
+	LEFT JOIN workspaces_contacts wc ON w.id = wc.workspace_id
+	LEFT JOIN contacts c ON wc.contact_id = c.id
+	LEFT JOIN invitation_infos i ON w.id = i.workspace_id
+	WHERE w.id = UNHEX(REPLACE(?, "-", ""));
+	`
 )
