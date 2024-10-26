@@ -264,15 +264,52 @@ func (db *Database) GetWorkspaceFromDB(workspaceID string) (*model.CompleteWorks
 }
 
 func (db *Database) CreateNewWorkspace(credentials model.WorkspaceCredentials) error {
-	panic(fmt.Errorf("not implemented"))
+	guid := uuid.New().String()
+
+	if _, err := db.Exec(
+		createWorkspaceQuery,
+		guid,
+		credentials.Name,
+		credentials.Description,
+		credentials.UserID,
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (db *Database) PushInvitation(credentials model.InvitationCredentials) error {
-	panic(fmt.Errorf("not implemented"))
+	guid := uuid.New().String()
+	if _, err := db.Exec(
+		createInvitationQuery,
+		guid,
+		credentials.Info,
+		credentials.InvitorID,
+		credentials.ReceiverID,
+		credentials.WorkspaceID,
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (db *Database) PushJoinRequest(credentials model.JoinRequestCredentials) error {
-	panic(fmt.Errorf("not implemented"))
+	guid := uuid.New().String()
+
+	if _, err := db.Exec(
+		createRequestQuery,
+		guid,
+		credentials.Info,
+		credentials.Reason,
+		credentials.WorkspaceID,
+		credentials.RequestID,
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (db *Database) UpdateBio(credentials model.BioCredentials) error {

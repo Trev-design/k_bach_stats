@@ -43,6 +43,17 @@ const (
 	UPDATE profiles SET bio = ? WHERE id = UNHEX(REPLACE(?, "-", ""));
 	`
 
+	createWorkspaceQuery = `
+	INSERT INTO workspaces (id, name, description, user_id) VALUES (UNHEX(REPLACE(?, "-", "")), ?, ?, UNHEX(REPLACE(?, "-", "")));
+	`
+
+	createInvitationQuery = `
+	INSERT INTO invitations (id, info, invitors_id, receiver_id, workspace_id) VALUES (UNHEX(REPLAC(?, "-", "")), ? , UNHEX(REPLACE(?, "-", "")), UNHEX(REPLACE(?, "-", "")), UNHEX(REPLACE(?, "-"; "")));
+	`
+	createRequestQuery = `
+	INSERT INTO join_requests (id, info, reason, workspace_id, request_id) VALUES (UNHEX(REPLACE(?, "-", "")), ?, ?, UNHEX(REPLACE(?, "-", "")), UNHEX(REPLACE(?, "-", ""))),
+	`
+
 	updateName = `
 	UPDATE contacts SET name = ? WHERE id = UNHEX(REPLACE(?, "-", ""))
 	`
