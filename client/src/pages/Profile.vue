@@ -10,6 +10,25 @@
         <p class="detail-field"> {{ email }} </p>
       </div>
     </section>
+    <section class="person-details-container">
+      <div class="expierence-container">
+        <div 
+          v-for="workspace in workspaces"
+          :key="workspace.key" 
+          class="experience"
+        >
+          <p class="experience-description"> {{ workspace.name }} </p>
+          <Icon 
+            v-for="star in 5"
+            :key="star" 
+            :class="`experience-star-rating-container ${star <= workspace.rating ? 'filled' : ''}`" 
+            icon="material-symbols:star-outline-rounded"/>
+        </div>
+      </div>
+      <div class="bio-container">
+        <p class="bio-text">{{bio}}</p>
+      </div>
+    </section>
     <div class="profile-edit">
       <router-link class="edit-router-link">settings</router-link>
       <router-link class="edit-router-link">edit profile</router-link>
@@ -22,16 +41,21 @@
 
 <script>
 import { GET_ACCOUNT } from '../queries'
+import { Icon } from '@iconify/vue'
 
 export default {
   name: 'Profile',
+
+  components: {
+    Icon
+  },
 
   data() {
     return {
       name: '',
       email: '',
       imageFilePath: '',
-      bio: '',
+      bio: 'no bio actually',
       workspaces: []
     }
   },
@@ -46,7 +70,10 @@ export default {
       this.name = data.getUser.profile.contact.name
       this.email = data.getUser.profile.contact.email
       this.imageFilePath = data.getUser.profile.contact.imageFilePath
-      this.bio = data.getUser.profile.bio
+
+      if (data.getUser.profile.bio !== "") {
+        this.bio = data.getUser.profile.bio
+      }
       
       if (data.getUser.workspaces.length > 0) {
         this.workspaces.push(...data.getUser.workspaces)
@@ -65,7 +92,7 @@ export default {
 .profile-details-container {
   display: flex;
   flex-direction: row;
-  justify-content: space-arround;
+  justify-content: space-around;
   height: 200px;
 }
 
@@ -119,4 +146,59 @@ export default {
   padding: 0.6rem 0;
 }
 
+.person-details-container {
+  width: inherit;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+.expierence-container {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+}
+
+.experience {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem;
+}
+
+.experience-description {
+  font-size: 1.2rem;
+  color: rgb(170, 225, 205);
+}
+
+.experience-star-rating-container {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin: 0.2rem;
+  color: rgb(100, 103, 125);
+}
+
+.experience-star-rating-container.filled {
+  color: rgb(240, 240, 100);
+}
+
+.bio-container {
+  width: 50%;
+  min-height: 350px;
+  height: inherit;
+  border: 1px solid rgb(170, 225, 205);
+  border-radius: 5px;
+  display: flex;
+  justify-content: start;
+  align-items: left;
+}
+
+.bio-text {
+  margin: 1.2rem;
+  font-size: 1.15rem;
+  color: rgb(170, 225, 205);
+}
 </style>
+
