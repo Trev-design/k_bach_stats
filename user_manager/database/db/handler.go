@@ -77,11 +77,11 @@ func (db *Database) GetUserFromDB(entity string) (*model.User, error) {
 		Profile: &model.Profile{
 			Contact: &model.Contact{},
 		},
-		Workspaces: make([]*model.Workspace, 0),
+		Experiences: make([]*model.Experience, 0),
 	}
 
-	var workspace_id sql.NullString
-	var workspace_name sql.NullString
+	var experienceName sql.NullString
+	var rating sql.NullInt32
 
 	for rows.Next() {
 		if err := rows.Scan(
@@ -94,18 +94,15 @@ func (db *Database) GetUserFromDB(entity string) (*model.User, error) {
 			&user.Profile.Contact.Name,
 			&user.Profile.Contact.Email,
 			&user.Profile.Contact.ImageFilePath,
-			&workspace_id,
-			&workspace_name,
+			&experienceName,
+			&rating,
 		); err != nil {
 			return nil, err
 		}
 
-		if workspace_id.Valid && workspace_name.Valid {
-			workspace := &model.Workspace{ID: workspace_id.String, Name: workspace_name.String}
-			if err := uuidFromBin(&workspace.ID); err != nil {
-				return nil, err
-			}
-			user.Workspaces = append(user.Workspaces, workspace)
+		if experienceName.Valid && rating.Valid {
+			experience := &model.Experience{Experience: experienceName.String, Rating: int(rating.Int32)}
+			user.Experiences = append(user.Experiences, experience)
 		}
 	}
 
@@ -130,14 +127,14 @@ func (db *Database) GetInvitationInfosFromDB(userID string) ([]*model.Invitation
 		if err := rows.Scan(
 			&invitationInfo.ID,
 			&invitationInfo.Info,
-			&invitationInfo.UserID,
+			&invitationInfo.InvitationID,
 		); err != nil {
 			return nil, err
 		}
 
 		if err := uuidFromBin(
 			&invitationInfo.ID,
-			&invitationInfo.UserID,
+			&invitationInfo.InvitationID,
 		); err != nil {
 			return nil, err
 		}
@@ -244,14 +241,14 @@ func (db *Database) GetWorkspaceFromDB(workspaceID string) (*model.CompleteWorks
 			invitationInfoInvitationID,
 		) {
 			invitationInfo := &model.InvitationInfo{
-				ID:     invitationInfoID.String,
-				Info:   invitationInfoInfo.String,
-				UserID: invitationInfoInvitationID.String,
+				ID:           invitationInfoID.String,
+				Info:         invitationInfoInfo.String,
+				InvitationID: invitationInfoInvitationID.String,
 			}
 
 			if err := uuidFromBin(
 				&invitationInfo.ID,
-				&invitationInfo.UserID,
+				&invitationInfo.InvitationID,
 			); err != nil {
 				return nil, err
 			}
@@ -328,6 +325,78 @@ func (db *Database) UpdateName(credentials model.ChangeNameCredentials) error {
 	if _, err := db.Exec(
 		updateName,
 		credentials.Newname,
+		credentials.UserID,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *Database) NewExperience(credentials model.NewExperienceCredentials) error {
+	var experienceID string
+	err := db.QueryRow(experienceByNameQuery, credentials.Experience).Scan(&experienceID)
+
+	if err == sql.ErrNoRows {
+		return db.insertNewExperience(credentials)
+	} else if err != nil {
+		return err
+	}
+
+	experience := model.ExperienceCredentials{
+		UserID:       credentials.UserID,
+		ProfileID:    credentials.ProfileID,
+		Rating:       credentials.Rating,
+		ExperienceID: experienceID,
+	}
+
+	return db.AddExperience(experience)
+}
+
+func (db *Database) AddExperience(credentials model.ExperienceCredentials) error {
+	guid := uuid.New().String()
+
+	if _, err := db.Exec(
+		addRatingQuery,
+		guid,
+		credentials.Rating,
+		credentials.ExperienceID,
+		credentials.UserID,
+	); err != nil {
+		return err
+	}
+
+	return db.insertrating(credentials)
+}
+
+func (db *Database) insertNewExperience(credentials model.NewExperienceCredentials) error {
+	guid := uuid.New().String()
+
+	if _, err := db.Exec(
+		addExperienceQuery,
+		credentials.Experience,
+		credentials.UserID,
+	); err != nil {
+		return err
+	}
+
+	if _, err := db.Exec(
+		addProfileExperienceJoinItemQuery,
+		guid,
+		credentials.ProfileID,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *Database) insertrating(credentials model.ExperienceCredentials) error {
+	guid := uuid.New().String()
+	if _, err := db.Exec(
+		addRatingQuery,
+		guid,
+		credentials.ExperienceID,
 		credentials.UserID,
 	); err != nil {
 		return err

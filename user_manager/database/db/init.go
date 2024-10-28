@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/google/uuid"
 )
 
 func resetDatabase() (*sql.DB, error) {
@@ -78,21 +77,5 @@ func initTables() (*sql.DB, error) {
 		}
 	}
 
-	if err = insertRatingItems(db); err != nil {
-		return nil, err
-	}
-
 	return db, nil
-}
-
-func insertRatingItems(db *sql.DB) error {
-	for i := 0; i < 5; i++ {
-		guid := uuid.New()
-		_, err := db.Exec(insertRating, guid, i+1)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

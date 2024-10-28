@@ -23,4 +23,6 @@ type StoreHandler interface {
 	PushJoinRequest(credentials model.JoinRequestCredentials) error
 	UpdateBio(credentials model.BioCredentials) error
 	UpdateName(credentials model.ChangeNameCredentials) error
+	NewExperience(credentials model.NewExperienceCredentials) error
+	AddExperience(credentials model.ExperienceCredentials) error
 }

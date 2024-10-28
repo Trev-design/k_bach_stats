@@ -3,7 +3,7 @@ type User {
   entity: String!
   requests: Int!
   profile: Profile!
-  workspaces: [Workspace!]! 
+  experiences: [Experience!]!
 }
 
 type Profile {
@@ -32,10 +32,15 @@ type CompleteWorkspace {
   news: [InvitationInfo!]!
 }
 
+type Experience {
+  experience: String!
+  rating: Int!
+}
+
 type InvitationInfo {
   id: ID!
   info: String!
-  userID: ID!
+  invitationID: ID!
 }
 
 type JoinRequestInfo {
@@ -66,8 +71,24 @@ type Mutation {
   changeName(input: ChangeNameCredentials!): String!
   addBio(input: BioCredentials!): String!
   createWorkspace(input: WorkspaceCredentials!): Workspace!
-  sendInvitation(credentials: InvitationCredentials!): String!
-  sendJoinRequest(credentials: JoinRequestCredentials!): String!
+  sendInvitation(input: InvitationCredentials!): String!
+  sendJoinRequest(input: JoinRequestCredentials!): String!
+  createExperience(input: NewExperienceCredentials!): String!
+  addExperience(input: ExperienceCredentials!): String!
+}
+
+input ExperienceCredentials {
+  userID: String!
+  profileID: String!
+  experienceID: String!
+  rating: Int!
+}
+
+input NewExperienceCredentials {
+  userID: String!
+  profileID: String!
+  experience: String!
+  rating: Int!
 }
 
 input ChangeNameCredentials {

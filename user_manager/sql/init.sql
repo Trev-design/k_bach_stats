@@ -53,14 +53,18 @@ CREATE TABLE IF NOT EXISTS workspaces_contacts(
 
 CREATE TABLE IF NOT EXISTS experiences(
     id BINARY(16) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
     user_id BINARY(16),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE IF NOT EXISTS self_assessments(
+CREATE TABLE IF NOT EXISTS ratings(
     id BINARY(16) PRIMARY KEY,
-    rating TINYINT NOT NULL UNIQUE
+    rating INT NOT NULL,
+    experience_id BINARY(16),
+    user_id BINARY(16),
+    FOREIGN KEY (experience_id) REFERENCES experiences(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS experiences_profiles(
@@ -69,14 +73,6 @@ CREATE TABLE IF NOT EXISTS experiences_profiles(
     PRIMARY KEY (experience_id, profile_id),
     FOREIGN KEY (experience_id) REFERENCES experiences(id) ON DELETE CASCADE,
     FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS experiences_self_assessments(
-    experience_id BINARY(16),
-    self_assessment_id BINARY(16),
-    PRIMARY KEY (experience_id, self_assessment_id),
-    FOREIGN KEY (experience_id) REFERENCES experiences(id) ON DELETE CASCADE,
-    FOREIGN KEY (self_assessment_id) REFERENCES self_assessments(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS invitations(

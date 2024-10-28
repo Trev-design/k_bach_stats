@@ -27,6 +27,18 @@ type Contact struct {
 	ImageFilePath string `json:"imageFilePath"`
 }
 
+type Experience struct {
+	Experience string `json:"experience"`
+	Rating     int    `json:"rating"`
+}
+
+type ExperienceCredentials struct {
+	UserID       string `json:"userID"`
+	ProfileID    string `json:"profileID"`
+	ExperienceID string `json:"experienceID"`
+	Rating       int    `json:"rating"`
+}
+
 type Invitation struct {
 	ID   string `json:"id"`
 	Info string `json:"info"`
@@ -40,9 +52,9 @@ type InvitationCredentials struct {
 }
 
 type InvitationInfo struct {
-	ID     string `json:"id"`
-	Info   string `json:"info"`
-	UserID string `json:"userID"`
+	ID           string `json:"id"`
+	Info         string `json:"info"`
+	InvitationID string `json:"invitationID"`
 }
 
 type JoinRequest struct {
@@ -67,6 +79,13 @@ type JoinRequestInfo struct {
 type Mutation struct {
 }
 
+type NewExperienceCredentials struct {
+	UserID     string `json:"userID"`
+	ProfileID  string `json:"profileID"`
+	Experience string `json:"experience"`
+	Rating     int    `json:"rating"`
+}
+
 type Profile struct {
 	ID      string   `json:"id"`
 	Bio     string   `json:"bio"`
@@ -77,11 +96,11 @@ type Query struct {
 }
 
 type User struct {
-	ID         string       `json:"id"`
-	Entity     string       `json:"entity"`
-	Requests   int          `json:"requests"`
-	Profile    *Profile     `json:"profile"`
-	Workspaces []*Workspace `json:"workspaces"`
+	ID          string        `json:"id"`
+	Entity      string        `json:"entity"`
+	Requests    int           `json:"requests"`
+	Profile     *Profile      `json:"profile"`
+	Experiences []*Experience `json:"experiences"`
 }
 
 type Workspace struct {

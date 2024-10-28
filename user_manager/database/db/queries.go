@@ -9,8 +9,6 @@ const (
 
 	createDatatabas = `CREATE DATABASE IF NOT EXISTS user_database;`
 
-	insertRating = `INSERT INTO self_assessments (id, rating) VALUES (UNHEX(REPLACE(?, "-", "")), ?);`
-
 	dropDatabase = `DROP DATABASE user_database;`
 
 	removeUser = `DELETE FROM users WHERE entity = ?`
@@ -26,12 +24,14 @@ const (
 		c.name,
 		c.email,
 		c.image_file_path,
-		w.id,
-		w.name
+		e.name,
+		r.rating
 	FROM users u
 	JOIN profiles p ON u.id = p.user_id
 	JOIN contacts c ON p.id = c.profile_id
-	LEFT JOIN workspaces w ON u.id = w.user_id 
+	LEFT JOIN experiences_profiles ep ON p.id = ep.profile_id
+	LEFT JOIN experiences e ON ep.experience_id = e.id
+	LEFT JOIN ratings r ON e.id = r.experience_id AND u.id = r.user_id
 	WHERE u.id = UNHEX(REPLACE(?, "-", ""));
 	`
 
@@ -56,6 +56,22 @@ const (
 
 	updateName = `
 	UPDATE contacts SET name = ? WHERE id = UNHEX(REPLACE(?, "-", ""))
+	`
+
+	experienceByNameQuery = `
+	SELECT e.id FROM experiences e WHERE e.name = ?
+	`
+
+	addExperienceQuery = `
+	INSERT INTO experiences (id, name, user_id) VALUES (UNHEX(REPLACE(?, "_", "")), ?, UNHEX(REPLACE(?, "_", "")));
+	`
+
+	addProfileExperienceJoinItemQuery = `
+	INSERT INTO experiences_profiles (experience_id, profile_id) VALUES (UNHEX(REPLACE(?, "-", "")), UNHEX(REPLACE(?, "-", "")));
+	`
+
+	addRatingQuery = `
+	INSERT INTO ratings (id, rating, experience_id, user_id) VALUES (UNHEX(REPLACE(?, "-", "")), ?, UNHEX(REPLACE(?, "-", "")), UNHEX(REPLACE(?, "-", "")));
 	`
 
 	joinRequestInfos = `

@@ -26,13 +26,23 @@ func (r *mutationResolver) CreateWorkspace(ctx context.Context, input model.Work
 }
 
 // SendInvitation is the resolver for the sendInvitation field.
-func (r *mutationResolver) SendInvitation(ctx context.Context, credentials model.InvitationCredentials) (string, error) {
+func (r *mutationResolver) SendInvitation(ctx context.Context, input model.InvitationCredentials) (string, error) {
 	panic(fmt.Errorf("not implemented: SendInvitation - sendInvitation"))
 }
 
 // SendJoinRequest is the resolver for the sendJoinRequest field.
-func (r *mutationResolver) SendJoinRequest(ctx context.Context, credentials model.JoinRequestCredentials) (string, error) {
+func (r *mutationResolver) SendJoinRequest(ctx context.Context, input model.JoinRequestCredentials) (string, error) {
 	panic(fmt.Errorf("not implemented: SendJoinRequest - sendJoinRequest"))
+}
+
+// CreateExperience is the resolver for the createExperience field.
+func (r *mutationResolver) CreateExperience(ctx context.Context, input model.NewExperienceCredentials) (string, error) {
+	panic(fmt.Errorf("not implemented: CreateExperience - createExperience"))
+}
+
+// AddExperience is the resolver for the addExperience field.
+func (r *mutationResolver) AddExperience(ctx context.Context, input model.ExperienceCredentials) (string, error) {
+	panic(fmt.Errorf("not implemented: AddExperience - addExperience"))
 }
 
 // GetUser is the resolver for the getUser field.
