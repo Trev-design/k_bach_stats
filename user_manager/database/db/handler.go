@@ -82,6 +82,7 @@ func (db *Database) GetUserFromDB(entity string) (*model.User, error) {
 
 	var experienceName sql.NullString
 	var rating sql.NullInt32
+	var ratingID sql.NullString
 
 	for rows.Next() {
 		if err := rows.Scan(
@@ -96,12 +97,17 @@ func (db *Database) GetUserFromDB(entity string) (*model.User, error) {
 			&user.Profile.Contact.ImageFilePath,
 			&experienceName,
 			&rating,
+			&ratingID,
 		); err != nil {
 			return nil, err
 		}
 
-		if experienceName.Valid && rating.Valid {
-			experience := &model.Experience{Experience: experienceName.String, Rating: int(rating.Int32)}
+		if experienceName.Valid && rating.Valid && ratingID.Valid {
+			experience := &model.Experience{
+				Experience: experienceName.String,
+				Rating:     int(rating.Int32),
+				ID:         ratingID.String,
+			}
 			user.Experiences = append(user.Experiences, experience)
 		}
 	}

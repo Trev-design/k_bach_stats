@@ -25,7 +25,8 @@ const (
 		c.email,
 		c.image_file_path,
 		e.name,
-		r.rating
+		r.rating,
+		r.id
 	FROM users u
 	JOIN profiles p ON u.id = p.user_id
 	JOIN contacts c ON p.id = c.profile_id

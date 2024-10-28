@@ -13,9 +13,10 @@ query getUser($userID: String!) {
         imageFilePath
       }
     }
-    workspaces {
+    experiences {
+      experience,
+      rating,
       id
-      name
     }
   }
 }

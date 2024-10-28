@@ -16,6 +16,8 @@ import VueApolloComponents from '@vue/apollo-components'
 import { provideApolloClient } from '@vue/apollo-composable'
 import { h } from 'vue'
 import Profile from './pages/Profile.vue'
+import EditProfilePage from './pages/EditProfilePage.vue'
+import ProfileSettingsPage from './pages/ProfileSettingsPage.vue'
 
 
 const routes = [
@@ -25,7 +27,9 @@ const routes = [
   {path: '/verify', component: VerifyPage},
   {path: '/new-verify', component: NewVerifyPage, props: {action: 'new_verify'}},
   {path: '/account/:id', component: Home, meta: {requiredAuth: true}},
-  {path: '/account/:id/:name', component: Profile, meta: {requiredAuth: true}}
+  {path: '/account/:id/:name', component: Profile, meta: {requiredAuth: true}},
+  {path: '/account/:id/:name/edit', component: EditProfilePage, meta: {requiredAuth: true}},
+  {path: '/account/:id/:name/settings', component: ProfileSettingsPage, meta: {requiredAuth: true}},
 ]
 
 const router = createRouter({

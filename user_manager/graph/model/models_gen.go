@@ -28,6 +28,7 @@ type Contact struct {
 }
 
 type Experience struct {
+	ID         string `json:"id"`
 	Experience string `json:"experience"`
 	Rating     int    `json:"rating"`
 }

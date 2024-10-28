@@ -13,16 +13,20 @@
     <section class="person-details-container">
       <div class="expierence-container">
         <div 
-          v-for="workspace in workspaces"
-          :key="workspace.key" 
+          v-for="experience in experiences"
+          :key="experience.id" 
           class="experience"
         >
-          <p class="experience-description"> {{ workspace.name }} </p>
+          <p class="experience-description"> {{ experience.experience }} </p>
           <Icon 
             v-for="star in 5"
             :key="star" 
-            :class="`experience-star-rating-container ${star <= workspace.rating ? 'filled' : ''}`" 
+            :class="`experience-star-rating-container ${star <= experience.rating ? 'filled' : ''}`" 
             icon="material-symbols:star-outline-rounded"/>
+
+        </div>
+        <div class="add-experience-button-container">
+          <button class="add-experience-button">add experience</button>
         </div>
       </div>
       <div class="bio-container">
@@ -30,11 +34,8 @@
       </div>
     </section>
     <div class="profile-edit">
-      <router-link class="edit-router-link">settings</router-link>
-      <router-link class="edit-router-link">edit profile</router-link>
-    </div>
-    <div class="bio-container">
-      <p class="bio"></p>
+      <router-link :to="`/account/${account}/${user}/settings`" class="edit-router-link">settings</router-link>
+      <router-link :to="`/account/${account}/${user}/edit`" class="edit-router-link">edit profile</router-link>
     </div>
   </section>
 </template>
@@ -75,9 +76,19 @@ export default {
         this.bio = data.getUser.profile.bio
       }
       
-      if (data.getUser.workspaces.length > 0) {
-        this.workspaces.push(...data.getUser.workspaces)
+      if (data.getUser.experiences.length > 0) {
+        this.experiences.push(...data.getUser.workspaces)
       }
+  },
+
+  computed: {
+    user() {
+      return localStorage.getItem('username')
+    },
+
+    account() {
+      return localStorage.getItem('account')
+    }
   }
 }
 </script>
@@ -92,7 +103,7 @@ export default {
 .profile-details-container {
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: space-between;
   height: 200px;
 }
 
@@ -101,8 +112,8 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: left;
-  width: 40%;
-  padding-left: 200px;
+  width: 20%;
+  padding-left: 10rem;
 }
 
 .profile-image {
@@ -150,14 +161,16 @@ export default {
   width: inherit;
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
+  justify-content: space-between;
 }
 
 .expierence-container {
-  width: 45%;
+  width: 30%;
   display: flex;
   flex-direction: column;
   align-items: left;
+  min-height: 350px;
+  padding-left: 10rem;
 }
 
 .experience {
@@ -182,6 +195,25 @@ export default {
 
 .experience-star-rating-container.filled {
   color: rgb(240, 240, 100);
+}
+
+.add-experience-button-container {
+  margin-top: auto;
+  display: flex;
+  justify-content: left;
+}
+
+.add-experience-button {
+  background: inherit;
+  border: none;
+  color: rgb(100, 103, 125);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer
+}
+
+.add-experience-button:hover {
+  color: rgb(170, 225, 205);
 }
 
 .bio-container {

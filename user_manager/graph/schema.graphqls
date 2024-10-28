@@ -33,6 +33,7 @@ type CompleteWorkspace {
 }
 
 type Experience {
+  id: ID!
   experience: String!
   rating: Int!
 }
