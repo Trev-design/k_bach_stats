@@ -76,6 +76,8 @@ func (client *SessionClient) AddUser(payload []byte) error {
 		return err
 	}
 
+	log.Println(session)
+
 	if status, err := client.SetEx(
 		context.Background(),
 		session.ID,

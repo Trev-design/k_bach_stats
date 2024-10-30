@@ -1,7 +1,10 @@
 <template>
-  <secttion class="protected-topbar-container">
+  <section class="protected-topbar-container">
     <div class="interaction-container">
-      <ProtectedSidebarUnfoldButton :isUnfold="unfold" @click="$emit('unfold')"/>
+      <ProtectedSidebarUnfoldButton 
+        :isUnfold="unfold" 
+        @click="$emit('unfold')"
+      />
       <div class="brandlogo-container">
         <Brandlogo/>
       </div>
@@ -9,7 +12,7 @@
     <div class="navlink-container">
       <slot></slot>
     </div>
-  </secttion>
+  </section>
 </template>
 
 <script>

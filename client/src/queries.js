@@ -21,3 +21,9 @@ query getUser($userID: String!) {
   }
 }
 `
+
+export const ADD_EXPERIENCES = gql`
+mutation addExperience($input: NewExperienceCredentials!) {
+  addExperience(input: $input) 
+}
+`

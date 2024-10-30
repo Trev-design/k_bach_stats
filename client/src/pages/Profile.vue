@@ -5,11 +5,14 @@
         <img :src="imageFilePath" alt="popel" class="profile-image">
         <h3 class="name"> {{ name }} </h3>
       </div>
+
       <div class="profile-details">
         <p class="detail-field"> {{ name }} </p>
         <p class="detail-field"> {{ email }} </p>
       </div>
+
     </section>
+
     <section class="person-details-container">
       <div class="expierence-container">
         <div 
@@ -22,17 +25,29 @@
             v-for="star in 5"
             :key="star" 
             :class="`experience-star-rating-container ${star <= experience.rating ? 'filled' : ''}`" 
-            icon="material-symbols:star-outline-rounded"/>
+            icon="material-symbols:star-outline-rounded"
+          />
+        </div>
 
-        </div>
         <div class="add-experience-button-container">
-          <button class="add-experience-button">add experience</button>
+          <button 
+            class="add-experience-button"
+            @click="handleAddExperience()"
+          >add experience</button>
         </div>
+        <AddExperience 
+          :searchEnabled="searchEnabled"
+          :addingReady="addingExperience"
+          @handleSearch="handleSearch()"
+          @disable="handleAddExperience()"
+        />
       </div>
+
       <div class="bio-container">
         <p class="bio-text">{{bio}}</p>
       </div>
     </section>
+
     <div class="profile-edit">
       <router-link :to="`/account/${account}/${user}/settings`" class="edit-router-link">settings</router-link>
       <router-link :to="`/account/${account}/${user}/edit`" class="edit-router-link">edit profile</router-link>
@@ -43,12 +58,14 @@
 <script>
 import { GET_ACCOUNT } from '../queries'
 import { Icon } from '@iconify/vue'
+import AddExperience from '../sections/AddExperience.vue';
 
 export default {
   name: 'Profile',
 
   components: {
-    Icon
+    Icon,
+    AddExperience
   },
 
   data() {
@@ -57,12 +74,29 @@ export default {
       email: '',
       imageFilePath: '',
       bio: 'no bio actually',
-      workspaces: []
+      workspaces: [],
+      searchEnabled: false,
+      addingExperience: false
     }
   },
 
-  async created() {
-    const id = localStorage.getItem('initialUser')
+  computed: {
+    user() {
+      return localStorage.getItem('username')
+    },
+
+    account() {
+      return localStorage.getItem('account')
+    }
+  },
+
+  created() {
+    this.fetcProfiledata()
+  },
+
+  methods: {
+    async fetcProfiledata() {
+      const id = localStorage.getItem('initialUser')
       const { data } = await this.$apollo.query({
         query: GET_ACCOUNT,
         variables: {userID: id}
@@ -79,15 +113,14 @@ export default {
       if (data.getUser.experiences.length > 0) {
         this.experiences.push(...data.getUser.workspaces)
       }
-  },
-
-  computed: {
-    user() {
-      return localStorage.getItem('username')
     },
 
-    account() {
-      return localStorage.getItem('account')
+    handleAddExperience() {
+      this.addingExperience = !this.addingExperience
+    },
+
+    handleSearch() {
+      this.searchEnabled = !this.searchEnabled
     }
   }
 }
