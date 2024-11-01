@@ -76,7 +76,8 @@ export default {
       bio: 'no bio actually',
       workspaces: [],
       searchEnabled: false,
-      addingExperience: false
+      addingExperience: false,
+      addingOptionsUnfold: [false, false, false],
     }
   },
 
@@ -117,11 +118,27 @@ export default {
 
     handleAddExperience() {
       this.addingExperience = !this.addingExperience
+
+      if (this.addingExperience) {
+        setTimeout(() => {
+          this.addingOptionsUnfold.forEach((_, index) => {
+            setTimeout(() => {
+              this.addingOptionsUnfold[index] = true
+            }, index * 75)
+          })
+        }, 375);
+      } else {
+        this.addingOptionsUnfold.forEach((_, index) => {
+          this.addingOptionsUnfold((_, index) => {
+            this.addingOptionsUnfold[index] = false
+          })
+        })
+      }
     },
 
     handleSearch() {
       this.searchEnabled = !this.searchEnabled
-    }
+    },
   }
 }
 </script>

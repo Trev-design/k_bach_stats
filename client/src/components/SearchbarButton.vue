@@ -20,6 +20,11 @@ export default {
     searcEnabled: {
       type: Boolean,
       required: true
+    },
+
+    optionsUnfold: {
+      type: Boolean,
+      required: true
     }
   }
 }
