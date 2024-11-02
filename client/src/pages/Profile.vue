@@ -147,7 +147,7 @@ export default {
 .profile-page-container {
   display: flex;
   flex-direction: column;
-  width: 85vw;
+  width: 75vw;
 }
 
 .profile-details-container {
@@ -220,7 +220,6 @@ export default {
   flex-direction: column;
   align-items: left;
   min-height: 350px;
-  padding-left: 10rem;
 }
 
 .experience {
