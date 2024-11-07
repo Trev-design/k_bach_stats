@@ -40,12 +40,17 @@ const router = createRouter({
 
 const store = createStore({
   state: {
-    jwt: null
+    jwt: null,
+    newExperiences: []
   },
 
   mutations: {
     setJWT(state, jwt) {
       state.jwt = jwt
+    },
+
+    addNewExperience(state, experience) {
+      state.newExperiences.push(experience)
     }
   },
 
@@ -142,7 +147,8 @@ const store = createStore({
 
   getters: {
     isAuthenticated(state) {return state.jwt != null},
-    token(state) {return state.jwt}
+    token(state) {return state.jwt},
+    newExperienceList(state) {return state.newExperiences}
   }
 })
 

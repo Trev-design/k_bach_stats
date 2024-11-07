@@ -13,6 +13,13 @@
         :class="`rating-star ${star <= experience.rating ? 'active' : ''}`"
         icon="fluent:star-24-filled"
       />
+      
+      <button class="remove-experience-button">
+        <Icon
+          class="remove-experience-button-icon"
+          icon="mdi:remove"
+        />
+      </button>
     </div>
   </div>
 </template>
@@ -31,10 +38,42 @@ export default {
     return {
       experiences: []
     }
+  },
+
+  computed: {
+    experiences() {
+      return this.$store.getters.newExperienceList
+    }
   }
 }
 </script>
 
 <style>
+.experience-rating-container {
 
+}
+
+.experience-rating {
+
+}
+
+.experience-descriptor {
+
+}
+
+.rating-star {
+
+}
+
+.rating-star.active {
+
+}
+
+.remove-experience-button {
+
+}
+
+.remove-experience-button-icon {
+
+}
 </style>
