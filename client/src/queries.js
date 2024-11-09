@@ -22,8 +22,32 @@ query getUser($userID: String!) {
 }
 `
 
-export const ADD_EXPERIENCES = gql`
-mutation addExperience($input: NewExperienceCredentials!) {
-  addExperience(input: $input) 
+export const ADD_EXPERIENCE = gql`
+mutation addExperience($input: ExperienceCredentials!) {
+  addExperience(input: $input) {
+    experience
+    rating
+    id
+  }
+}
+`
+
+export const ADD_NEW_EXPERIENCE = gql`
+mutation createExperience($input: NewExperienceCreddentials!) {
+  createExperience(input: $input) {
+    experience
+    rating
+    id
+  }
+}
+`
+
+export const ADD_EXPERINECE_BATCH = gql`
+mutation batchNewExperiences($existing: [ExperienceCredentials!]!, $new: [NewExperienceCredentials!]!) {
+  batchNewExperiences(existing: $existing, new: $new) {
+    experience
+    rating
+    id
+  }
 }
 `

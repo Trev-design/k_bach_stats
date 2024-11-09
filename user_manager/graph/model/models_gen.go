@@ -33,6 +33,11 @@ type Experience struct {
 	Rating     int    `json:"rating"`
 }
 
+type ExperienceBatchCredentials struct {
+	Existing []*ExperienceCredentials    `json:"existing"`
+	New      []*NewExperienceCredentials `json:"new"`
+}
+
 type ExperienceCredentials struct {
 	UserID       string `json:"userID"`
 	ProfileID    string `json:"profileID"`

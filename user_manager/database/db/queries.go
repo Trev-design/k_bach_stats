@@ -63,6 +63,10 @@ const (
 	SELECT e.id FROM experiences e WHERE e.name = ?
 	`
 
+	experienceByIDQuery = `
+	SELECT e.name FROM experiences e WHERE e.id = UNHEX(REPLACE(?, "-", ""))
+	`
+
 	addExperienceQuery = `
 	INSERT INTO experiences (id, name, user_id) VALUES (UNHEX(REPLACE(?, "_", "")), ?, UNHEX(REPLACE(?, "_", "")));
 	`
@@ -74,6 +78,10 @@ const (
 	addRatingQuery = `
 	INSERT INTO ratings (id, rating, experience_id, user_id) VALUES (UNHEX(REPLACE(?, "-", "")), ?, UNHEX(REPLACE(?, "-", "")), UNHEX(REPLACE(?, "-", "")));
 	`
+
+	addRatingBatchQuery = `INSERT INTO ratings (id, rating, experience_id, user_id) VALUES %s`
+
+	addRatingBatchInput = `(UNHEX(REPLACE(?, "-", "")), ?, UNHEX(REPLACE(?, "-", "")), UNHEX(REPLACE(?, "-", "")))`
 
 	joinRequestInfos = `
 	SELECT 

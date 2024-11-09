@@ -34,12 +34,6 @@ export default {
     Icon
   },
 
-  data() {
-    return {
-      experiences: []
-    }
-  },
-
   computed: {
     experiences() {
       return this.$store.getters.newExperienceList

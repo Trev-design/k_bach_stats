@@ -36,13 +36,18 @@ func (r *mutationResolver) SendJoinRequest(ctx context.Context, input model.Join
 }
 
 // CreateExperience is the resolver for the createExperience field.
-func (r *mutationResolver) CreateExperience(ctx context.Context, input model.NewExperienceCredentials) (string, error) {
+func (r *mutationResolver) CreateExperience(ctx context.Context, input model.NewExperienceCredentials) (*model.Experience, error) {
 	panic(fmt.Errorf("not implemented: CreateExperience - createExperience"))
 }
 
 // AddExperience is the resolver for the addExperience field.
-func (r *mutationResolver) AddExperience(ctx context.Context, input model.ExperienceCredentials) (string, error) {
+func (r *mutationResolver) AddExperience(ctx context.Context, input model.ExperienceCredentials) (*model.Experience, error) {
 	panic(fmt.Errorf("not implemented: AddExperience - addExperience"))
+}
+
+// BatchNewExperiences is the resolver for the batchNewExperiences field.
+func (r *mutationResolver) BatchNewExperiences(ctx context.Context, input model.ExperienceBatchCredentials) ([]*model.Experience, error) {
+	panic(fmt.Errorf("not implemented: BatchNewExperiences - batchNewExperiences"))
 }
 
 // GetUser is the resolver for the getUser field.

@@ -74,8 +74,14 @@ type Mutation {
   createWorkspace(input: WorkspaceCredentials!): Workspace!
   sendInvitation(input: InvitationCredentials!): String!
   sendJoinRequest(input: JoinRequestCredentials!): String!
-  createExperience(input: NewExperienceCredentials!): String!
-  addExperience(input: ExperienceCredentials!): String!
+  createExperience(input: NewExperienceCredentials!): Experience!
+  addExperience(input: ExperienceCredentials!): Experience!
+  batchNewExperiences(input: ExperienceBatchCredentials!): [Experience!]!
+}
+
+input ExperienceBatchCredentials {
+  existing: [ExperienceCredentials!]!
+  new: [NewExperienceCredentials!]!
 }
 
 input ExperienceCredentials {
