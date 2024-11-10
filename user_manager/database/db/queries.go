@@ -79,10 +79,6 @@ const (
 	INSERT INTO ratings (id, rating, experience_id, user_id) VALUES (UNHEX(REPLACE(?, "-", "")), ?, UNHEX(REPLACE(?, "-", "")), UNHEX(REPLACE(?, "-", "")));
 	`
 
-	addRatingBatchQuery = `INSERT INTO ratings (id, rating, experience_id, user_id) VALUES %s`
-
-	addRatingBatchInput = `(UNHEX(REPLACE(?, "-", "")), ?, UNHEX(REPLACE(?, "-", "")), UNHEX(REPLACE(?, "-", "")))`
-
 	joinRequestInfos = `
 	SELECT 
 		jri.id
