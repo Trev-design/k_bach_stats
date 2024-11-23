@@ -11,7 +11,7 @@ import (
 )
 
 func resetDatabase() (*sql.DB, error) {
-	db, err := sql.Open("mysql", "IAmTheUser:ThisIsMyPassword@tcp(127.0.0.1:3306)/user_database")
+	db, err := sql.Open("mysql", "")
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func initDatabase() (*sql.DB, error) {
 }
 
 func initTables() (*sql.DB, error) {
-	db, err := sql.Open("mysql", "IAmTheUser:ThisIsMyPassword@tcp(127.0.0.1:3306)/user_database")
+	db, err := sql.Open("mysql", "")
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

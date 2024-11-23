@@ -30,7 +30,7 @@ defmodule AuthService.Rabbitmq.HandlerFunctions do
       persistent: true,
       mandatory: false,
       correlation_id: Uniq.UUID.uuid4(),
-      content_type: "application/json"
+      content_type: "text/plain"
     )
   end
 

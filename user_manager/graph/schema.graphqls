@@ -1,9 +1,8 @@
-type User {
+type Contact {
   id: ID!
-  entity: String!
-  requests: Int!
-  profile: Profile!
-  experiences: [Experience!]!
+  name: String!
+  email: String!
+  imageFilePath: String!
 }
 
 type Profile {
@@ -12,118 +11,17 @@ type Profile {
   contact: Contact!
 }
 
-type Contact {
+type User {
   id: ID!
-  name: String!
-  email: String!
-  imageFilePath: String!
+  entity: String!
+  profile: Profile!
 }
 
-type Workspace {
-  id: ID!
-  name: String!
-}
-
-type CompleteWorkspace {
-  id: ID!
-  name: String!
-  description: String!
-  contacts: [Contact!]!
-  news: [InvitationInfo!]!
-}
-
-type Experience {
-  id: ID!
-  experience: String!
-  rating: Int!
-}
-
-type InvitationInfo {
-  id: ID!
-  info: String!
-  invitationID: ID!
-}
-
-type JoinRequestInfo {
-  id: ID!
-  info: String!
-  joinRequestID: ID!
-}
-
-type JoinRequest {
-  id: ID!
-  info: String!
-  reason: String!
-}
-
-type Invitation {
-  id: ID!
-  info: String!
+type UserEntity {
+  user: ID!
 }
 
 type Query {
-  getUser(userID: String!): User!
-  getInvitationInfos(userID: String!): [InvitationInfo!]!
-  getJoinRequestInfos(workspaceID: String!): [JoinRequestInfo!]!
-  lookupWorkspace(workspaceID: String!): CompleteWorkspace!
-}
-
-type Mutation {
-  changeName(input: ChangeNameCredentials!): String!
-  addBio(input: BioCredentials!): String!
-  createWorkspace(input: WorkspaceCredentials!): Workspace!
-  sendInvitation(input: InvitationCredentials!): String!
-  sendJoinRequest(input: JoinRequestCredentials!): String!
-  createExperience(input: NewExperienceCredentials!): Experience!
-  addExperience(input: ExperienceCredentials!): Experience!
-  batchNewExperiences(input: ExperienceBatchCredentials!): [Experience!]!
-}
-
-input ExperienceBatchCredentials {
-  existing: [ExperienceCredentials!]!
-  new: [NewExperienceCredentials!]!
-}
-
-input ExperienceCredentials {
-  userID: String!
-  profileID: String!
-  experienceID: String!
-  rating: Int!
-}
-
-input NewExperienceCredentials {
-  userID: String!
-  profileID: String!
-  experience: String!
-  rating: Int!
-}
-
-input ChangeNameCredentials {
-  userID: String!
-  newname: String!
-}
-
-input BioCredentials {
-  userID: String!
-  input: String!
-}
-
-input WorkspaceCredentials {
-  userID: String!
-  name: String!
-  description: String!
-}
-
-input InvitationCredentials{
-  invitorID: String!
-  receiverID: String!
-  workspaceID: String!
-  info: String!
-}
-
-input JoinRequestCredentials{
-  workspaceID: String!
-  requestID: String!
-  info: String!
-  reason: String!
+  userID(entity: String!): UserEntity!
+  userByID(userID: String!): User!
 }

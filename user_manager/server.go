@@ -1,107 +1,84 @@
 package main
 
 import (
-	"encoding/json"
-	"flag"
 	"log"
 	"net/http"
 	"os"
-	"user_manager/api"
-	"user_manager/database"
+	"user_manager/app"
 	"user_manager/graph"
-	"user_manager/middleware"
+	"user_manager/internal/application"
+	"user_manager/internal/plugins/database/sqldb"
+	"user_manager/internal/plugins/listener/rabbit"
+	"user_manager/internal/plugins/session/redis_session.go"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/google/uuid"
 )
 
-const defaultPort = "4004"
-
-func getUserCredentials(storeHandler database.StoreHandler) http.HandlerFunc {
-	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		if entity := request.Context().Value(api.ContextKey("entity")); entity != nil {
-			entityString, ok := entity.(string)
-			if !ok {
-				log.Println("invalid type")
-				writer.WriteHeader(http.StatusForbidden)
-				return
-			}
-
-			log.Println("have a valid context")
-
-			userID, err := storeHandler.InitialCredentials(entityString)
-			if err != nil {
-				log.Println("invalid token")
-				writer.WriteHeader(http.StatusForbidden)
-				return
-			}
-
-			log.Println("have valid user entity")
-
-			userGuid, err := uuid.FromBytes([]byte(userID))
-			if err != nil {
-				log.Println("invalid id")
-				writer.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			log.Println("have valid user id")
-
-			writer.Header().Add("Content-Type", "application/json")
-			writer.WriteHeader(http.StatusOK)
-			err = json.NewEncoder(writer).Encode(struct {
-				ID string `json:"id"`
-			}{
-				ID: userGuid.String(),
-			})
-
-			if err != nil {
-				log.Println("something went wrong")
-				writer.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			log.Println("finished successfully")
-
-			return
-		}
-
-		log.Println("something went wrong with the context")
-		writer.WriteHeader(http.StatusInternalServerError)
-	})
-}
+const defaultPort = "8080"
 
 func main() {
+	// TODO show environment variable management
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
 
-	dbOptions := flag.String("database", "keep", "set the reset flag for the sql database")
-	sessionOptions := flag.String("session", "keep", "set th reset flag for the session")
-	flag.Parse()
-
-	serverOptions := &api.ServerOptions{Database: *dbOptions, Session: *sessionOptions}
-
-	app, err := serverOptions.Setup()
+	// create database
+	dba, err := sqldb.NewDatabaseAdapter("reset")
 	if err != nil {
-		log.Fatalf("could not start app %v", err)
+		panic(err)
 	}
 
-	go app.ListenForErrors()
+	// create session store
+	sessiona, err := redis_session.NewSessionAdapter()
+	if err != nil {
+		panic(err)
+	}
+
+	// api infrastructure
+	apia := application.NewAPIServiceAdapter(dba)
+
+	// rabbitMQ listener
+	// TODO safe password storage
+	la, err :=
+		rabbit.NewListenerAdapterBuilder().
+			Connection("IAmTheUser", "ThisIsMyPassword", "localhost", "kbach", 5672).
+			Channel("start_user_session", "session", "send_session_credentials", "add_session_consumer").
+			Channel("stop_user_session", "session", "remove_session", "remove_session_consumer").
+			Channel("add_account", "account", "add_account_request", "add_user_consumer").
+			Channel("delete_accoubt", "account", "delete_account_request", "remove_user_consumer").
+			SessionStore(sessiona).
+			UserStore(dba).
+			Build()
+	if err != nil {
+		panic(err)
+	}
+
+	// listener service
+	// TODO builder pattern
+	lsa := application.NewListenerServiceAdapter(la)
+
+	if err := lsa.Start(); err != nil {
+		panic(err)
+	}
+
+	// app config
+	app, err :=
+		app.NewApplicationBuilder().
+			ApiService(apia).
+			ListenerService(lsa).
+			Build()
+	if err != nil {
+		panic(err)
+	}
+
 	go app.ListenForShutdown()
 
-	go app.Consumer.ComputeMessages("start_session", app.Session, app.ErrorChannel)
-	go app.Consumer.ComputeMessages("stop_session", app.Session, app.ErrorChannel)
-	go app.Consumer.ComputeMessages("add_user", app.DBIsntance, app.ErrorChannel)
-	go app.Consumer.ComputeMessages("remove_user", app.DBIsntance, app.ErrorChannel)
-
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{Database: app.DBIsntance}}))
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{ApiService: apia}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", middleware.EnableCORS(middleware.Auth(app.Session, srv)))
-	http.Handle("/initial", middleware.EnableCORS(middleware.InitialAuth(app.Session, getUserCredentials(app.DBIsntance))))
+	http.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

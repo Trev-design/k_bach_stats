@@ -2,94 +2,11 @@
 
 package model
 
-type BioCredentials struct {
-	UserID string `json:"userID"`
-	Input  string `json:"input"`
-}
-
-type ChangeNameCredentials struct {
-	UserID  string `json:"userID"`
-	Newname string `json:"newname"`
-}
-
-type CompleteWorkspace struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Contacts    []*Contact        `json:"contacts"`
-	News        []*InvitationInfo `json:"news"`
-}
-
 type Contact struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
 	Email         string `json:"email"`
 	ImageFilePath string `json:"imageFilePath"`
-}
-
-type Experience struct {
-	ID         string `json:"id"`
-	Experience string `json:"experience"`
-	Rating     int    `json:"rating"`
-}
-
-type ExperienceBatchCredentials struct {
-	Existing []*ExperienceCredentials    `json:"existing"`
-	New      []*NewExperienceCredentials `json:"new"`
-}
-
-type ExperienceCredentials struct {
-	UserID       string `json:"userID"`
-	ProfileID    string `json:"profileID"`
-	ExperienceID string `json:"experienceID"`
-	Rating       int    `json:"rating"`
-}
-
-type Invitation struct {
-	ID   string `json:"id"`
-	Info string `json:"info"`
-}
-
-type InvitationCredentials struct {
-	InvitorID   string `json:"invitorID"`
-	ReceiverID  string `json:"receiverID"`
-	WorkspaceID string `json:"workspaceID"`
-	Info        string `json:"info"`
-}
-
-type InvitationInfo struct {
-	ID           string `json:"id"`
-	Info         string `json:"info"`
-	InvitationID string `json:"invitationID"`
-}
-
-type JoinRequest struct {
-	ID     string `json:"id"`
-	Info   string `json:"info"`
-	Reason string `json:"reason"`
-}
-
-type JoinRequestCredentials struct {
-	WorkspaceID string `json:"workspaceID"`
-	RequestID   string `json:"requestID"`
-	Info        string `json:"info"`
-	Reason      string `json:"reason"`
-}
-
-type JoinRequestInfo struct {
-	ID            string `json:"id"`
-	Info          string `json:"info"`
-	JoinRequestID string `json:"joinRequestID"`
-}
-
-type Mutation struct {
-}
-
-type NewExperienceCredentials struct {
-	UserID     string `json:"userID"`
-	ProfileID  string `json:"profileID"`
-	Experience string `json:"experience"`
-	Rating     int    `json:"rating"`
 }
 
 type Profile struct {
@@ -102,20 +19,10 @@ type Query struct {
 }
 
 type User struct {
-	ID          string        `json:"id"`
-	Entity      string        `json:"entity"`
-	Requests    int           `json:"requests"`
-	Profile     *Profile      `json:"profile"`
-	Experiences []*Experience `json:"experiences"`
+	ID      string   `json:"id"`
+	Profile *Profile `json:"profile"`
 }
 
-type Workspace struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
-type WorkspaceCredentials struct {
-	UserID      string `json:"userID"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+type UserEntity struct {
+	User string `json:"user"`
 }
