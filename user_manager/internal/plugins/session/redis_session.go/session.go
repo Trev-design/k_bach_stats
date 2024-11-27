@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"errors"
+	"log"
 	"os"
 	"user_manager/types"
 
@@ -35,6 +36,7 @@ func NewSessionAdapter() (*SessionAdapter, error) {
 	})
 
 	if _, err := client.Ping(context.Background()).Result(); err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -64,6 +66,10 @@ func (sessiona *SessionAdapter) AddUser(payload []byte) error {
 	err := json.Unmarshal(payload, sessionCredentials)
 	if err != nil {
 		return err
+	}
+
+	if !isValidItem(sessionCredentials) {
+		return errors.New("invalid item")
 	}
 
 	return sessiona.setNewUserSession(sessionCredentials, payload)

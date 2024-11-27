@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"reflect"
 	"time"
 	"user_manager/types"
 
@@ -12,6 +13,32 @@ import (
 )
 
 var ErrInvalidSession = errors.New("invalid session")
+
+func isValidItem(item any) bool {
+	val := reflect.ValueOf(item)
+
+	if val.Kind() != reflect.Ptr {
+		return false
+	}
+
+	if val.IsNil() {
+		return false
+	}
+
+	val = val.Elem()
+	if val.Kind() == reflect.Struct {
+		for index := 0; index < val.NumField(); index++ {
+			if val.Field(index).IsZero() {
+				return false
+			}
+		}
+	} else {
+		log.Println("not a struct")
+		return false
+	}
+
+	return true
+}
 
 func (sessiona *SessionAdapter) parseClaims(token string) (*Claims, error) {
 	claims := new(Claims)
