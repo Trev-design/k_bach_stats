@@ -2,6 +2,7 @@ package main_test
 
 import (
 	"encoding/json"
+	"log"
 	"testing"
 	"user_manager/internal/plugins/database/sqldb"
 	"user_manager/types"
@@ -45,6 +46,8 @@ func Test_DatabaseSelectUserByID_success(test *testing.T) {
 	if userEntity.User == "" || userEntity == nil {
 		test.Error("invalid entity")
 	}
+
+	log.Println(userEntity.User)
 
 	_, err = client.UserByID(userEntity.User)
 	if err != nil {

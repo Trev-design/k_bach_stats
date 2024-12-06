@@ -9,7 +9,7 @@ import (
 	"user_manager/internal/application"
 	"user_manager/internal/plugins/database/sqldb"
 	"user_manager/internal/plugins/listener/rabbit"
-	"user_manager/internal/plugins/session/redis_session.go"
+	redissession "user_manager/internal/plugins/session/redis_session.go"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -30,8 +30,10 @@ func main() {
 		panic(err)
 	}
 
+	log.Println("finshed database")
+
 	// create session store
-	sessiona, err := redis_session.NewSessionAdapter()
+	sessiona, err := redissession.NewSessionAdapter()
 	if err != nil {
 		panic(err)
 	}

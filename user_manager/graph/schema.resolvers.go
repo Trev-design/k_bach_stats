@@ -10,6 +10,21 @@ import (
 	"user_manager/graph/model"
 )
 
+// MakeInvitation is the resolver for the makeInvitation field.
+func (r *mutationResolver) MakeInvitation(ctx context.Context, input model.InvitationCredentials) (string, error) {
+	panic(fmt.Errorf("not implemented: MakeInvitation - makeInvitation"))
+}
+
+// MakeJoinRequest is the resolver for the makeJoinRequest field.
+func (r *mutationResolver) MakeJoinRequest(ctx context.Context, input model.JoinRequestCredentials) (string, error) {
+	panic(fmt.Errorf("not implemented: MakeJoinRequest - makeJoinRequest"))
+}
+
+// MakeWorkspace is the resolver for the makeWorkspace field.
+func (r *mutationResolver) MakeWorkspace(ctx context.Context, input model.WorkspaceCredentials) (string, error) {
+	panic(fmt.Errorf("not implemented: MakeWorkspace - makeWorkspace"))
+}
+
 // UserID is the resolver for the userID field.
 func (r *queryResolver) UserID(ctx context.Context, entity string) (*model.UserEntity, error) {
 	panic(fmt.Errorf("not implemented: UserID - userID"))
@@ -20,24 +35,11 @@ func (r *queryResolver) UserByID(ctx context.Context, userID string) (*model.Use
 	panic(fmt.Errorf("not implemented: UserByID - userByID"))
 }
 
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
-}
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
-}
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 type mutationResolver struct{ *Resolver }
-*/
+type queryResolver struct{ *Resolver }

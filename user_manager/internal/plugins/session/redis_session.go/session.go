@@ -1,4 +1,4 @@
-package redis_session
+package redissession
 
 import (
 	"context"

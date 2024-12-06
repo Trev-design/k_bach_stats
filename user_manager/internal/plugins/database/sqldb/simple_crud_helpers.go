@@ -2,6 +2,7 @@ package sqldb
 
 import (
 	"database/sql"
+	"user_manager/graph/model"
 	"user_manager/types"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -49,7 +50,7 @@ func (db *DBAdapter) insertProfile(transaction *sql.Tx, userID string, payload *
 }
 
 func (db *DBAdapter) insertContact(transaction *sql.Tx, profileID string, payload *types.UserMessagePayload) error {
-	statement, err := transaction.Prepare("INSERT INTO contacts (id, name, email, image_file_path, profile_id) VALUES (UNHEX(REPLACE(?, '-', '')), ?, ?, ?, UNHEX(REPLACE(?, '-', '')));")
+	statement, err := transaction.Prepare("INSERT INTO contacts (id, name, email, profile_id) VALUES (UNHEX(REPLACE(?, '-', '')), ?, ?, UNHEX(REPLACE(?, '-', '')));")
 	if err != nil {
 		return err
 	}
@@ -57,7 +58,7 @@ func (db *DBAdapter) insertContact(transaction *sql.Tx, profileID string, payloa
 
 	guid := uuid.New().String()
 
-	_, err = statement.Exec(guid, payload.Username, payload.Email, "", profileID)
+	_, err = statement.Exec(guid, payload.Username, payload.Email, profileID)
 	if err != nil {
 		return err
 	}
@@ -79,6 +80,39 @@ func (db *DBAdapter) removeUser(entity string) error {
 	defer statement.Close()
 
 	if _, err = statement.Exec(entity); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *DBAdapter) isnertInvitation(input model.InvitationCredentials) error {
+	guid := uuid.New().String()
+	if _, err := db.Exec(
+		insertInvitationQuery,
+		guid,
+		input.Subject,
+		input.Message,
+		input.WorkspaceID,
+		input.UserID,
+		input.ContactID,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *DBAdapter) insertJoinRequest(input model.JoinRequestCredentials) error {
+	guid := uuid.New().String()
+	if _, err := db.Exec(
+		insertJoinRequestQuery,
+		guid,
+		input.Subject,
+		input.Message,
+		input.ProfileID,
+		input.WorksapceID,
+	); err != nil {
 		return err
 	}
 

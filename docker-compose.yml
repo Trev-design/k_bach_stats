@@ -49,3 +49,4 @@ services:
       MYSQL_DATABASE: user_database
       MYSQL_USER: IAmTheUser
       MYSQL_PASSWORD: ThisIsMyPassword
+    command: --log-bin-trust-function-creators=1

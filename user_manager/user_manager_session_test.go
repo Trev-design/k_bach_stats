@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 	"user_manager/graph/model"
-	"user_manager/internal/plugins/session/redis_session.go"
+	redissession "user_manager/internal/plugins/session/redis_session.go"
 	"user_manager/types"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -20,7 +20,7 @@ import (
 // a test which tests a expected successful storage roundtrip
 func Test_RedisUserManagementRoundTrip_success(test *testing.T) {
 	// open redis store
-	client, err := redis_session.NewSessionAdapter()
+	client, err := redissession.NewSessionAdapter()
 	if err != nil {
 		test.Error("could not start session store")
 	}
@@ -54,7 +54,7 @@ func Test_RedisUserManagementRoundTrip_success(test *testing.T) {
 // with an unsuccessfull add
 func Test_RedisUserManagementRoundTrip_failed_add(test *testing.T) {
 	// open redis store
-	client, err := redis_session.NewSessionAdapter()
+	client, err := redissession.NewSessionAdapter()
 	if err != nil {
 		test.Error("could not start session store")
 	}
@@ -119,7 +119,7 @@ func Test_CheckSession(test *testing.T) {
 		test.Error(err)
 	}
 
-	client, err := redis_session.NewSessionAdapter()
+	client, err := redissession.NewSessionAdapter()
 	if err != nil {
 		test.Error(err)
 	}

@@ -36,7 +36,7 @@ func (dba *DBAdapter) UserByID(id string) (*model.User, error) {
 	var contactID sql.NullString
 	var name sql.NullString
 	var email sql.NullString
-	var imageFilePath sql.NullString
+	var hasImage sql.NullString
 
 	if err := dba.QueryRow(userByIDQuery, id).Scan(
 		&profileID,
@@ -44,8 +44,9 @@ func (dba *DBAdapter) UserByID(id string) (*model.User, error) {
 		&contactID,
 		&name,
 		&email,
-		&imageFilePath,
+		&hasImage,
 	); err != nil {
+		log.Println(err)
 		return nil, database.ErrInvalidEntry
 	}
 
@@ -55,7 +56,7 @@ func (dba *DBAdapter) UserByID(id string) (*model.User, error) {
 		contactID.Valid,
 		name.Valid,
 		email.Valid,
-		imageFilePath.Valid,
+		hasImage.Valid,
 	) {
 		return nil, database.ErrInvalidEntry
 	}
@@ -64,6 +65,7 @@ func (dba *DBAdapter) UserByID(id string) (*model.User, error) {
 		&profileID.String,
 		&contactID.String,
 	); err != nil {
+		log.Println(err)
 		return nil, database.ErrInvalidBinaryID
 	}
 
@@ -73,11 +75,19 @@ func (dba *DBAdapter) UserByID(id string) (*model.User, error) {
 			ID:  profileID.String,
 			Bio: bio.String,
 			Contact: &model.Contact{
-				ID:            contactID.String,
-				Name:          name.String,
-				Email:         email.String,
-				ImageFilePath: imageFilePath.String,
+				ID:       contactID.String,
+				Name:     name.String,
+				Email:    email.String,
+				HasImage: hasImage.String,
 			},
 		},
 	}, nil
+}
+
+func (dba *DBAdapter) InsertInvitation(input model.InvitationCredentials) error {
+	return dba.isnertInvitation(input)
+}
+
+func (dba *DBAdapter) InsertJoinRequest(input model.JoinRequestCredentials) error {
+	return dba.insertJoinRequest(input)
 }

@@ -1,9 +1,11 @@
 package errormodel
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type ErrorModel struct {
-	ErrorMesssage    error  `json:"error_message"`
+	ErrorMesssage    string `json:"error_message"`
 	Entity           string `json:"entity"`
 	Timestamp        string `json:"timestamp"`
 	Line             int    `json:"line"`
@@ -14,12 +16,36 @@ type ErrorModel struct {
 	Stacktrace       string `json:"stacktrace"`
 }
 
+func NewErrorMessage(
+	errMsg,
+	entity,
+	timestamp,
+	description,
+	serverity,
+	funcName,
+	stacktrace string,
+	line,
+	errorType int,
+) *ErrorModel {
+	return &ErrorModel{
+		ErrorMesssage:    errMsg,
+		Entity:           entity,
+		Timestamp:        timestamp,
+		ErrorDescription: description,
+		Serverity:        serverity,
+		FunctionName:     funcName,
+		Stacktrace:       stacktrace,
+		Line:             line,
+		ErrorType:        errorType,
+	}
+}
+
 func (err *ErrorModel) Error() string {
 	return fmt.Sprintf(
 		"%s error occured in line %d\n%s\nin function %s\n\nstacktrace: %s\n\n%s\n%s\n%d\nentity: %s",
 		err.Timestamp,
 		err.Line,
-		err.ErrorMesssage.Error(),
+		err.ErrorMesssage,
 		err.FunctionName,
 		err.Stacktrace,
 		err.ErrorDescription,
