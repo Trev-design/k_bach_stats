@@ -1,34 +1,38 @@
-# A deep dive in distributed systems (in progress)
+# A Deep Dive into Distributed Systems (In Progress)
 
-## Dev setup almost complete for auth and mailing.
+## Dev Setup Almost Complete for Auth and Mailing
 
-### About auth:
-Auth should:
+### Reminder
+- Certificate files, key files, PEM files, and environment files are excluded from version control for security best practices.
+- While the full development environment is still in progress, individual components are already covered by isolated test setups.
+
+### Auth Responsibilities
+The authentication service should:
 1. Authorize users
 2. Store sensitive user data securely
-3. Store sensitive session data securely
-4. Have a fallback if user forgotten their passwords
-5. Have some access roles
-6. Start the session
-7. Refresh the session
-8. End the session if the user wants to end the session
-9. Some session fallbacks with expiry
-10. Interact with the mailer if there is some access to verify
+3. Store session data securely
+4. Provide a fallback for password recovery
+5. Implement role-based access control
+6. Start user sessions
+7. Refresh sessions
+8. End sessions on user request
+9. Handle session expiry and fallback mechanisms
+10. Interact with the mailer service for verification processes
 
-### About mailer_server:
-Mailer should:
-1. Receive some email data
-2. Use the right template for the email data
-3. Send the email securely
+### Mailer Service Responsibilities
+The mailer should:
+1. Receive email payloads
+2. Select the appropriate template based on the payload
+3. Send emails securely
 
-### Done:
-- Component lib setup in auth
-- Component lib tests in auth
-- Component lib setup in mailer_server
+### Completed
+- Component library setup in `auth`
+- Component library tests in `auth`
+- Component library setup in `mailer_server`
 
-### TODO:
-- Component lib setup in mailer_server
-- Finish the configs for Docker-Compose
-- Docker-Compose setup for the complete app
-- Migrate all together
-- Make a test environment for the whole infrastructure
+### In Progress / TODO
+- Finalize component library in `mailer_server`
+- Complete Docker Compose configuration
+- Set up full application stack using Docker Compose
+- Run initial data migration
+- Create a full test environment for the distributed infrastructure
