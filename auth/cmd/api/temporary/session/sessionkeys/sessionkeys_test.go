@@ -42,7 +42,7 @@ func oldKey(
 	timeStamp time.Time,
 	key []byte) {
 	t.Run("old_key", func(t *testing.T) {
-		time.Sleep(1 * time.Second)
+		time.Sleep(700 * time.Millisecond)
 		otherKey, err := manager.GetKey(timeStamp)
 		if err != nil {
 			t.Fatal(err)

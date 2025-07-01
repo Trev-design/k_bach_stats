@@ -31,6 +31,7 @@ The mailer should:
 - Component library setup in `mailer_server`
 
 ### In Progress / TODO
+- Write better tests in auth service session
 - Finalize component library in `mailer_server`
 - Complete Docker Compose configuration
 - Set up full application stack using Docker Compose
