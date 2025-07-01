@@ -12,6 +12,8 @@ import (
 	"log"
 	"os"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 //	@title						API Documentation
@@ -36,6 +38,7 @@ import (
 // @in							cookie
 // @name						__HOST_REFRESH_
 func main() {
+	godotenv.Load()
 	if err := tlsconf.GenerateCertPool(os.Getenv("CA_CERT_PATH")); err != nil {
 		log.Fatal(err)
 	}

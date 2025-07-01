@@ -13,6 +13,13 @@
     7. Refresh the session
     8. End the session if the user want to end the session
     9. Some session fallbacks with expiry
+    10. Interact with the mailer if there some access to verify
+
+    ## About mailer_server':'
+    ### mailer should 
+    1. Receive some email data
+    2. Should use the right template for the email data
+    3. Send the email securely
 
     ## Done':'
     ### Component lib setup in auth
@@ -21,3 +28,7 @@
 
     ## TODO':'
     ### Component lib setup in mailer_server
+    ### Finish the configs for Docker-Compose
+    ### Docker-Compose setup for the complete app
+    ### Migrate all together
+    ### Make a test environment for the whole infrastructure 
