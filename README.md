@@ -4,6 +4,7 @@
 
 ### Reminder
 - Certificate files, key files, PEM files, and environment files are excluded from version control for security best practices.
+- The docker-compose setup is not yet ready
 - While the full development environment is still in progress, individual components are already covered by isolated test setups.
 
 ### Auth Responsibilities
