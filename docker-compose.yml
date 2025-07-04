@@ -6,8 +6,8 @@ services:
       - "5671:5671"
       - "15671:15671"
     volumes:
-      - ./certs:/etc/rabbitmq/certs:ro
-      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./certs/rabbit:/etc/rabbitmq/certs:ro
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     environment:
       RABBITMQ_CONFIG_FILE: /etc/rabbitmq/rabbitmq
       RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
@@ -15,17 +15,23 @@ services:
       RABBITMQ_DEFAULT_VHOST: ${RABBIT_V_HOST}
 
   postgres:
-    image: postgres:17.5-alpine
+    build:
+      context: .
+      dockerfile: postgres.Dockerfile
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: ${POSTGRES_DB_USER}
       POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB_DATABASE}
     volumes:
-      - ./certs/postgres:/etc/postgresql/certs:ro
-      - ./postgres.conf:/etc/postgresql/postgresql.conf:ro
-      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
-    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+      - ./postgres.conf:/etc/postgresql/postgresql.conf
+      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+      - -c
+      - hba_file=/etc/postgresql/pg_hba.conf
 
   redis:
     image: redis:8.0.2-alpine
@@ -43,19 +49,25 @@ services:
       --tls-ca-cert-file /usr/local/etc/redis/certs/rootCA.pem
       --requirepass "$(cat /run/secrets/redis_password)"'
 
-  auth_service:
-    build:
-      context: ./auth
-      dockerfile: Dockerfile
-    volumes:
-      - ./certs/auth:/certs/:ro
-    ports:
-      - "4000:4000"
+  #auth_service:
+  #  build:
+  #    context: ./auth
+  #    dockerfile: Dockerfile
+  #  volumes:
+  #    - ./certs/auth:/certs/:ro
+  #  ports:
+  #    - "4000:4000"
+  #  depends_on:
+  #    - postgres
+  #    - redis
+  #    - rabbitmq
 
-  mailer_service:
-    build:
-      context: ./mail_server
-      dockerfile: Dockerfile
-    
+  #mailer_service:
+  #  build:
+  #    context: ./mail_server
+  #    dockerfile: Dockerfile
+  #  depends_on:
+  #    - rabbitmq
+  #    - auth_service
     
     
