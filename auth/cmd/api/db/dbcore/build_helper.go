@@ -3,6 +3,7 @@ package dbcore
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"time"
 
@@ -15,6 +16,8 @@ func (builder *DatabaseBuilder) makeConn() (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println(dsn)
 
 	var backoff time.Duration
 
@@ -43,7 +46,7 @@ func (builder *DatabaseBuilder) makeDSN() (string, error) {
 		}
 
 		return fmt.Sprintf(
-			"user=%s password=%s host=%s port=%s dbname=%s sslmode=verify-full sslrootcert=%s sslcert=%s sslkey=%s",
+			"user=%s password=%s host=%s port=%s dbname=%s sslmode=require sslrootcert=%s sslcert=%s sslkey=%s",
 			builder.user, builder.password, builder.host, builder.port, builder.dbname, configMap.CACertPath(), configMap.CertPath(), configMap.KeyPath(),
 		), nil
 	}

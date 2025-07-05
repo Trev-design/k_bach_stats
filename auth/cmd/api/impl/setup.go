@@ -10,6 +10,7 @@ import (
 	"auth_server/cmd/api/jwt/jwtcore"
 	"auth_server/cmd/api/temporary/session/sessioncore"
 	"errors"
+	"log"
 )
 
 type Impl struct {
@@ -45,11 +46,17 @@ func (builder *ImplBuilder) BrokerSetup(brokerBuilder *producer.RMQProducerBuild
 	return builder
 }
 
+func (builder *ImplBuilder) JWTSetup(jwtBuilder *jwtcore.JWTServiceBuilder) *ImplBuilder {
+	builder.jwtBuilder = jwtBuilder
+	return builder
+}
+
 func (builder *ImplBuilder) Build() (*Impl, error) {
 	if builder.brokerBuilder == nil ||
 		builder.databaseBuilder == nil ||
 		builder.jwtBuilder == nil ||
 		builder.sessionBuilder == nil {
+		log.Println("error")
 		return nil, errors.New("uncomplete setup")
 	}
 

@@ -3,6 +3,7 @@ package servercore
 import (
 	"auth_server/cmd/api/domain/adapters/domainimpl"
 	_ "auth_server/docs"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	swagger "github.com/gofiber/swagger"
@@ -25,7 +26,7 @@ func NewServer(impl domainimpl.Adapter) *Server {
 }
 
 func (srv *Server) StartAndListen() error {
-	return srv.app.ListenTLS(":4000", "./certs/web_cert.pem", "./certs/web_key.pem")
+	return srv.app.ListenTLS(":4000", os.Getenv("AUTH_API_CERT_PATH"), os.Getenv("AUTH_API_KEY_PATH"))
 }
 
 func (srv *Server) registerRoutes() {

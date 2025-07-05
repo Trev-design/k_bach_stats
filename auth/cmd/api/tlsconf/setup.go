@@ -6,12 +6,12 @@ import (
 	"errors"
 	"log"
 	"os"
-	"sync"
 )
 
 type TLSBuilder struct {
-	certPath string
-	keyPath  string
+	certPath   string
+	keyPath    string
+	rootCAPath string
 }
 
 type RawConfig interface {
@@ -21,27 +21,6 @@ type RawConfig interface {
 }
 
 type tlsConfigMap map[string]string
-
-var caCertPath string
-var caPool *x509.CertPool
-var once sync.Once
-
-func GenerateCertPool(certPath string) (err error) {
-	once.Do(func() {
-		cert, err := os.ReadFile(caCertPath)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		certPool := x509.NewCertPool()
-		certPool.AppendCertsFromPEM(cert)
-		caCertPath = certPath
-		caPool = certPool
-	})
-
-	return
-}
 
 func (confMap tlsConfigMap) CACertPath() string {
 	return confMap["CERTIFICATION"]
@@ -69,23 +48,37 @@ func (builder *TLSBuilder) KeyPath(keyPath string) *TLSBuilder {
 	return builder
 }
 
+func (builder *TLSBuilder) CACertPath(certPath string) *TLSBuilder {
+	builder.rootCAPath = certPath
+	return builder
+}
+
 func (builder *TLSBuilder) BuildConfigMap() (RawConfig, error) {
-	if builder.certPath == "" || builder.keyPath == "" {
+	if builder.certPath == "" || builder.keyPath == "" || builder.rootCAPath == "" {
 		return nil, errors.New("uncomplete setup")
 	}
 
 	configMap := make(map[string]string)
 	configMap["CERT"] = builder.certPath
 	configMap["KEY"] = builder.keyPath
-	configMap["CERTIFICATION"] = caCertPath
+	configMap["CERTIFICATION"] = builder.rootCAPath
 
 	return tlsConfigMap(configMap), nil
 }
 
 func (builder *TLSBuilder) Build() (*tls.Config, error) {
-	if builder.certPath == "" || builder.keyPath == "" {
+	if builder.certPath == "" || builder.keyPath == "" || builder.rootCAPath == "" {
 		return nil, errors.New("incomplete tls setup")
 	}
+
+	caCert, err := os.ReadFile(builder.rootCAPath)
+	if err != nil {
+		log.Printf("line 32: %v\n", err)
+		return nil, err
+	}
+
+	certPool := x509.NewCertPool()
+	certPool.AppendCertsFromPEM(caCert)
 
 	cert, err := tls.LoadX509KeyPair(builder.certPath, builder.keyPath)
 	if err != nil {
@@ -94,6 +87,6 @@ func (builder *TLSBuilder) Build() (*tls.Config, error) {
 
 	return &tls.Config{
 		Certificates: []tls.Certificate{cert},
-		RootCAs:      caPool,
+		RootCAs:      certPool,
 	}, nil
 }

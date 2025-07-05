@@ -21,8 +21,9 @@ services:
     ports:
       - "5432:5432"
     environment:
+      POSTGRES_USER: ${POSTGRES_DB_USER}
       POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB_DATABASE}
+      POSTGRES_DB: ${POSTGRES_DB_NAME}
     volumes:
       - ./postgres.conf:/etc/postgresql/postgresql.conf
       - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
@@ -49,18 +50,20 @@ services:
       --tls-ca-cert-file /usr/local/etc/redis/certs/rootCA.pem
       --requirepass "$(cat /run/secrets/redis_password)"'
 
-  #auth_service:
-  #  build:
-  #    context: ./auth
-  #    dockerfile: Dockerfile
-  #  volumes:
-  #    - ./certs/auth:/certs/:ro
-  #  ports:
-  #    - "4000:4000"
-  #  depends_on:
-  #    - postgres
-  #    - redis
-  #    - rabbitmq
+#  auth_service:
+#    build:
+#      context: ./auth
+#      dockerfile: Dockerfile
+#    env_file:
+#      - ./.env
+#    volumes:
+#      - ./certs/auth:/certs/:ro
+#    ports:
+#      - "4000:4000"
+#    depends_on:
+#      - postgres
+#      - redis
+#      - rabbitmq
 
   #mailer_service:
   #  build:
