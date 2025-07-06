@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"os"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -45,8 +46,10 @@ func (builder *DatabaseBuilder) makeDSN() (string, error) {
 			return "", err
 		}
 
+		log.Println(os.ReadFile(configMap.CertPath()))
+
 		return fmt.Sprintf(
-			"user=%s password=%s host=%s port=%s dbname=%s sslmode=require sslrootcert=%s sslcert=%s sslkey=%s",
+			"user=%s password=%s host=%s port=%s dbname=%s sslmode=verify-ca sslrootcert=%s sslcert=%s sslkey=%s",
 			builder.user, builder.password, builder.host, builder.port, builder.dbname, configMap.CACertPath(), configMap.CertPath(), configMap.KeyPath(),
 		), nil
 	}

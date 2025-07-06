@@ -88,3 +88,18 @@ func (impl *Impl) StartBackgroundServices() {
 	impl.session.HandleBackground()
 	impl.jwt.ComputeBackgroundService()
 }
+
+func (impl *Impl) CloseServices() error {
+	if err := impl.broker.CloseProducer(); err != nil {
+		return err
+	}
+
+	if err := impl.db.CloseDatabase(); err != nil {
+		return err
+	}
+	if err := impl.jwt.CloseJWTService(); err != nil {
+		return err
+	}
+
+	return impl.session.CloseSession()
+}

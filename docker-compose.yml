@@ -3,52 +3,55 @@ services:
   rabbitmq:
     image: rabbitmq:4.1.1-management
     ports:
-      - "5671:5671"
-      - "15671:15671"
-    volumes:
-      - ./certs/rabbit:/etc/rabbitmq/certs:ro
-      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - "5672:5672"
+      - "15672:15672"
+    #volumes:
+    #  - ./certs/rabbit:/etc/rabbitmq/certs:ro
+    #  - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     environment:
-      RABBITMQ_CONFIG_FILE: /etc/rabbitmq/rabbitmq
+      #RABBITMQ_CONFIG_FILE: /etc/rabbitmq/rabbitmq
       RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
-      RABBITMQ_DEFAULT_PASSWORD: ${RABBIT_PASSWORD}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASSWORD}
       RABBITMQ_DEFAULT_VHOST: ${RABBIT_V_HOST}
 
   postgres:
-    build:
-      context: .
-      dockerfile: postgres.Dockerfile
+    #build:
+    #  context: .
+    #  dockerfile: postgres.Dockerfile
+    image: postgres:17.5-alpine3.21 
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_DB_USER}
       POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB_NAME}
-    volumes:
-      - ./postgres.conf:/etc/postgresql/postgresql.conf
-      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
-    command:
-      - postgres
-      - -c
-      - config_file=/etc/postgresql/postgresql.conf
-      - -c
-      - hba_file=/etc/postgresql/pg_hba.conf
+    #volumes:
+    #  - ./postgres.conf:/etc/postgresql/postgresql.conf
+    #  - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
+    #command:
+    #  - postgres
+    #  - -c
+    #  - config_file=/etc/postgresql/postgresql.conf
+    #  - -c
+    #  - hba_file=/etc/postgresql/pg_hba.conf
 
   redis:
     image: redis:8.0.2-alpine
     ports:
       - "6379:6379"
-    volumes:
-      - ./certs/redis:/usr/local/etc/redis/certs:ro
-      - ./secret.txt:/run/secrets/redis_password:ro
     command: >
-      sh -c 'exec redis-server
-      --tls-port 6379
-      --port 0
-      --tls-cert-file /usr/local/etc/redis/certs/redisdb.crt
-      --tls-key-file /usr/local/etc/redis/certs/redisdb.key
-      --tls-ca-cert-file /usr/local/etc/redis/certs/rootCA.pem
-      --requirepass "$(cat /run/secrets/redis_password)"'
+      sh -c 'exec redis-server --requirepass "$(cat /run/secrets/redis_password)"'
+    #volumes:
+    #  - ./certs/redis:/usr/local/etc/redis/certs:ro
+    #  - ./secret.txt:/run/secrets/redis_password:ro
+    #command: >
+    #  sh -c 'exec redis-server
+    #  --tls-port 6379
+    #  --port 0
+    #  --tls-cert-file /usr/local/etc/redis/certs/redisdb.crt
+    #  --tls-key-file /usr/local/etc/redis/certs/redisdb.key
+    #  --tls-ca-cert-file /usr/local/etc/redis/certs/rootCA.pem
+    #  --requirepass "$(cat /run/secrets/redis_password)"'
 
 #  auth_service:
 #    build:
