@@ -1,7 +1,7 @@
 <template>
   <header>
     <div class="flex justify-between items-center p-8 lg:px-12 relative z-20">
-      <div class="text-3xl font-bold dark:text-light">KBachStats</div>
+      <div class="text-2xl lg:text-4xl font-bold dark:text-light">KBachStats</div>
 
       <!-- Mobile Toggle Button -->
       <div class="md:hidden z-30">
@@ -23,7 +23,7 @@
       ]">
         <ul class="flex flex-col items-center space-y-5 md:flex-row md:space-x-5 md:space-y-0">
           <li v-for="item in menu" :key="item.name">
-            <a :href="item.href" class="block transition ease-linear md:text-lg lg:text-xl font-bold text-white md:text-primary dark:text-light dark:hover:text-secondary">
+            <a :href="item.href" class="block transition ease-linear md:text-sm lg:text-lg font-bold text-white md:text-primary dark:text-light dark:hover:text-secondary">
               {{ item.name }}
             </a>
           </li>

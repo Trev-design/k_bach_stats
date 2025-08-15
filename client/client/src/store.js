@@ -19,3 +19,14 @@ export const useAuthStore = defineStore('auth', {
         token: (state) => state.jwt
     }
 })
+
+export const useUserStore = defineStore('user', {
+    state: () => {
+        return {name: '', abo: '', roles: []}
+    },
+    getters: {
+        user: (state) => state.name,
+        type: (state) => state.abo,
+        roles: (state) => state.roles
+    }
+})
