@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router"
-import { useAuthStore } from "./authStore"
+import { useAuthStore, pinia } from "./store"
 
 const routes = [
     {
@@ -36,16 +36,13 @@ const router = createRouter({
 })
 
 router.beforeEach((to, _from, next) => {
-    if (to.meta.requiresAuth) {
-        const auth = useAuthStore()
-        const isAuthenticated = auth.isAuthenticated()
+    const auth = useAuthStore()
 
-        if (!isAuthenticated) {
-            next({ name: 'Signin'})
-        }
+    if (to.meta.requiresAuth && !auth.isAuthenticated) {
+        next({ name: 'Signin'})
+    } else {
+        next()
     }
-
-    next()
 })
 
 export default router

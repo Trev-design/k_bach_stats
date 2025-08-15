@@ -1,4 +1,7 @@
 import { defineStore } from "pinia"
+import { createPinia } from "pinia"
+
+export const pinia = createPinia()
 
 export const useAuthStore = defineStore('auth', {
     state: () => {
@@ -12,7 +15,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     getters: {
-        isAuthenticated() { return this.jwt != ''},
-        token() { return this.jwt }
+        isAuthenticated: (state) => state.jwt != '',
+        token: (state) => state.jwt
     }
 })
