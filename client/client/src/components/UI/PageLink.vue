@@ -3,7 +3,7 @@
   :to="dest"
   :class="[`flex justify-center items-center rounded-full md:px-8 md:py-1 md:mr-2 sm:mt-2 md:mt-0 no-underline cursor-pointer sm:font-bold
   ${primary ? 'md:bg-primary dark:md:bg-light hover:md:bg-dark dark:hover:bg-secondary': 'md:bg-black dark:md:bg-secondary hover:md:bg-gray-900 dark:hover:md:bg-light'}
-  text-secondary md:text-white md:dark:text-dark`]"
+  text-secondary md:text-white md:dark:text-dark md:text-sm`]"
   >{{label}}</router-link>
 </template>
 

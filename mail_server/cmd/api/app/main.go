@@ -14,11 +14,11 @@ type app struct {
 }
 
 func main() {
-	user := os.Getenv("RABBIT_USER")
+	user := "kbach_broker"
 	password := os.Getenv("RABBIT_PASSWORD")
-	host := os.Getenv("RABBIT_HOST")
-	port := os.Getenv("RABBIT_PORT")
-	vhost := os.Getenv("RABBIT_V_HOST")
+	host := "rabbitmq"
+	port := "5672"
+	vhost := "kbach"
 
 	app := new(app)
 	app.waitgroup = &sync.WaitGroup{}

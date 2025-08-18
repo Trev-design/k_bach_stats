@@ -12,7 +12,3 @@ defineProps({
   func: {type:Function, default:() => {}}
 })
 </script>
-
-<style>
-
-</style>

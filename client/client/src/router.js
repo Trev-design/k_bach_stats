@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router"
-import { useAuthStore, pinia } from "./store"
+import { useAuthStore } from "./store"
 
 const routes = [
     {

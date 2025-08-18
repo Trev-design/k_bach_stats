@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/joho/godotenv"
 )
 
 //	@title						API Documentation
@@ -40,21 +39,10 @@ import (
 // @in							cookie
 // @name						__HOST_REFRESH_
 func main() {
-	wd, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println(wd)
-
-	if err := godotenv.Load("./.env"); err != nil {
-		log.Fatal(err)
-	}
-
 	implementation, err := impl.NewImplBuilder().
-		DatabaseSetup(dbSetup(wd)).
-		SessionSetup(sessionSetup(wd)).
-		BrokerSetup(brokerSetup(wd)).
+		DatabaseSetup(dbSetup()).
+		SessionSetup(sessionSetup()).
+		BrokerSetup(brokerSetup()).
 		JWTSetup(
 			jwtcore.NewJWTServiceBuilder().
 				Identifier(uuid.New()).
@@ -72,13 +60,14 @@ func main() {
 	log.Fatal(server.StartAndListen())
 }
 
-func dbSetup(wd string) *dbcore.DatabaseBuilder {
+func dbSetup() *dbcore.DatabaseBuilder {
+
 	return dbcore.NewDatabaseBuilder().
-		User(os.Getenv("POSTGRES_DB_USER")).
-		Password(os.Getenv("POSTGRES_DB_PASSWORD")).
-		Port(os.Getenv("POSTGRES_DB_PORT")).
-		Host(os.Getenv("POSTGRES_DB_HOST")).
-		DBName(os.Getenv("POSTGRES_DB_NAME"))
+		User(os.Getenv("POSTGRES_USER")).
+		Password(os.Getenv("POSTGRES_PASSWORD")).
+		Port("5432").
+		Host("postgres").
+		DBName(os.Getenv("POSTGRES_DATABASE_NAME"))
 	//WithTLS(
 	//	tlsconf.NewTLSBuilder().
 	//		CertPath(fmt.Sprintf("./certs/%s", os.Getenv("POSTGRES_DB_CERT"))).
@@ -86,11 +75,11 @@ func dbSetup(wd string) *dbcore.DatabaseBuilder {
 	//		CACertPath(fmt.Sprintf("./certs/%s", os.Getenv("POSTGRES_DB_CA_CERT"))))
 }
 
-func sessionSetup(wd string) *sessioncore.SessionBuilder {
+func sessionSetup() *sessioncore.SessionBuilder {
 	return sessioncore.NewSessionBuilder().
-		Host(os.Getenv("REDIS_SESSION_HOST")).
-		Port(os.Getenv("REDIS_SESSION_PORT")).
-		Password(os.Getenv("REDIS_SESSION_PASSWORD")).
+		Host("redis").
+		Port("6379").
+		Password(os.Getenv("REDIS_PASSWORD")).
 		IntevalDuration(2 * time.Hour)
 	//WithTLS(
 	//	tlsconf.NewTLSBuilder().
@@ -98,13 +87,13 @@ func sessionSetup(wd string) *sessioncore.SessionBuilder {
 	//		KeyPath(filepath.Join(wd, "certs", os.Getenv("REDIS_SESSION_KEY"))))
 }
 
-func brokerSetup(wd string) *producer.RMQProducerBuilder {
+func brokerSetup() *producer.RMQProducerBuilder {
 	return producer.NewProducer().
 		User(os.Getenv("RABBIT_USER")).
 		Password(os.Getenv("RABBIT_PASSWORD")).
-		Host(os.Getenv("RABBIT_HOST")).
-		Port(os.Getenv("RABBIT_PORT")).
-		VirtualHost(os.Getenv("RABBIT_V_HOST")).
+		Host("rabbitmq").
+		Port("5672").
+		VirtualHost(os.Getenv("RABBIT_VIRTUAL_HOST")).
 		//WithTLS(
 		//	tlsconf.NewTLSBuilder().
 		//		CertPath(filepath.Join(wd, "certs", os.Getenv("RABBIT_CERT"))).

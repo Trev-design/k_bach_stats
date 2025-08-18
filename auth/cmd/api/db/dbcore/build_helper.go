@@ -18,8 +18,6 @@ func (builder *DatabaseBuilder) makeConn() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	log.Println(dsn)
-
 	var backoff time.Duration
 
 	for counter := range 6 {
