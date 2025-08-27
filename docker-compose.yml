@@ -15,9 +15,10 @@ services:
       RABBITMQ_DEFAULT_VHOST: ${RABBIT_V_HOST}
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
-      interval: 15s
-      timeout: 15s
-      retries: 8
+      interval: 20s
+      timeout: 20s
+      retries: 12
+      start_period: 20s 
 
   postgres:
     #build:
@@ -32,9 +33,10 @@ services:
       POSTGRES_DB: ${POSTGRES_DB_NAME}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_DB_USER} -d ${POSTGRES_DB_NAME}"]
-      interval: 10s
-      timeout: 10s
-      retries: 6
+      interval: 15s
+      timeout: 15s
+      retries: 10
+      start_period: 20s 
     #volumes:
     #  - ./postgres.conf:/etc/postgresql/postgresql.conf
     #  - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
@@ -102,20 +104,22 @@ services:
       rabbitmq: 
         condition: service_healthy
 
-  mongo_service:
-    image: mongo:4.4
-    restart: always
-    ports:
-      - "27017:27017"
+  mysql:
+    image: mysql:9.4.0-oracle
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
     healthcheck:
-      test: ["CMD", "mongo", "--username", "${MONGO_USER}", "--password", "${MONGO_PASSWORD}", "--eval", "db.adminCommand('ping')"]
-      interval: 15s
-      timeout: 15s
-      retries: 8
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      interval: 15s       
+      timeout: 15s        
+      retries: 10         
+      start_period: 20s  
+    
 
     
     

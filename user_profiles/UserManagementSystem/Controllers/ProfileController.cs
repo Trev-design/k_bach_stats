@@ -1,0 +1,76 @@
+using Microsoft.AspNetCore.Mvc;
+using UserManagementSystem.Models;
+using UserManagementSystem.Services;
+
+namespace UserManagementSystem.Controllers;
+
+[Controller]
+[Route("api/[controller]")]
+public class ProfileController(AppDBContext dbContext) : Controller
+{
+    private readonly AppDBContext _dbContext = dbContext;
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Profile>> Get(Guid id)
+    {
+        var profile = await ProfileDBImpl.GetProfile(_dbContext, id);
+        if (profile == null) return NotFound();
+        return Ok(profile);
+    }
+
+    [HttpPut("{id}/new_image")]
+    public async Task<ActionResult> ChangeImage(Guid id, string imagePath)
+    {
+        try
+        {
+            await ProfileDBImpl.ChangeImage(_dbContext, id, imagePath);
+        }
+        catch
+        {
+            return NotFound();
+        }
+        return NoContent();
+    }
+
+    [HttpPut("{id}/new_description")]
+    public async Task<ActionResult> ChangeDescription(Guid id, string description)
+    {
+        try
+        {
+            await ProfileDBImpl.ChangeDescription(_dbContext, id, description);
+        }
+        catch
+        {
+            return NotFound();
+        }
+        return NoContent();
+    }
+
+    [HttpPut("{id}/contact/{contactId}/new_name")]
+    public async Task<ActionResult> ChangeName(Guid id, Guid contactId, string newName)
+    {
+        try
+        {
+            await ProfileDBImpl.ChangeContactName(_dbContext, id, contactId, newName);
+        }
+        catch
+        {
+            return NotFound();
+        }
+        return NoContent();
+    }
+
+    [HttpPut("{id}/contact/{contactId}/new_email")]
+    public async Task<ActionResult> ChangeEmail(Guid id, Guid contactId, string newEmal)
+    {
+        try
+        {
+            await ProfileDBImpl.ChangeContactEmail(_dbContext, id, contactId, newEmal);
+        }
+        catch
+        {
+            return NotFound();
+        }
+        return NoContent();
+    }
+}
