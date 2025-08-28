@@ -3,111 +3,133 @@ package sessionkeys_test
 import (
 	"auth_server/cmd/api/temporary/session/sessionkeys"
 	"bytes"
+	"log"
 	"testing"
 	"time"
 )
 
-func Test_SessionKeys(t *testing.T) {
-	sessionKeys(t)
+var keys *sessionkeys.KeyManager
+
+func TestMain(m *testing.M) {
+	newKeys := sessionkeys.NewKeyManager(12 * time.Second)
+	keys = newKeys
+	go keys.ComputeRotateInterval()
+
+	m.Run()
+
+	err := keys.StopKeyManager()
+	if err != nil {
+		log.Println(err)
+	}
 }
 
-func sessionKeys(t *testing.T) {
-	t.Run("sessio_keys_instance", func(t *testing.T) {
-		manager := sessionKeysInit(t)
-		// hier soll ein background service eingebunden werden
-		go manager.ComputeRotateInterval()
-
-		key, timeStramp := getSessionKey(t, manager)
-		getAnotherSessionKey(t, manager, key)
-		oldKey(t, manager, timeStramp, key)
-		expiredKey(t, manager, timeStramp)
-		closeKeyManager(t, manager)
-	})
+func Test_InitAndClose(t *testing.T) {
+	keymanager := sessionkeys.NewKeyManager(1 * time.Second)
+	if err := keymanager.StopKeyManager(); err != nil {
+		t.Fatal(err)
+	}
 }
 
-func sessionKeysInit(t *testing.T) *sessionkeys.KeyManager {
-	var manager *sessionkeys.KeyManager
+func Test_InitRotateAndClose(t *testing.T) {
+	keymanager := sessionkeys.NewKeyManager(1 * time.Second)
+	go keymanager.ComputeRotateInterval()
+	timestamp := time.Now().UTC()
+	key, err := keymanager.GetKey(timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	t.Run("init_session_keys", func(t *testing.T) {
-		keyManager := sessionkeys.NewKeyManager(1 * time.Second)
-		manager = keyManager
-	})
+	if key == nil {
+		t.Fatal("should get a valid key but got nil")
+	}
 
-	return manager
+	time.Sleep(1125 * time.Millisecond)
+	newTimestamp := time.Now().UTC()
+	newKey, err := keymanager.GetKey(newTimestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if newKey == nil {
+		t.Fatal("should get a valid key but got nil")
+	}
+
+	if bytes.Equal(key, newKey) {
+		t.Fatal("keys should be different")
+	}
+
+	if err = keymanager.StopKeyManager(); err != nil {
+		t.Fatal(err)
+	}
 }
 
-func oldKey(
-	t *testing.T,
-	manager *sessionkeys.KeyManager,
-	timeStamp time.Time,
-	key []byte) {
-	t.Run("old_key", func(t *testing.T) {
-		time.Sleep(700 * time.Millisecond)
-		otherKey, err := manager.GetKey(timeStamp)
-		if err != nil {
-			t.Fatal(err)
-		}
+func Test_GetKey(t *testing.T) {
+	timestamp := time.Now().UTC()
+	key, err := keys.GetKey(timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-		if !bytes.Equal(otherKey, key) {
-			t.Fatal("should be the same key")
-		}
-	})
+	if key == nil {
+		t.Fatal("should get a valid key but got nil")
+	}
 }
 
-func expiredKey(
-	t *testing.T,
-	manager *sessionkeys.KeyManager,
-	timeStamp time.Time,
-) {
-	t.Run("expired_key", func(t *testing.T) {
-		time.Sleep(1 * time.Second)
+func Test_GetAnotherKey(t *testing.T) {
+	timestamp := time.Now().UTC()
+	key, err := keys.GetKey(timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-		_, err := manager.GetKey(timeStamp)
-		if err == nil {
-			t.Fatal("should fail because key is expired but got succeed")
-		}
+	if key == nil {
+		t.Fatal("should get a valid key but got nil")
+	}
 
-		t.Logf("the error is %s", err.Error())
-	})
+	newTimeStamp := time.Now().UTC().Add(1 * time.Second)
+	newKey, err := keys.GetKey(newTimeStamp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if newKey == nil {
+		t.Fatal("should get a valid key but got nil")
+	}
+
+	if bytes.Equal(key, newKey) {
+		t.Fatal("keys should be different")
+	}
 }
 
-func getSessionKey(t *testing.T, manager *sessionkeys.KeyManager) ([]byte, time.Time) {
-	var keyBytes []byte
-	var userTimeStamp time.Time
+func Test_GetOldKey(t *testing.T) {
+	time.Sleep(7 * time.Second)
+	timestamp := time.Now().UTC()
+	key, err := keys.GetKey(timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if key == nil {
+		t.Fatal("should get a valid key but got nil")
+	}
 
-	t.Run("get_session_key_from_keys", func(t *testing.T) {
-		timeStamp := time.Now().UTC()
-		key, err := manager.GetKey(timeStamp)
-		if err != nil {
-			t.Fatal(err)
-		}
+	time.Sleep(7 * time.Second)
+	newKey, err := keys.GetKey(timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-		userTimeStamp = timeStamp
+	if newKey == nil {
+		t.Fatal("should get a valid key but got nil")
+	}
 
-		keyBytes = make([]byte, len(key))
-		copy(keyBytes, key)
-	})
-
-	return keyBytes, userTimeStamp
+	if !bytes.Equal(key, newKey) {
+		t.Fatal("keys should be equal")
+	}
 }
 
-func getAnotherSessionKey(t *testing.T, manager *sessionkeys.KeyManager, key []byte) {
-	t.Run("get_another_session_key", func(t *testing.T) {
-		anotherKey, err := manager.GetKey(time.Now().Add(1 * time.Second).UTC())
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if bytes.Equal(key, anotherKey) {
-			t.Fatal(err)
-		}
-	})
-}
-
-func closeKeyManager(t *testing.T, manager *sessionkeys.KeyManager) {
-	t.Run("close_store", func(t *testing.T) {
-		if err := manager.StopKeyManager(); err != nil {
-			t.Fatal(err)
-		}
-	})
+func Test_GetKeyFailedExpiredKey(t *testing.T) {
+	timestamp := time.Now().UTC().Add(-13 * time.Second)
+	if _, err := keys.GetKey(timestamp); err == nil {
+		t.Fatal("should fail but got succeed")
+	}
 }
