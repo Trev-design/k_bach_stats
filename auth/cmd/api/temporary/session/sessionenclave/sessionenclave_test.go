@@ -6,75 +6,55 @@ import (
 	"testing"
 )
 
-func Test_SessionEnclave(t *testing.T) {
-	sessionKeyInstance(t)
+var enclave *sessionenclave.Key
+
+func TestMain(m *testing.M) {
+	newEnclave := sessionenclave.NewKey(4)
+	enclave = newEnclave
+
+	m.Run()
 }
 
-func sessionKeyInstance(t *testing.T) {
-	t.Run("session_enclave_instance", func(t *testing.T) {
-		key := sessionKeyInit(t)
-		keyBytes := keyGet(t, key)
-		keyChange(t, key, keyBytes)
-		keyDestroy(t, key)
-	})
+func Test_GetKey(t *testing.T) {
+	_, err := enclave.GetKey(2)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
-func sessionKeyInit(t *testing.T) *sessionenclave.Key {
-	var key *sessionenclave.Key
+func Test_GetKeyfailedDestroyedKey(t *testing.T) {
+	newEnclave := sessionenclave.NewKey(2)
+	if err := newEnclave.DestroyKey(); err != nil {
+		t.Fatal(err)
+	}
 
-	t.Run("init_sessionenclave", func(t *testing.T) {
-		enclave := sessionenclave.NewKey(1)
-		key = enclave
-	})
-
-	return key
+	if _, err := newEnclave.GetKey(4); err == nil {
+		t.Fatal("should fail but got succeed")
+	}
 }
 
-func keyGet(t *testing.T, key *sessionenclave.Key) []byte {
-	var keyData []byte
+func Test_ChangeKey(t *testing.T) {
+	oldKey, err := enclave.GetKey(2)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	t.Run("get_key_from_enclave", func(t *testing.T) {
-		keyBytes, err := key.GetKey(0)
-		if err != nil {
-			t.Fatal(err)
-		}
+	if err = enclave.ChangeKey(); err != nil {
+		t.Fatal(err)
+	}
 
-		if keyBytes == nil {
-			t.Fatal("invalid key")
-		}
+	newKey, err := enclave.GetKey(2)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-		keyData := make([]byte, len(keyBytes))
-		copy(keyData, keyBytes)
-	})
-
-	return keyData
+	if bytes.Equal(oldKey, newKey) {
+		t.Fatal("keys should be different")
+	}
 }
 
-func keyChange(t *testing.T, key *sessionenclave.Key, keyData []byte) {
-	t.Run("change_key_from_enclave", func(t *testing.T) {
-		if err := key.ChangeKey(); err != nil {
-			t.Fatal(err)
-		}
-
-		newKeyData, err := key.GetKey(0)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if newKeyData == nil {
-			t.Fatal("invalid key data")
-		}
-
-		if bytes.Equal(keyData, newKeyData) {
-			t.Fatal("key should be different")
-		}
-	})
-}
-
-func keyDestroy(t *testing.T, key *sessionenclave.Key) {
-	t.Run("destroy_key_from_enclave", func(t *testing.T) {
-		if err := key.DestroyKey(); err != nil {
-			t.Fatal(err)
-		}
-	})
+func Test_DestroyKeys(t *testing.T) {
+	if err := enclave.DestroyKey(); err != nil {
+		t.Fatal(err)
+	}
 }

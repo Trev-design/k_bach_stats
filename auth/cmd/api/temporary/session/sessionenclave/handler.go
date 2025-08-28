@@ -1,6 +1,12 @@
 package sessionenclave
 
+import "errors"
+
 func (key *Key) GetKey(diff int) ([]byte, error) {
+	if key.enclave == nil {
+		return nil, errors.New("does not exist or already destoyed")
+	}
+
 	key.mutex.Lock()
 	defer key.mutex.Unlock()
 
