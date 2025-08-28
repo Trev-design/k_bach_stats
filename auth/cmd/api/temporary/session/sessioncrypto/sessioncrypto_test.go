@@ -2,6 +2,7 @@ package sessioncrypto_test
 
 import (
 	"auth_server/cmd/api/temporary/session/sessioncrypto"
+	"bytes"
 	"crypto/rand"
 	"encoding/base64"
 	random "math/rand"
@@ -9,225 +10,200 @@ import (
 	"time"
 )
 
-type cryptoCreds struct {
-	payload   string
-	timeStamp time.Time
+var crypto *sessioncrypto.Crypt
+
+func TestMain(m *testing.M) {
+	newCrypt, _ := sessioncrypto.NewCrypt(2 * time.Second)
+	crypto = newCrypt
+
+	m.Run()
 }
 
-func Test_SessionCrypto(t *testing.T) {
-	sessionCryptoInstance(t)
-}
-
-func sessionCryptoInstance(t *testing.T) {
-	t.Run("sessioncrypto_instance", func(t *testing.T) {
-		crypto := initializeCryptoInstance(t)
-		go crypto.ComputeRotateInterval()
-		creds := getEncrypted(t, crypto)
-		getDecryptedSuccess(t, crypto, creds)
-		getDecryptedFailure(t, crypto, creds)
-		tryGetWithExpiredKey(t, crypto, creds)
-		tryGetWithOldKey(t, crypto)
-		closeSessionCrypto(t, crypto)
-	})
-}
-
-func tryGetWithOldKey(t *testing.T, crypto *sessioncrypto.Crypt) {
-	t.Run("try_get_with_old_key", func(t *testing.T) {
-		time.Sleep(700 * time.Millisecond)
-		currentTime := time.Now().UTC()
-		creds, err := crypto.EncryptPayload([]byte("wuzzup"), currentTime)
-		if err != nil {
-			t.Fatal(err)
-		}
-		time.Sleep(600 * time.Millisecond)
-		_, err = crypto.DecryptPayload(creds, currentTime)
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-}
-
-func tryGetWithExpiredKey(t *testing.T, crypto *sessioncrypto.Crypt, creds *cryptoCreds) {
-	t.Run("try_get_with_expired_key", func(t *testing.T) {
-		time.Sleep(1100 * time.Millisecond)
-		_, err := crypto.DecryptPayload(creds.payload, creds.timeStamp)
-		if err == nil {
-			t.Fatal("should fail because expired key but got succeed")
-		}
-
-		t.Logf("the error is %s", err.Error())
-	})
-}
-
-func initializeCryptoInstance(t *testing.T) *sessioncrypto.Crypt {
-	var sessionCrypto *sessioncrypto.Crypt
-
-	t.Run("initialize_session_crypto_instance", func(t *testing.T) {
-		crypto, err := sessioncrypto.NewCrypt(1 * time.Second)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		sessionCrypto = crypto
-	})
-
-	return sessionCrypto
-}
-
-func getEncrypted(t *testing.T, crypto *sessioncrypto.Crypt) *cryptoCreds {
-	var encryptedPayload string
-	var currentTimeStamp time.Time
-
-	t.Run("get_encrypted_from_sessioncrypto", func(t *testing.T) {
-		timeStamp := time.Now().UTC()
-		payload, err := crypto.EncryptPayload([]byte("halli hallo halloechen"), timeStamp)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		t.Log(payload)
-
-		currentTimeStamp = timeStamp
-		encryptedPayload = payload
-	})
-
-	return &cryptoCreds{
-		timeStamp: currentTimeStamp,
-		payload:   encryptedPayload,
+func Test_InitCrypt(t *testing.T) {
+	_, err := sessioncrypto.NewCrypt(2 * time.Hour)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
-func getDecryptedSuccess(t *testing.T, crypto *sessioncrypto.Crypt, creds *cryptoCreds) {
-	t.Run("get_decrypted_from_sessioncrypto_success", func(t *testing.T) {
-		payload, err := crypto.DecryptPayload(creds.payload, creds.timeStamp)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if payload != "halli hallo halloechen" {
-			t.Fatal("not expected payload: payload should be halli hallo halloechen")
-		}
-	})
-}
-
-func getDecryptedFailure(t *testing.T, crypto *sessioncrypto.Crypt, creds *cryptoCreds) {
-	t.Run("get_decrypted_from_sessioncrypto_failure", func(t *testing.T) {
-		falseCipher(t, crypto, creds)
-		falseNonce(t, crypto, creds)
-		falseKey(t, crypto, creds)
-		falsePayload(t, crypto, creds)
-	})
-}
-
-func falseCipher(t *testing.T, crypto *sessioncrypto.Crypt, creds *cryptoCreds) {
-	t.Run("false_cipher_payload", func(t *testing.T) {
-		completeFalseCipher(t, crypto, creds)
-		falseRandomByteCipher(t, crypto, creds)
-	})
-}
-
-func falseRandomByteCipher(t *testing.T, crypto *sessioncrypto.Crypt, creds *cryptoCreds) {
-	t.Run("false_random_byte", func(t *testing.T) {
-		encodedNewSecret, err := getCoruptedRandomByteCipher(creds.payload, 12)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		_, err = crypto.DecryptPayload(encodedNewSecret, creds.timeStamp)
-		if err == nil {
-			t.Fatal("expected failure got succeed")
-		}
-
-		t.Logf("the reason of the failure for decryption is: %s", err.Error())
-	})
-}
-
-func completeFalseCipher(t *testing.T, crypto *sessioncrypto.Crypt, creds *cryptoCreds) {
-	t.Run("complete_false_cipher", func(t *testing.T) {
-		encodedNewSecret, err := getCompleteCoruptedCipher(creds.payload, 12)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		_, err = crypto.DecryptPayload(encodedNewSecret, creds.timeStamp)
-		if err == nil {
-			t.Fatal("expected failure got succeed")
-		}
-
-		t.Logf("the reason of the failure for decryption is: %s", err.Error())
-	})
-}
-
-func falseNonce(t *testing.T, crypto *sessioncrypto.Crypt, creds *cryptoCreds) {
-	t.Run("false_nonce_payload", func(t *testing.T) {
-		falseRandomByteNonce(t, crypto, creds)
-		completelyFalseNonce(t, crypto, creds)
-	})
-}
-
-func falseRandomByteNonce(t *testing.T, crypto *sessioncrypto.Crypt, creds *cryptoCreds) {
-	t.Run("false_random_byte", func(t *testing.T) {
-		encodedNewSecret, err := getCoruptedRandomByteNonce(creds.payload, 12)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		_, err = crypto.DecryptPayload(encodedNewSecret, creds.timeStamp)
-		if err == nil {
-			t.Fatal("expected failure got succeed")
-		}
-
-		t.Logf("the reason of the failure for decryption is: %s", err.Error())
-	})
-}
-
-func completelyFalseNonce(t *testing.T, crypto *sessioncrypto.Crypt, creds *cryptoCreds) {
-	encodedNewSecret, err := getCompleteCoruptedNonce(creds.payload, 12)
+func Test_InitAndCloseCrypt(t *testing.T) {
+	newCrypt, err := sessioncrypto.NewCrypt(2 * time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = crypto.DecryptPayload(encodedNewSecret, creds.timeStamp)
-	if err == nil {
-		t.Fatal("expected failure got succeed")
+	if err = newCrypt.CloseCrypto(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func Test_GetEncrypred(t *testing.T) {
+	payload, err := crypto.EncryptPayload([]byte("halli hallo"), time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	t.Logf("the reason of the failure for decryption is: %s", err.Error())
+	t.Logf("the encrypted payload is %s", payload)
 }
 
-func falseKey(t *testing.T, crypto *sessioncrypto.Crypt, creds *cryptoCreds) {
-	t.Run("false_key", func(t *testing.T) {
-		_, err := crypto.DecryptPayload(creds.payload, time.Now().Add(1*time.Second).UTC())
-		if err == nil {
-			t.Fatal("expected failure got succeed")
-		}
+func Test_GetDecrypted(t *testing.T) {
+	message := []byte("hallo halli")
+	timestamp := time.Now().UTC()
 
-		t.Logf("the reason of the failure for decryption is: %s", err.Error())
-	})
+	encrypted, err := crypto.EncryptPayload(message, timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Logf("the encrypted data of %s is %s", string(message), encrypted)
+
+	decryted, err := crypto.DecryptPayload(encrypted, timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if bytes.Equal([]byte(decryted), message) {
+		t.Fatalf("false decryption %s is not equal to %s", decryted, string(message))
+	}
 }
 
-func falsePayload(t *testing.T, crypto *sessioncrypto.Crypt, creds *cryptoCreds) {
-	t.Run("false_payload_in_general", func(t *testing.T) {
-		encodedNewSecret, err := getCompleteCoruptedPayload(creds.payload)
-		if err != nil {
-			t.Fatal(err)
-		}
+func Test_GetDecryptedWithOldKey(t *testing.T) {
+	time.Sleep(1200 * time.Millisecond)
+	timestamp := time.Now().UTC()
+	encrypted, err := crypto.EncryptPayload([]byte("hdjhfjskashdsh"), timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-		_, err = crypto.DecryptPayload(encodedNewSecret, creds.timeStamp)
-		if err == nil {
-			t.Fatal("expected failure got succeed")
-		}
-
-		t.Logf("the reason of the failure for decryption is: %s", err.Error())
-	})
+	time.Sleep(1200 * time.Millisecond)
+	_, err = crypto.DecryptPayload(encrypted, timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
-func closeSessionCrypto(t *testing.T, crypto *sessioncrypto.Crypt) {
-	t.Run("close_sessioncrypto", func(t *testing.T) {
-		if err := crypto.CloseCrypto(); err != nil {
-			t.Fatal(err)
-		}
-	})
+func Test_GetdecryptedFailedWithExpiredKey(t *testing.T) {
+	timestamp := time.Now().UTC()
+	encrypted, err := crypto.EncryptPayload([]byte("jhdjhdsdjdsjhasghshg"), timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	time.Sleep(2345 * time.Millisecond)
+	_, err = crypto.DecryptPayload(encrypted, timestamp)
+	if err == nil {
+		t.Fatal("should fail but got succeed")
+	}
+	t.Log(err.Error())
+}
+
+func Test_GetDecryptedFailureFalseKey(t *testing.T) {
+	message := []byte("hallo halli")
+	timestamp := time.Now().UTC()
+
+	encrypted, err := crypto.EncryptPayload(message, timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = crypto.DecryptPayload(encrypted, timestamp.Add(1*time.Second))
+	if err == nil {
+		t.Fatal("should fail but succeed")
+	}
+}
+
+func Test_GetDecryptedFailureFalsePayloadRandomByte(T *testing.T) {
+
+}
+
+func Test_GetDecryptedFailureCompletelyFalsePayload(t *testing.T) {
+	timestamp := time.Now().UTC()
+	encrypted, err := crypto.EncryptPayload([]byte("Holla Halli"), timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	corupted, err := getCompleteCoruptedPayload(encrypted)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = crypto.DecryptPayload(corupted, timestamp)
+	if err == nil {
+		t.Fatal("should fail but got succeed")
+	}
+}
+
+func Test_GetDecryptedFailureFalseCipherRandomByte(t *testing.T) {
+	timestamp := time.Now().UTC()
+	encrypted, err := crypto.EncryptPayload([]byte("hilla holli"), timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	corupted, err := getCoruptedRandomByteCipher(encrypted, 12)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = crypto.DecryptPayload(corupted, timestamp)
+	if err == nil {
+		t.Fatal("should fail but got succeed")
+	}
+}
+
+func Test_GetDecryptedFailureCompletelyWrongCipher(t *testing.T) {
+	timestamp := time.Now().UTC()
+	encrypted, err := crypto.EncryptPayload([]byte("Hillo Halla"), timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	corupted, err := getCompleteCoruptedCipher(encrypted, 12)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = crypto.DecryptPayload(corupted, timestamp)
+	if err == nil {
+		t.Fatal("should fail but got succeed")
+	}
+}
+
+func Test_GetDecryptedFailureFalseNonceRandomByte(t *testing.T) {
+	timestamp := time.Now().UTC()
+	encrypted, err := crypto.EncryptPayload([]byte("ciaoi"), timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	corupted, err := getCoruptedRandomByteNonce(encrypted, 12)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = crypto.DecryptPayload(corupted, timestamp)
+	if err == nil {
+		t.Fatal("should fail but got succeed")
+	}
+}
+
+func Test_GetDecryptedFailureCompletelyfalseNonce(t *testing.T) {
+	timestamp := time.Now().UTC()
+	encrypted, err := crypto.EncryptPayload([]byte("djhgkdrhgj"), timestamp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	corupted, err := getCompleteCoruptedNonce(encrypted, 12)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = crypto.DecryptPayload(corupted, timestamp)
+	if err == nil {
+		t.Fatal("should fail but got succeed")
+	}
 }
 
 func getCoruptedRandomByteCipher(payload string, nonceSize int) (string, error) {
