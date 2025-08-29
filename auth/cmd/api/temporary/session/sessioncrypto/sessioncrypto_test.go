@@ -62,7 +62,7 @@ func Test_GetDecrypted(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if bytes.Equal([]byte(decryted), message) {
+	if !bytes.Equal([]byte(decryted), message) {
 		t.Fatalf("false decryption %s is not equal to %s", decryted, string(message))
 	}
 }

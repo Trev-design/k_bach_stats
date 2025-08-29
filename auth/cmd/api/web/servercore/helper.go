@@ -24,9 +24,9 @@ func setSessionCreds(ctx *fiber.Ctx, session *types.NewAccountSessionDTO) {
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "__HOST_REFRESH_",
 		Value:    session.Refresh,
-		Secure:   true,
+		Secure:   false,
 		HTTPOnly: true,
-		SameSite: "None",
+		SameSite: "Strict",
 		Expires:  time.Now().Add(2 * time.Hour),
 	})
 
