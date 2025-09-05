@@ -18,7 +18,7 @@ type RegistryServer struct {
 	maxOverflow int64
 }
 
-type responseHandler struct {
+type requestHandler struct {
 	stream    grpc.BidiStreamingServer[proto.RegistryRequest, proto.RegistryResponse]
 	semaphore *semaphore.Weighted
 	queue     *utils.MessageQueue[chan *proto.RegistryResponse]
@@ -28,6 +28,11 @@ type messageHandler struct {
 	responseChannel chan *proto.RegistryResponse
 	semaphore       *semaphore.Weighted
 	request         *proto.RegistryRequest
+}
+
+type responseHandler struct {
+	stream grpc.BidiStreamingServer[proto.RegistryRequest, proto.RegistryResponse]
+	queue  *utils.MessageQueue[chan *proto.RegistryResponse]
 }
 
 func NewRegistryServer(maxPrimary, maxOverflow int64) error {
@@ -51,29 +56,36 @@ func (server *RegistryServer) UserPrimaryStream(stream grpc.BidiStreamingServer[
 	semaphore := semaphore.NewWeighted(server.maxPrimary)
 	queue := utils.NewMessageQueue[chan *proto.RegistryResponse]()
 
-	handler := &responseHandler{
+	handler := &requestHandler{
 		stream:    stream,
 		semaphore: semaphore,
 		queue:     queue,
 	}
 
-	return handler.handleResponses()
+	return handler.handleRequests()
 }
 
 func (server *RegistryServer) UserOverflowStream(stream grpc.BidiStreamingServer[proto.RegistryRequest, proto.RegistryResponse]) error {
 	semaphore := semaphore.NewWeighted(server.maxOverflow)
 	queue := utils.NewMessageQueue[chan *proto.RegistryResponse]()
 
-	handler := &responseHandler{
+	handler := &requestHandler{
 		stream:    stream,
 		semaphore: semaphore,
 		queue:     queue,
 	}
 
-	return handler.handleResponses()
+	return handler.handleRequests()
 }
 
-func (handler *responseHandler) handleResponses() error {
+func (handler *requestHandler) handleRequests() error {
+	responseHandler := &responseHandler{
+		queue:  handler.queue,
+		stream: handler.stream,
+	}
+
+	go responseHandler.handleResponses()
+
 	for {
 		request, err := handler.stream.Recv()
 		if err == io.EOF {
@@ -104,5 +116,13 @@ func (handler *messageHandler) handleMessage() {
 
 	handler.responseChannel <- &proto.RegistryResponse{
 		Status: handler.request.Name,
+	}
+}
+
+func (handler *responseHandler) handleResponses() {
+	for {
+		responseChannel := handler.queue.Dequeue()
+		response := <-responseChannel
+		handler.stream.Send(response)
 	}
 }
