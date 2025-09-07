@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UserManagementSystem.Models;
-using UserManagementSystem.Services;
+using UserManagementSystem.Services.Database;
 
 namespace UserManagementSystem.Controllers;
 

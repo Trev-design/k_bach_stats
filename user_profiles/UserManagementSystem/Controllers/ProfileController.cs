@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using UserManagementSystem.Models;
-using UserManagementSystem.Services;
+using UserManagementSystem.Services.Database;
 
 namespace UserManagementSystem.Controllers;
 

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using UserManagementSystem.Models;
 
-namespace UserManagementSystem.Services;
+namespace UserManagementSystem.Services.Database;
 
 public class UserDBImpl
 {

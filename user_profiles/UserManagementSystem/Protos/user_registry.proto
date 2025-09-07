@@ -1,0 +1,20 @@
+syntax="proto3";
+
+option go_package = "./proto";
+
+package user_registry_service;
+
+service UserRegistryService {
+    rpc UserPrimaryStream(stream RegistryRequest) returns (stream RegistryResponse);
+    rpc UserOverflowStream(stream RegistryRequest) returns (stream RegistryResponse);
+}
+
+message RegistryRequest {
+    string name = 1;
+    string email = 2;
+    string entity = 3;
+}
+
+message RegistryResponse {
+    string status = 2;
+}
