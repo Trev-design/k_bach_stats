@@ -2,13 +2,10 @@ package mocks
 
 import (
 	"auth_server/cmd/api/grpc/userregistry/proto"
-	"auth_server/cmd/api/utils"
-	"context"
 	"io"
 	"net"
 	"time"
 
-	"golang.org/x/sync/semaphore"
 	"google.golang.org/grpc"
 )
 
@@ -19,20 +16,24 @@ type RegistryServer struct {
 }
 
 type requestHandler struct {
-	stream    grpc.BidiStreamingServer[proto.RegistryRequest, proto.RegistryResponse]
-	semaphore *semaphore.Weighted
-	queue     *utils.MessageQueue[chan *proto.RegistryResponse]
+	stream          grpc.BidiStreamingServer[proto.RegistryRequest, proto.RegistryResponse]
+	responseChannel chan *responseMessage
 }
 
 type messageHandler struct {
-	responseChannel chan *proto.RegistryResponse
-	semaphore       *semaphore.Weighted
+	index           uint64
+	responseChannel chan *responseMessage
 	request         *proto.RegistryRequest
 }
 
 type responseHandler struct {
-	stream grpc.BidiStreamingServer[proto.RegistryRequest, proto.RegistryResponse]
-	queue  *utils.MessageQueue[chan *proto.RegistryResponse]
+	stream          grpc.BidiStreamingServer[proto.RegistryRequest, proto.RegistryResponse]
+	responseChannel chan *responseMessage
+}
+
+type responseMessage struct {
+	id       uint64
+	response *proto.RegistryResponse
 }
 
 func NewRegistryServer(maxPrimary, maxOverflow int64) error {
@@ -53,26 +54,22 @@ func NewRegistryServer(maxPrimary, maxOverflow int64) error {
 }
 
 func (server *RegistryServer) UserPrimaryStream(stream grpc.BidiStreamingServer[proto.RegistryRequest, proto.RegistryResponse]) error {
-	semaphore := semaphore.NewWeighted(server.maxPrimary)
-	queue := utils.NewMessageQueue[chan *proto.RegistryResponse]()
+	responseChannel := make(chan *responseMessage, server.maxPrimary)
 
 	handler := &requestHandler{
-		stream:    stream,
-		semaphore: semaphore,
-		queue:     queue,
+		stream:          stream,
+		responseChannel: responseChannel,
 	}
 
 	return handler.handleRequests()
 }
 
 func (server *RegistryServer) UserOverflowStream(stream grpc.BidiStreamingServer[proto.RegistryRequest, proto.RegistryResponse]) error {
-	semaphore := semaphore.NewWeighted(server.maxOverflow)
-	queue := utils.NewMessageQueue[chan *proto.RegistryResponse]()
+	responseChannel := make(chan *responseMessage, server.maxOverflow)
 
 	handler := &requestHandler{
-		stream:    stream,
-		semaphore: semaphore,
-		queue:     queue,
+		stream:          stream,
+		responseChannel: responseChannel,
 	}
 
 	return handler.handleRequests()
@@ -80,9 +77,11 @@ func (server *RegistryServer) UserOverflowStream(stream grpc.BidiStreamingServer
 
 func (handler *requestHandler) handleRequests() error {
 	responseHandler := &responseHandler{
-		queue:  handler.queue,
-		stream: handler.stream,
+		responseChannel: handler.responseChannel,
+		stream:          handler.stream,
 	}
+
+	var index uint64 = 0
 
 	go responseHandler.handleResponses()
 
@@ -95,34 +94,41 @@ func (handler *requestHandler) handleRequests() error {
 			return err
 		}
 
-		responseChannel := make(chan *proto.RegistryResponse)
-		handler.queue.Enqueue(responseChannel)
-		handler.semaphore.Acquire(context.Background(), 1)
-
 		messageHandler := &messageHandler{
+			index:           index,
 			request:         request,
-			responseChannel: responseChannel,
-			semaphore:       handler.semaphore,
+			responseChannel: handler.responseChannel,
 		}
 
 		go messageHandler.handleMessage()
+
+		index++
 	}
 }
 
 func (handler *messageHandler) handleMessage() {
-	defer handler.semaphore.Release(1)
-
 	time.Sleep(200 * time.Millisecond)
-
-	handler.responseChannel <- &proto.RegistryResponse{
-		Status: handler.request.Name,
+	handler.responseChannel <- &responseMessage{
+		id:       handler.index,
+		response: &proto.RegistryResponse{Status: handler.request.Name},
 	}
 }
 
 func (handler *responseHandler) handleResponses() {
-	for {
-		responseChannel := handler.queue.Dequeue()
-		response := <-responseChannel
-		handler.stream.Send(response)
+	var index uint64 = 0
+	pending := make(map[uint64]*proto.RegistryResponse)
+	for response := range handler.responseChannel {
+		pending[response.id] = response.response
+
+		for {
+			message, ok := pending[index]
+			if !ok {
+				break
+			}
+
+			handler.stream.Send(message)
+			delete(pending, index)
+			index++
+		}
 	}
 }

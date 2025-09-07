@@ -5,76 +5,95 @@ import (
 	"context"
 	"errors"
 	"io"
+	"sync"
+	"sync/atomic"
 
 	"github.com/gofiber/fiber/v2/log"
 	"google.golang.org/grpc"
 )
 
 type registryResponseHandler struct {
-	stream      grpc.BidiStreamingClient[proto.RegistryRequest, proto.RegistryResponse]
-	errorPipe   chan chan error
-	doneChannel chan struct{}
+	stream             grpc.BidiStreamingClient[proto.RegistryRequest, proto.RegistryResponse]
+	errorPipe          chan chan error
+	currentNumRequests *atomic.Int64
+	waitgroup          *sync.WaitGroup
 }
 
 type registryRequestHandler struct {
-	stream         grpc.BidiStreamingClient[proto.RegistryRequest, proto.RegistryResponse]
-	errorPipe      chan chan error
-	messageChannel chan Request
+	stream             grpc.BidiStreamingClient[proto.RegistryRequest, proto.RegistryResponse]
+	errorPipe          chan chan error
+	messageChannel     chan Request
+	currentNumRequests *atomic.Int64
+	waitgroup          *sync.WaitGroup
 }
 
-func (client *GRPCClient) handlePrimaryStream(
-	channelSize int64,
-	doneChannel chan struct{},
-	messageChannel chan Request,
-) {
+type registryStreamHandler struct {
+	stream             grpc.BidiStreamingClient[proto.RegistryRequest, proto.RegistryResponse]
+	channelSize        int64
+	messageChannel     chan Request
+	currentNumRequests *atomic.Int64
+	waitgroup          *sync.WaitGroup
+}
+
+func (client *GRPCClient) handlePrimaryStream() {
 	stream, err := client.client.UserPrimaryStream(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	client.handleStream(stream, channelSize, doneChannel, messageChannel)
+	streamHandler := &registryStreamHandler{
+		stream:             stream,
+		channelSize:        client.maxNumPrimaryRequests,
+		messageChannel:     client.messagePrimaryChannel,
+		currentNumRequests: &client.currentNumPrimaryRequests,
+		waitgroup:          client.serviceWaitgroup,
+	}
+
+	streamHandler.handleStream()
 }
 
-func (client *GRPCClient) handleOverflowStream(
-	channelSize int64,
-	doneChannel chan struct{},
-	messageChannel chan Request,
-) {
+func (client *GRPCClient) handleOverflowStream() {
 	stream, err := client.client.UserOverflowStream(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	client.handleStream(stream, channelSize, doneChannel, messageChannel)
+	streamHandler := &registryStreamHandler{
+		stream:             stream,
+		channelSize:        client.maxNumOverflowRequests,
+		messageChannel:     client.messageOverflowChannel,
+		currentNumRequests: &client.currentNumOverflowRequests,
+		waitgroup:          client.serviceWaitgroup,
+	}
+
+	streamHandler.handleStream()
 }
 
-func (client *GRPCClient) handleStream(
-	stream grpc.BidiStreamingClient[proto.RegistryRequest, proto.RegistryResponse],
-	channelSize int64,
-	doneChannel chan struct{},
-	messageChannel chan Request,
-) {
+func (streamHandler *registryStreamHandler) handleStream() {
 
-	errorPipe := make(chan chan error, channelSize)
+	errorPipe := make(chan chan error, streamHandler.channelSize)
 
 	responseHandler := &registryResponseHandler{
-		stream:      stream,
-		errorPipe:   errorPipe,
-		doneChannel: doneChannel,
+		stream:             streamHandler.stream,
+		errorPipe:          errorPipe,
+		currentNumRequests: streamHandler.currentNumRequests,
+		waitgroup:          streamHandler.waitgroup,
 	}
 
-	go client.receiveResponses(responseHandler)
+	go responseHandler.receiveResponses()
 
 	requestHandler := &registryRequestHandler{
-		stream:         stream,
-		errorPipe:      errorPipe,
-		messageChannel: messageChannel,
+		stream:             streamHandler.stream,
+		errorPipe:          errorPipe,
+		messageChannel:     streamHandler.messageChannel,
+		currentNumRequests: streamHandler.currentNumRequests,
+		waitgroup:          streamHandler.waitgroup,
 	}
 
-	client.handleRequests(requestHandler)
+	requestHandler.handleRequests()
 }
 
-func (client *GRPCClient) receiveResponses(streamHandler *registryResponseHandler) {
+func (streamHandler *registryResponseHandler) receiveResponses() {
 	for errChan := range streamHandler.errorPipe {
 		message, err := streamHandler.stream.Recv()
 		if err == io.EOF {
@@ -89,18 +108,15 @@ func (client *GRPCClient) receiveResponses(streamHandler *registryResponseHandle
 			errChan <- errors.New(message.Status)
 		}
 
-		client.currentNumPrimaryRequests.Add(-1)
-		client.currentNumOverflowRequests.Add(-1)
-		streamHandler.doneChannel <- struct{}{}
-		client.serviceWaitgroup.Done()
+		streamHandler.currentNumRequests.Add(-1)
+		streamHandler.waitgroup.Done()
 	}
 }
 
-func (client *GRPCClient) handleRequests(streamHandler *registryRequestHandler) {
+func (streamHandler *registryRequestHandler) handleRequests() {
 	for message := range streamHandler.messageChannel {
-		client.currentNumPrimaryRequests.Add(1)
-		client.currentNumOverflowRequests.Add(1)
-		client.serviceWaitgroup.Add(1)
+		streamHandler.currentNumRequests.Add(1)
+		streamHandler.waitgroup.Add(1)
 
 		if err := streamHandler.stream.Send(&proto.RegistryRequest{
 			Name:   message.Message.Name,

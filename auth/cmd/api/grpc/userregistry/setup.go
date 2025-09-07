@@ -20,11 +20,6 @@ type GRPCClient struct {
 	currentNumPrimaryRequests  atomic.Int64
 	currentNumOverflowRequests atomic.Int64
 	isServiceFinished          atomic.Bool
-	promptRequestChannel       chan struct{}
-	primaryRequestDoneChannel  chan struct{}
-	overflowRequestDoneChannel chan struct{}
-	primaryReadyChannel        chan struct{}
-	overflowReadyChannel       chan struct{}
 	messageIncomeChannel       chan Request
 	messagePrimaryChannel      chan Request
 	messageOverflowChannel     chan Request
@@ -104,11 +99,6 @@ func (builder *ClientBuilder) buildClient(credentials credentials.TransportCrede
 		currentNumPrimaryRequests:  atomic.Int64{},
 		currentNumOverflowRequests: atomic.Int64{},
 		isServiceFinished:          atomic.Bool{},
-		promptRequestChannel:       make(chan struct{}, builder.maxNumPrimaryRequests+builder.maxNumOverflowRequests),
-		primaryRequestDoneChannel:  make(chan struct{}, builder.maxNumPrimaryRequests),
-		overflowRequestDoneChannel: make(chan struct{}, builder.maxNumOverflowRequests),
-		primaryReadyChannel:        make(chan struct{}, builder.maxNumPrimaryRequests),
-		overflowReadyChannel:       make(chan struct{}, builder.maxNumOverflowRequests),
 		messageIncomeChannel:       make(chan Request, builder.maxNumPrimaryRequests+builder.maxNumOverflowRequests),
 		messagePrimaryChannel:      make(chan Request, builder.maxNumPrimaryRequests),
 		messageOverflowChannel:     make(chan Request, builder.maxNumOverflowRequests),
@@ -118,8 +108,11 @@ func (builder *ClientBuilder) buildClient(credentials credentials.TransportCrede
 }
 
 func (client *GRPCClient) HandleBackgroundServices() {
-	go client.handleMessageLoad()
 	go client.handleMessage()
 	go client.computePrimaryStream()
 	go client.computeOverflowStream()
+}
+
+func (client *GRPCClient) CloseGRPCClient() {
+
 }

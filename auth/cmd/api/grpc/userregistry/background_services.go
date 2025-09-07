@@ -1,52 +1,31 @@
 package userregistry
 
-func (client *GRPCClient) handleMessageLoad() {
-	for {
-		select {
-		case <-client.promptRequestChannel:
-			client.handleSendPolicy()
-		case <-client.primaryRequestDoneChannel:
-			client.primaryReadyChannel <- struct{}{}
-		case <-client.overflowReadyChannel:
-			client.handleSendPolicy()
-		}
-	}
-}
-
 func (client *GRPCClient) handleMessage() {
 	for message := range client.messageIncomeChannel {
-		client.promptRequestChannel <- struct{}{}
-
-		select {
-		case <-client.primaryReadyChannel:
-			client.messagePrimaryChannel <- message
-
-		case <-client.overflowReadyChannel:
+		if client.isOverflowFreeToUse() {
 			client.messageOverflowChannel <- message
+		} else {
+			client.messagePrimaryChannel <- message
 		}
 	}
 }
 
 func (client *GRPCClient) computePrimaryStream() {
-	client.handlePrimaryStream(
-		client.maxNumPrimaryRequests,
-		client.primaryRequestDoneChannel,
-		client.messagePrimaryChannel,
-	)
+	client.handlePrimaryStream()
 }
 
 func (client *GRPCClient) computeOverflowStream() {
-	client.handleOverflowStream(
-		client.maxNumOverflowRequests,
-		client.overflowRequestDoneChannel,
-		client.messageOverflowChannel,
-	)
+	client.handleOverflowStream()
 }
 
-func (client *GRPCClient) handleSendPolicy() {
-	if client.currentNumOverflowRequests.Load() < client.maxNumOverflowRequests && client.currentNumPrimaryRequests.Load() >= client.maxNumPrimaryRequests {
-		client.overflowReadyChannel <- struct{}{}
-	} else if client.currentNumPrimaryRequests.Load() < client.maxNumPrimaryRequests {
-		client.primaryReadyChannel <- struct{}{}
-	}
+func (client *GRPCClient) isOverflowFull() bool {
+	return client.currentNumOverflowRequests.Load() >= client.maxNumOverflowRequests
+}
+
+func (client *GRPCClient) isPrimaryFull() bool {
+	return client.currentNumPrimaryRequests.Load() >= client.maxNumPrimaryRequests
+}
+
+func (client *GRPCClient) isOverflowFreeToUse() bool {
+	return !client.isOverflowFull() && client.isPrimaryFull()
 }
