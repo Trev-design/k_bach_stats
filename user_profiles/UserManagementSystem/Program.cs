@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using UserManagementSystem.Services;
+using UserManagementSystem.Services.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connStr = "Server=localhost;Database=kbach_users;User Id=kbach;Password=mysecretsqlpassword";
+string connStr = "";
 
 builder.Services.AddDbContext<AppDBContext>(options => 
     options.UseMySql(connStr, 

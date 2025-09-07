@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.MySql;
 using UserManagementSystem.Models;
-using UserManagementSystem.Services;
+using UserManagementSystem.Services.Database;
 
 namespace MyWebApi.Tests;
 
