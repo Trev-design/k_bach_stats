@@ -3,6 +3,14 @@ using UserManagementSystem.Services.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5670, listenOptions =>
+    {
+        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
+    });
+});
+
 string connStr = "";
 
 builder.Services.AddDbContext<AppDBContext>(options => 

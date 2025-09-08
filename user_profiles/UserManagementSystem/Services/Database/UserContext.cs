@@ -6,6 +6,24 @@ namespace UserManagementSystem.Services.Database;
 
 public class UserDBImpl
 {
+    public static async Task CreateUser(AppDBContext context, string name, string email, string entity)
+    {
+        User user = new()
+        {
+            Entity = entity,
+            UserProfile = new()
+            {
+                UserContact = new()
+                {
+                    Name = name,
+                    Email = email
+                }
+            }
+        };
+
+        await context.Users.AddAsync(user);
+        await context.SaveChangesAsync();
+    }
     public static async Task<User?> GetWholeUser(AppDBContext context, string entity)
     {
         var user = await context.Users.Include(u => u.UserProfile).

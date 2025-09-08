@@ -2,10 +2,12 @@ package mocks
 
 import (
 	"auth_server/cmd/api/grpc/userregistry/proto"
+	"context"
 	"io"
 	"net"
 	"time"
 
+	"golang.org/x/sync/semaphore"
 	"google.golang.org/grpc"
 )
 
@@ -29,6 +31,7 @@ type messageHandler struct {
 type responseHandler struct {
 	stream          grpc.BidiStreamingServer[proto.RegistryRequest, proto.RegistryResponse]
 	responseChannel chan *responseMessage
+	semaphore       *semaphore.Weighted
 }
 
 type responseMessage struct {
@@ -76,13 +79,14 @@ func (server *RegistryServer) UserOverflowStream(stream grpc.BidiStreamingServer
 }
 
 func (handler *requestHandler) handleRequests() error {
+	semaphore := semaphore.NewWeighted(10)
 	responseHandler := &responseHandler{
 		responseChannel: handler.responseChannel,
 		stream:          handler.stream,
+		semaphore:       semaphore,
 	}
 
 	var index uint64 = 0
-
 	go responseHandler.handleResponses()
 
 	for {
@@ -99,6 +103,8 @@ func (handler *requestHandler) handleRequests() error {
 			request:         request,
 			responseChannel: handler.responseChannel,
 		}
+
+		semaphore.Acquire(context.Background(), 1)
 
 		go messageHandler.handleMessage()
 
@@ -129,6 +135,8 @@ func (handler *responseHandler) handleResponses() {
 			handler.stream.Send(message)
 			delete(pending, index)
 			index++
+
+			handler.semaphore.Release(1)
 		}
 	}
 }

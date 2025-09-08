@@ -1,8 +1,6 @@
 syntax="proto3";
 
-option go_package = "./proto";
-
-package user_registry_service;
+option csharp_namespace = "UserManagementSystem.Grpc";
 
 service UserRegistryService {
     rpc UserPrimaryStream(stream RegistryRequest) returns (stream RegistryResponse);
