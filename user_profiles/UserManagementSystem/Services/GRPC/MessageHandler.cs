@@ -1,5 +1,7 @@
 using System.Threading.Channels;
 using Grpc.Core;
+using Microsoft.EntityFrameworkCore;
+using MySqlConnector;
 using UserManagementSystem.Grpc;
 using UserManagementSystem.Services.Database;
 
@@ -10,7 +12,7 @@ public class MessageHandler
     public RegistryRequest Request { init; private get; } = null!;
     public IServiceProvider ServiceProvider { init; private get; } = null!;
     public Channel<Response> MessagePipe { init; private get; } = null!;
-    private readonly ulong index = 0;
+    private ulong index = 0;
 
     public async Task ComputeMessageAsync()
     {
@@ -21,6 +23,10 @@ public class MessageHandler
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDBContext>();
             await UserDBImpl.CreateUser(dbContext, Request.Name, Request.Email, Request.Entity);
             message = "ACCEPTED";
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+        {
+            message = "DUPLICATE";
         }
         catch (Exception e)
         {
@@ -39,6 +45,18 @@ public class MessageHandler
             };
 
             await MessagePipe.Writer.WriteAsync(response);
+            index++;
         }
+    }
+
+    private static bool IsUniqueConstraintViolation(DbUpdateException ex)
+    {
+        if (ex.InnerException is MySqlException mysqlEx)
+        {
+            // MySQL error code 1062 => Duplicate entry for key (unique constraint violation)
+            return mysqlEx.Number == 1062;
+        }
+
+        return false;
     }
 }

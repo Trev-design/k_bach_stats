@@ -7,22 +7,21 @@ namespace MyWebApi.Tests;
 
 public class DatabaseFixture : IAsyncLifetime
 {
-    private readonly MySqlContainer _container;
+    private MySqlContainer _container = null!;
     public AppDBContext Context { get; private set; } = null!;
+    public string ConnectionString { get; private set; } = null!;
 
-    public DatabaseFixture()
+    public async Task InitializeAsync()
     {
         _container = new MySqlBuilder()
             .WithDatabase("test_db")
             .WithUsername("root")
             .WithPassword("testpass")
             .Build();
-    }
-
-    public async Task InitializeAsync()
-    {
         // Container starten
         await _container.StartAsync();
+
+        ConnectionString = _container.GetConnectionString();
 
         // DbContext erstellen
         var options = new DbContextOptionsBuilder<AppDBContext>()

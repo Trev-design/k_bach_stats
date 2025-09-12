@@ -11,7 +11,7 @@ builder.WebHost.ConfigureKestrel(options =>
     });
 });
 
-string connStr = "";
+string connStr = "Server=localhost;Database=kbach_users;User ID=kbach;Password=mysecretsqlpassword;";
 
 builder.Services.AddDbContext<AppDBContext>(options => 
     options.UseMySql(connStr, 

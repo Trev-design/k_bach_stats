@@ -1,5 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace UserManagementSystem.Models;
 
+[Index(nameof(Entity), IsUnique = true)]
 public class User
 {
     public Guid Id { get; set; }

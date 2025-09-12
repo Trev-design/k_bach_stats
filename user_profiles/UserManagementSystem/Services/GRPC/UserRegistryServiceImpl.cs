@@ -37,6 +37,6 @@ public class UserRegistryServiceImpl(IServiceProvider provider) : UserRegistrySe
             ServiceProvider = _serviceProvider
         };
 
-        await handler.HandleStreamAsync();
+        await handler.HandleMessageIncomeAsync();
     }
 }
