@@ -19,7 +19,7 @@ namespace UserManagementSystem.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    Entity = table.Column<string>(type: "longtext", nullable: false)
+                    Entity = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -206,6 +206,12 @@ namespace UserManagementSystem.Migrations
                 name: "IX_UserContacts_UsersId",
                 table: "UserContacts",
                 column: "UsersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Entity",
+                table: "Users",
+                column: "Entity",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkspaceContacts_WorkspacesId",

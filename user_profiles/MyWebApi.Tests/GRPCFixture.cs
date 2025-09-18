@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using UserManagementSystem.Services.Database;
 using UserManagementSystem.Services.GRPC;
 
@@ -27,7 +28,13 @@ public class GRPCTestFixture(DatabaseFixture dbFixture) : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        _host = Host.CreateDefaultBuilder().ConfigureWebHostDefaults(webBuilder =>
+        _host = Host.CreateDefaultBuilder()
+        .ConfigureLogging(logging =>
+        {
+            logging.AddConsole();
+            logging.AddFilter("Grpc", LogLevel.Warning);
+        })
+        .ConfigureWebHostDefaults(webBuilder =>
         {
             webBuilder.UseKestrel(options =>
             {

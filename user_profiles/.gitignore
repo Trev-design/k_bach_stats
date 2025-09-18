@@ -1,4 +1,5 @@
 /UserManagementSystem/obj
 /UserManagementSystem/bin
+/UserManagementSystem/.env
 /MyWebApi.Tests/obj
 /MyWebApi.Tests/bin

@@ -17,20 +17,12 @@ public class UserDBImpl
 
     public static async Task CreateUser(AppDBContext context, string name, string email, string entity)
     {
-        User user = new()
-        {
-            Entity = entity,
-            UserProfile = new()
-            {
-                UserContact = new()
-                {
-                    Name = name,
-                    Email = email
-                }
-            }
-        };
-
-        await context.Users.AddAsync(user);
+        var userToInsert = new User { Entity = entity };
+        await context.Users.AddAsync(userToInsert);
+        var profileToInsert = new Profile { UserId = userToInsert.Id, ImagePath = "some_image.png", Description = "some description" };
+        await context.Profiles.AddAsync(profileToInsert);
+        var contactToInsert = new Contact { ProfileId = profileToInsert.Id, Email = email, Name = name };
+        await context.Contacts.AddAsync(contactToInsert);
         await context.SaveChangesAsync();
     }
     public static async Task<User?> GetWholeUser(AppDBContext context, string entity)

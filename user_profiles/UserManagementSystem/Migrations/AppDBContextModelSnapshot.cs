@@ -140,9 +140,12 @@ namespace UserManagementSystem.Migrations
 
                     b.Property<string>("Entity")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Entity")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });

@@ -39,7 +39,7 @@ public class MigrationTestGRPC(GRPCTestFixture grpcFixture) : IClassFixture<GRPC
         await call.RequestStream.CompleteAsync();
         await readTask;
 
-        Assert.True(responses.All(response => response.Status == "OK"));
+        Assert.True(responses.All(response => response.Status == "ACCEPTED"));
 
         using var scope = _grpcFixture.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDBContext>();

@@ -14,7 +14,7 @@ public class MigrationTestProfileContext(DatabaseFixture fixture)
     [Fact]
     public async Task TestGetProfile()
     {
-        var newProfile = await MakeProfile("pp@aa.ss");
+        var newProfile = await MakeProfile("pp@aa.ss", "23");
         Assert.NotNull(newProfile);
 
         var profile = await ProfileDBImpl.GetProfile(_fixture.Context, newProfile.Id);
@@ -31,7 +31,7 @@ public class MigrationTestProfileContext(DatabaseFixture fixture)
     [Fact]
     public async Task TestChangeDescription()
     {
-        var newProfile = await MakeProfile("uu@ii.oo");
+        var newProfile = await MakeProfile("uu@ii.oo", "22");
         Assert.NotNull(newProfile);
 
         try
@@ -57,7 +57,7 @@ public class MigrationTestProfileContext(DatabaseFixture fixture)
     [Fact]
     public async Task TestChangeContactName()
     {
-        var newProfile = await MakeProfile("rr@tt.zz");
+        var newProfile = await MakeProfile("rr@tt.zz", "21");
         Assert.NotNull(newProfile);
 
         try
@@ -83,7 +83,7 @@ public class MigrationTestProfileContext(DatabaseFixture fixture)
     [Fact]
     public async Task TestChangeContactEmail()
     {
-        var newProfile = await MakeProfile("qq@ww.ee");
+        var newProfile = await MakeProfile("qq@ww.ee", "20");
         Assert.NotNull(newProfile);
 
         try
@@ -112,9 +112,9 @@ public class MigrationTestProfileContext(DatabaseFixture fixture)
         ));
     }
 
-    private async Task<Profile> MakeProfile(string email)
+    private async Task<Profile> MakeProfile(string email, string entity)
     {
-        var user = new User { Entity = "entity" };
+        var user = new User { Entity = entity };
         await _fixture.Context.Users.AddAsync(user);
         var profile = new Profile { UserId = user.Id, ImagePath = "some_image.jpg", Description = "some description", ProfileUser = user };
         await _fixture.Context.Profiles.AddAsync(profile);

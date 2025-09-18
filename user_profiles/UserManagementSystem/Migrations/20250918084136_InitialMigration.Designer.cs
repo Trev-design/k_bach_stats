@@ -12,7 +12,7 @@ using UserManagementSystem.Services.Database;
 namespace UserManagementSystem.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20250827104742_InitialMigration")]
+    [Migration("20250918084136_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -143,9 +143,12 @@ namespace UserManagementSystem.Migrations
 
                     b.Property<string>("Entity")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Entity")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });

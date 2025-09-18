@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Testcontainers.MySql;
 using UserManagementSystem.Models;
 using UserManagementSystem.Services.Database;
@@ -26,6 +27,7 @@ public class DatabaseFixture : IAsyncLifetime
         // DbContext erstellen
         var options = new DbContextOptionsBuilder<AppDBContext>()
             .UseMySql(_container.GetConnectionString(), ServerVersion.AutoDetect(_container.GetConnectionString()))
+            .LogTo(Console.WriteLine, LogLevel.Warning)
             .Options;
 
         Context = new AppDBContext(options);
