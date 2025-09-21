@@ -44,6 +44,9 @@ public class UserDBImpl
         ThenInclude(p => p.UserContact).
         Include(u => u.Contacts).
         Include(u => u.Workspaces).
+        ThenInclude(w => w.ChatRooms).
+        Include(u => u.Workspaces).
+        ThenInclude(w => w.Contacts).
         FirstOrDefaultAsync(u => u.Id == id);
 
         return user;

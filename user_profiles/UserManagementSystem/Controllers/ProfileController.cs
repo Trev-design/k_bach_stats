@@ -45,32 +45,4 @@ public class ProfileController(AppDBContext dbContext) : Controller
         }
         return NoContent();
     }
-
-    [HttpPut("{id}/contact/{contactId}/new_name")]
-    public async Task<ActionResult> ChangeName(Guid id, Guid contactId, string newName)
-    {
-        try
-        {
-            await ProfileDBImpl.ChangeContactName(_dbContext, id, contactId, newName);
-        }
-        catch
-        {
-            return NotFound();
-        }
-        return NoContent();
-    }
-
-    [HttpPut("{id}/contact/{contactId}/new_email")]
-    public async Task<ActionResult> ChangeEmail(Guid id, Guid contactId, string newEmal)
-    {
-        try
-        {
-            await ProfileDBImpl.ChangeContactEmail(_dbContext, id, contactId, newEmal);
-        }
-        catch
-        {
-            return NotFound();
-        }
-        return NoContent();
-    }
 }

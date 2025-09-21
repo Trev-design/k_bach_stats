@@ -11,12 +11,20 @@ public class UserController(AppDBContext dbContext) : Controller
 {
     private readonly AppDBContext _dbContext = dbContext;
 
+    [HttpGet("{entity}")]
+    public async Task<ActionResult<User>> GetInitial(string entity)
+    {
+        var user = await UserDBImpl.GetWholeUser(_dbContext, entity);
+        if (user == null) return NotFound();
+        return Ok(user);
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<User>> Get(Guid id)
     {
         var user = await UserDBImpl.GetUserById(_dbContext, id);
         if (user == null) return NotFound();
-        return user;
+        return Ok(user);
     }
 
     [HttpPost("{id:guid}/new_workspace")]

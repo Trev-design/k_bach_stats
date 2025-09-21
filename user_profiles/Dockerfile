@@ -16,5 +16,5 @@ WORKDIR /app
 
 COPY --from=build /app/publish .
 
-EXPOSE 5132 7133
+EXPOSE 5132 7133 5670
 ENTRYPOINT ["dotnet", "UserManagementSystem.dll"]
