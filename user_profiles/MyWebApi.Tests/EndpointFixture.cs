@@ -19,9 +19,12 @@ public class EndpointsFixture(DatabaseFixture dbFixture) : IAsyncLifetime
 {
     private readonly DatabaseFixture _dbFixture = dbFixture;
     public HttpClient Client { get; private set; } = null!;
-    public List<Guid> UserIDs { get; private set; } = null!;
-    public List<Guid> ProfileIDs { get; private set; } = null!;
-    public List<string> Entities { get; private set; } = null!;
+    public List<Guid> UserIDs { get; private set; } = [];
+    public List<Guid> DeleteUserIDs { get; private set; } = [];
+    public Dictionary<Guid, Guid> Workspaces { get; private set; } = [];
+    public Dictionary<Guid, Guid> ChatRooms { get; private set; } = [];
+    public List<Guid> ProfileIDs { get; private set; } = [];
+    public List<string> Entities { get; private set; } = [];
     private IHost _host = null!;
 
 
@@ -67,12 +70,12 @@ public class EndpointsFixture(DatabaseFixture dbFixture) : IAsyncLifetime
 
         var address = serverAddresses!.Addresses.First();
         Client = new HttpClient { BaseAddress = new Uri(address) };
+
+        await SetupDatabase();
     }
 
     private async Task SetupDatabase()
     {
-        Entities = [];
-
         for (int index = 0; index < 5; ++index)
         {
             var name = RandomString.GenerateRandomString(20);

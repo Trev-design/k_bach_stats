@@ -11,7 +11,7 @@ public class UserController(AppDBContext dbContext) : Controller
 {
     private readonly AppDBContext _dbContext = dbContext;
 
-    [HttpGet("{entity}")]
+    [HttpGet("{entity}/initial")]
     public async Task<ActionResult<User>> GetInitial(string entity)
     {
         var user = await UserDBImpl.GetWholeUser(_dbContext, entity);
@@ -28,7 +28,7 @@ public class UserController(AppDBContext dbContext) : Controller
     }
 
     [HttpPost("{id:guid}/new_workspace")]
-    public async Task<ActionResult> NewWorkspace(Guid id, [FromBody] string workspaceId)
+    public async Task<ActionResult<Workspace>> NewWorkspace(Guid id, [FromBody] string workspaceId)
     {
         var workspace = await UserDBImpl.AddNewWorkspace(_dbContext, id, workspaceId);
         if (workspace == null) return NotFound();
@@ -50,7 +50,7 @@ public class UserController(AppDBContext dbContext) : Controller
     }
 
     [HttpPost("{id:guid}/workspace/{workspaceId:guid}/new_chat")]
-    public async Task<ActionResult> NewChat(Guid id, Guid workspaceId, [FromBody] string topic)
+    public async Task<ActionResult<ChatRoom>> NewChat(Guid id, Guid workspaceId, [FromBody] string topic)
     {
         var chatRoom = await UserDBImpl.NewChatRoom(_dbContext, id, workspaceId, "dummyref", topic);
         if (chatRoom == null) return NoContent();
