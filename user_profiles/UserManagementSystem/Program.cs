@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using UserManagementSystem.Services.Database;
+using UserManagementSystem.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,7 @@ builder.WebHost.ConfigureKestrel(options =>
     });
 });
 
-string connStr = "Server=localhost;Database=kbach_users;User ID=kbach;Password=mysecretsqlpassword;";
+string connStr = DBConnstring.GetLocalEnvConnectionString();
 
 builder.Services.AddDbContext<AppDBContext>(options => 
     options.UseMySql(connStr, 

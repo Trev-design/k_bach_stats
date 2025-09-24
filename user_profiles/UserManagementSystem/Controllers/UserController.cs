@@ -6,12 +6,11 @@ using UserManagementSystem.Services.Database;
 namespace UserManagementSystem.Controllers;
 
 [Controller]
-[Route("api/[controller]")]
 public class UserController(AppDBContext dbContext) : Controller
 {
     private readonly AppDBContext _dbContext = dbContext;
 
-    [HttpGet("{entity}/initial")]
+    [HttpGet("api/users/{entity}/initial")]
     public async Task<ActionResult<User>> GetInitial(string entity)
     {
         var user = await UserDBImpl.GetWholeUser(_dbContext, entity);
@@ -19,7 +18,7 @@ public class UserController(AppDBContext dbContext) : Controller
         return Ok(user);
     }
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("api/users/{id}")]
     public async Task<ActionResult<User>> Get(Guid id)
     {
         var user = await UserDBImpl.GetUserById(_dbContext, id);
@@ -27,7 +26,7 @@ public class UserController(AppDBContext dbContext) : Controller
         return Ok(user);
     }
 
-    [HttpPost("{id:guid}/new_workspace")]
+    [HttpPost("api/users/{id}/new_workspace")]
     public async Task<ActionResult<Workspace>> NewWorkspace(Guid id, [FromBody] string workspaceId)
     {
         var workspace = await UserDBImpl.AddNewWorkspace(_dbContext, id, workspaceId);
@@ -35,7 +34,7 @@ public class UserController(AppDBContext dbContext) : Controller
         return Ok(workspace);
     }
 
-    [HttpDelete("{id:guid}/workspace/{workspaceId:guid}")]
+    [HttpDelete("api/users/{id}/workspace/{workspaceId}")]
     public async Task<ActionResult> DeleteWorkspace(Guid id, Guid workspaceId)
     {
         try
@@ -49,15 +48,15 @@ public class UserController(AppDBContext dbContext) : Controller
         return NoContent();
     }
 
-    [HttpPost("{id:guid}/workspace/{workspaceId:guid}/new_chat")]
+    [HttpPost("api/users/{id}/workspace/{workspaceId}/new_chat")]
     public async Task<ActionResult<ChatRoom>> NewChat(Guid id, Guid workspaceId, [FromBody] string topic)
     {
         var chatRoom = await UserDBImpl.NewChatRoom(_dbContext, id, workspaceId, "dummyref", topic);
-        if (chatRoom == null) return NoContent();
+        if (chatRoom == null) return NotFound();
         return Ok(chatRoom); 
     }
 
-    [HttpDelete("{id:guid}/workspace/{workspaceId:guid}/chat/{chatId:guid}")]
+    [HttpDelete("api/users/{id}/workspace/{workspaceId}/chat/{chatId}")]
     public async Task<ActionResult> DeleteChat(Guid id, Guid workspaceId, Guid chatId)
     {
         try
@@ -71,7 +70,7 @@ public class UserController(AppDBContext dbContext) : Controller
         return NoContent();
     }
 
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("api/users/{id}")]
     public async Task<ActionResult> Delete(Guid id)
     {
         try
@@ -85,3 +84,4 @@ public class UserController(AppDBContext dbContext) : Controller
         return NoContent();
     }
 }
+

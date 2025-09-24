@@ -1,3 +1,4 @@
+using System.Net.Http;
 using System.Net.Http.Json;
 using MyWebApi.Tests.Utils;
 using UserManagementSystem.Models;
@@ -5,7 +6,7 @@ using UserManagementSystem.Models;
 namespace MyWebApi.Tests;
 
 [Collection("Database collection")]
-public class MigrationTestProfileController(EndpointsFixture fixture) : IClassFixture<EndpointsFixture>
+public class TestProfileController(EndpointsFixture fixture) : IClassFixture<EndpointsFixture>
 {
     private readonly EndpointsFixture _fixture = fixture;
 
@@ -30,7 +31,7 @@ public class MigrationTestProfileController(EndpointsFixture fixture) : IClassFi
     [Fact]
     public async Task TestGetFailed()
     {
-        await Assert.ThrowsAsync<Exception>(async () =>
+        await Assert.ThrowsAsync<HttpRequestException>(async () =>
         {
             var id = Guid.NewGuid();
             var response = await _fixture.Client.GetAsync($"api/profile/{id}");
@@ -58,7 +59,7 @@ public class MigrationTestProfileController(EndpointsFixture fixture) : IClassFi
     [Fact]
     public async Task TestChangeImageFailed()
     {
-        await Assert.ThrowsAsync<Exception>(async () =>
+        await Assert.ThrowsAsync<HttpRequestException>(async () =>
         {
             var id = Guid.NewGuid();
             var response = await _fixture.Client.PutAsJsonAsync($"api/profile/{id}", RandomString.GenerateRandomString(150));
@@ -86,7 +87,7 @@ public class MigrationTestProfileController(EndpointsFixture fixture) : IClassFi
     [Fact]
     public async Task TestChangeDescriptionFailed()
     {
-        await Assert.ThrowsAsync<Exception>(async () =>
+        await Assert.ThrowsAsync<HttpRequestException>(async () =>
         {
             var id = Guid.NewGuid();
             var response = await _fixture.Client.GetAsync($"api/profile/{id}");

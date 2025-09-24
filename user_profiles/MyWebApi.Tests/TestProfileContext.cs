@@ -7,7 +7,7 @@ using UserManagementSystem.Services.Database;
 namespace MyWebApi.Tests;
 
 [Collection("Database collection")]
-public class MigrationTestProfileContext(DatabaseFixture fixture)
+public class TestProfileContext(DatabaseFixture fixture)
 {
     private readonly DatabaseFixture _fixture = fixture;
 

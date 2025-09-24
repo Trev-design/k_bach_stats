@@ -9,7 +9,7 @@ public class RandomString
         var length = GenerateRandomStringLength(maxLength);
         var buffer = new byte[length];
         RandomNumberGenerator.Fill(buffer);
-        var randomString = buffer.ToString() ?? throw new Exception();
+        var randomString = Convert.ToBase64String(buffer);
         return randomString;
     }
 

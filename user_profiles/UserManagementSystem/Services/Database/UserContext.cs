@@ -96,6 +96,7 @@ public class UserDBImpl
 
     public static async Task DeleteChat(AppDBContext context, Guid Id, Guid workspaceId, Guid chatId)
     {
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == Id) ?? throw new Exception("");
         var workspace = await context.Workspaces.FirstOrDefaultAsync(w => w.Id == workspaceId && w.UserId == Id) ?? throw new Exception("");
         var chatRoom = await context.ChatRooms.FirstOrDefaultAsync(c => c.Id == chatId && c.WorkspaceId == workspaceId) ?? throw new Exception("");
 

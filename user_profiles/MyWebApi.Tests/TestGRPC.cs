@@ -6,7 +6,7 @@ using UserManagementSystem.Services.Database;
 namespace MyWebApi.Tests;
 
 [Collection("Database collection")]
-public class MigrationTestGRPC(GRPCTestFixture grpcFixture) : IClassFixture<GRPCTestFixture>
+public class TestGRPC(GRPCTestFixture grpcFixture) : IClassFixture<GRPCTestFixture>
 {
     private readonly GRPCTestFixture _grpcFixture = grpcFixture;
 

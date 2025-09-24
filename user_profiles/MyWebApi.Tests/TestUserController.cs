@@ -5,7 +5,7 @@ using UserManagementSystem.Models;
 namespace MyWebApi.Tests;
 
 [Collection("Database collection")]
-public class MigrationTestUserController(EndpointsFixture fixture) : IClassFixture<EndpointsFixture>
+public class TestUserController(EndpointsFixture fixture) : IClassFixture<EndpointsFixture>
 {
     private readonly EndpointsFixture _fixture = fixture;
 
@@ -14,7 +14,7 @@ public class MigrationTestUserController(EndpointsFixture fixture) : IClassFixtu
     {
         foreach (var entity in _fixture.Entities)
         {
-            var response = await _fixture.Client.GetAsync($"api/user/{entity}/initial");
+            var response = await _fixture.Client.GetAsync($"api/users/{entity}/initial");
             try
             {
                 response.EnsureSuccessStatusCode();
@@ -30,10 +30,10 @@ public class MigrationTestUserController(EndpointsFixture fixture) : IClassFixtu
     [Fact]
     public async Task TestGetInitialFailed()
     {
-        await Assert.ThrowsAsync<Exception>(async () =>
+        await Assert.ThrowsAsync<HttpRequestException>(async () =>
         {
             var invalidID = Guid.NewGuid().ToString();
-            var response = await _fixture.Client.GetAsync($"api/user/{invalidID}/initial");
+            var response = await _fixture.Client.GetAsync($"api/users/{invalidID}/initial");
             response.EnsureSuccessStatusCode();
         });
     }
@@ -43,7 +43,7 @@ public class MigrationTestUserController(EndpointsFixture fixture) : IClassFixtu
     {
         foreach (var id in _fixture.UserIDs)
         {
-            var response = await _fixture.Client.GetAsync($"api/user/{id}");
+            var response = await _fixture.Client.GetAsync($"api/users/{id}");
             try
             {
                 response.EnsureSuccessStatusCode();
@@ -59,10 +59,10 @@ public class MigrationTestUserController(EndpointsFixture fixture) : IClassFixtu
     [Fact]
     public async Task TestGetFailed()
     {
-        await Assert.ThrowsAsync<Exception>(async () =>
+        await Assert.ThrowsAsync<HttpRequestException>(async () =>
         {
             var invalidID = Guid.NewGuid().ToString();
-            var response = await _fixture.Client.GetAsync($"api/user/{invalidID}");
+            var response = await _fixture.Client.GetAsync($"api/users/{invalidID}");
             response.EnsureSuccessStatusCode();
         });
     }
@@ -74,7 +74,7 @@ public class MigrationTestUserController(EndpointsFixture fixture) : IClassFixtu
         {
             var userID = id.ToString();
             var name = RandomString.GenerateRandomString(20);
-            var response = await _fixture.Client.PostAsJsonAsync($"api/user/{userID}/new_workspace", name);
+            var response = await _fixture.Client.PostAsJsonAsync($"api/users/{userID}/new_workspace", name);
 
             try
             {
@@ -92,11 +92,11 @@ public class MigrationTestUserController(EndpointsFixture fixture) : IClassFixtu
     [Fact]
     public async Task TestNewWorkspaceFailed()
     {
-        await Assert.ThrowsAsync<Exception>(async () =>
+        await Assert.ThrowsAsync<HttpRequestException>(async () =>
         {
             var invalidUserID = Guid.NewGuid().ToString();
             var name = RandomString.GenerateRandomString(20);
-            var response = await _fixture.Client.PostAsJsonAsync($"api/user/{invalidUserID}/new_workspace", name);
+            var response = await _fixture.Client.PostAsJsonAsync($"api/users/{invalidUserID}/new_workspace", name);
             response.EnsureSuccessStatusCode();
         });
     }
@@ -108,8 +108,8 @@ public class MigrationTestUserController(EndpointsFixture fixture) : IClassFixtu
         {
             bool ok = _fixture.Workspaces.TryGetValue(id, out Guid workspaceID);
             Assert.True(ok);
-            
-            var response = await _fixture.Client.DeleteAsync($"api/user/{id.ToString()}/workspace/{workspaceID.ToString()}");
+
+            var response = await _fixture.Client.DeleteAsync($"api/users/{id.ToString()}/workspace/{workspaceID.ToString()}");
             try
             {
                 response.EnsureSuccessStatusCode();
@@ -124,11 +124,11 @@ public class MigrationTestUserController(EndpointsFixture fixture) : IClassFixtu
     [Fact]
     public async Task TestDeleteWorkspaceFailed()
     {
-        await Assert.ThrowsAsync<Exception>(async () =>
+        await Assert.ThrowsAsync<HttpRequestException>(async () =>
         {
             var invalidUserID = Guid.NewGuid().ToString();
             var invalidWorkspaceID = Guid.NewGuid().ToString();
-            var response = await _fixture.Client.DeleteAsync($"api/user/{invalidUserID}/workspace/{invalidWorkspaceID}");
+            var response = await _fixture.Client.DeleteAsync($"api/users/{invalidUserID}/workspace/{invalidWorkspaceID}");
             response.EnsureSuccessStatusCode();
         });
     }
@@ -141,7 +141,7 @@ public class MigrationTestUserController(EndpointsFixture fixture) : IClassFixtu
             bool ok = _fixture.Workspaces.TryGetValue(id, out Guid workspaceID);
             Assert.True(ok);
             var topic = RandomString.GenerateRandomString(20);
-            var response = await _fixture.Client.PostAsJsonAsync($"api/user/{id.ToString()}/workspace/{workspaceID.ToString()}/new_chat", topic);
+            var response = await _fixture.Client.PostAsJsonAsync($"api/users/{id.ToString()}/workspace/{workspaceID.ToString()}/new_chat", topic);
 
             try
             {
@@ -159,12 +159,12 @@ public class MigrationTestUserController(EndpointsFixture fixture) : IClassFixtu
     [Fact]
     public async Task TestNewChatFailed()
     {
-        await Assert.ThrowsAsync<Exception>(async () =>
+        await Assert.ThrowsAsync<HttpRequestException>(async () =>
         {
             var invalidUserID = Guid.NewGuid().ToString();
             var invalidWorkspaceID = Guid.NewGuid().ToString();
             var topic = RandomString.GenerateRandomString(20);
-            var response = await _fixture.Client.PostAsJsonAsync($"api/user/{invalidUserID}/workspace/{invalidWorkspaceID}/new_chat", topic);
+            var response = await _fixture.Client.PostAsJsonAsync($"api/users/{invalidUserID}/workspace/{invalidWorkspaceID}/new_chat", topic);
             response.EnsureSuccessStatusCode();
         });
     }
@@ -178,8 +178,8 @@ public class MigrationTestUserController(EndpointsFixture fixture) : IClassFixtu
             Assert.True(ok);
             ok = _fixture.ChatRooms.TryGetValue(workspaceID, out Guid chatroomID);
             Assert.True(ok);
-            
-            var response = await _fixture.Client.DeleteAsync($"api/user/{id.ToString()}/workspace/{workspaceID.ToString()}/chat/{chatroomID.ToString()}");
+
+            var response = await _fixture.Client.DeleteAsync($"api/users/{id.ToString()}/workspace/{workspaceID.ToString()}/chat/{chatroomID.ToString()}");
             try
             {
                 response.EnsureSuccessStatusCode();
@@ -195,14 +195,15 @@ public class MigrationTestUserController(EndpointsFixture fixture) : IClassFixtu
     [Fact]
     public async Task TestDeleteChatroomFailed()
     {
-        await Assert.ThrowsAsync<Exception>(async () =>
+        await Assert.ThrowsAsync<HttpRequestException>(async () =>
         {
             var invalidUserID = Guid.NewGuid().ToString();
             var invalidProfileID = Guid.NewGuid().ToString();
             var invalidChatroomID = Guid.NewGuid().ToString();
 
-            var response = await _fixture.Client.DeleteAsync($"api/user/{invalidUserID}/workspace/{invalidProfileID}/chat/{invalidChatroomID}");
+            var response = await _fixture.Client.DeleteAsync($"api/users/{invalidUserID}/workspace/{invalidProfileID}/chat/{invalidChatroomID}");
             response.EnsureSuccessStatusCode();
         });
     }
 }
+
