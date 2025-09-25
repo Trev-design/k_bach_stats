@@ -6,6 +6,7 @@ import (
 	"auth_server/cmd/api/db/dbcore"
 	"auth_server/cmd/api/impl"
 	"auth_server/cmd/api/jwt/jwtcore"
+	"auth_server/cmd/api/sidecar"
 	"auth_server/cmd/api/temporary/session/sessioncore"
 	"auth_server/cmd/api/web/servercore"
 	"log"
@@ -39,6 +40,8 @@ import (
 // @in							cookie
 // @name						__HOST_REFRESH_
 func main() {
+	sidecar.NewSideCar().RegisterSingleton()
+
 	implementation, err := impl.NewImplBuilder().
 		DatabaseSetup(dbSetup()).
 		SessionSetup(sessionSetup()).

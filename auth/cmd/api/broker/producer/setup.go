@@ -2,11 +2,16 @@ package producer
 
 import (
 	"auth_server/cmd/api/broker/channel"
+	"auth_server/cmd/api/sidecar"
 	"auth_server/cmd/api/tlsconf"
 	"errors"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
+
+type RMQProducerService struct {
+	RMQProducer
+}
 
 type RMQProducer struct {
 	connection *amqp.Connection
@@ -63,22 +68,39 @@ func (builder *RMQProducerBuilder) WithChannel(
 	channelName string,
 	channelBuilder *channel.PipeBuilder,
 ) *RMQProducerBuilder {
+	if _, ok := builder.channels[channelName]; channelName == "logging" && ok {
+		return builder
+	}
+
 	builder.channels[channelName] = channelBuilder
 	return builder
 }
 
-func (builder *RMQProducerBuilder) Build() (*RMQProducer, error) {
+func (builder *RMQProducerBuilder) Build() (*RMQProducerService, error) {
 	conn, err := builder.newConnection()
 	if err != nil {
 		return nil, err
 	}
+
+	setLoggingChannels(builder)
 
 	channels, err := newChannels(conn, builder.channels)
 	if err != nil {
 		return nil, err
 	}
 
-	return &RMQProducer{connection: conn, channels: channels}, nil
+	return &RMQProducerService{
+		RMQProducer: RMQProducer{
+			connection: conn,
+			channels:   channels,
+		},
+	}, nil
+}
+
+func (service *RMQProducerService) HandleBackgroundProcess(req sidecar.Request) {
+	defer req.Done()
+	payload := req.GetPayload()
+	service.SendMessage("logging", payload.GetPayloadBytes())
 }
 
 func (rmq *RMQProducer) SendMessage(channelName string, message []byte) error {

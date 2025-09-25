@@ -29,7 +29,7 @@ const queue_name = "test_queue"
 const consumer_tag = "test_tag"
 const channel_name = "test_channel"
 
-var prod *producer.RMQProducer
+var prod *producer.RMQProducerService
 
 var testCreds *brokerCreds
 
@@ -54,7 +54,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	prod = new(producer.RMQProducer)
+	prod = new(producer.RMQProducerService)
 	prod = newProd
 
 	dsn := fmt.Sprintf(

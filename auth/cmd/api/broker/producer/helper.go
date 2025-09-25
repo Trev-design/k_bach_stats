@@ -91,3 +91,14 @@ func newChannels(conn *amqp.Connection, channelBuilders map[string]*channel.Pipe
 
 	return channels, nil
 }
+
+func setLoggingChannels(builder *RMQProducerBuilder) {
+	builder.WithChannel(
+		"logging",
+		channel.NewPipeBuilder().
+			Exchange("logger_service").
+			Kind("direct").
+			Queue("logs").
+			RoutingKey("logstore"),
+	)
+}
