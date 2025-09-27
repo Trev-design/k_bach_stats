@@ -2,8 +2,6 @@ package servercore
 
 import (
 	"auth_server/cmd/api/domain/types"
-	"auth_server/cmd/api/web/webtypes"
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -51,31 +49,7 @@ func (server *Server) GetCSRFToken() fiber.Handler {
 // @Router			/register [post]
 func (srv *Server) NewUser() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		newUser := new(webtypes.NewAccountRepresentation)
-		payload := ctx.Body()
-
-		if err := json.Unmarshal(payload, newUser); err != nil {
-			return ctx.SendStatus(http.StatusInternalServerError)
-		}
-
-		sessionPayload, err := srv.impl.Register(toNewAccountDTO(newUser))
-		if err != nil {
-			return ctx.Status(http.StatusForbidden).SendString("invalid login credentials")
-		}
-
-		ctx.Cookie(&fiber.Cookie{
-			Name:     "__HOST_VERIFY_",
-			Value:    sessionPayload.Cookie,
-			Secure:   true,
-			HTTPOnly: true,
-			SameSite: "None",
-		})
-
-		return ctx.Status(http.StatusCreated).
-			SendString(
-				fmt.Sprintf(
-					"Hello %s. Please look in your email to get your verify code",
-					sessionPayload.Name))
+		return setVerifySessionCreds(ctx)
 	}
 }
 
@@ -94,27 +68,12 @@ func (srv *Server) NewUser() fiber.Handler {
 // @Router			/verify [patch]
 func (srv *Server) VerifyAccount() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		newVerify := new(webtypes.VerifyRepresentation)
-		payload := ctx.Body()
-
-		if err := json.Unmarshal(payload, newVerify); err != nil {
-			return ctx.Status(http.StatusForbidden).SendString("invalid verify credentials")
+		verifyCreds, ok := ctx.Locals("verify_creds").(*types.VerifyAccountDTO)
+		if !ok {
+			return ctx.SendStatus(http.StatusInternalServerError)
 		}
 
-		cookie := ctx.Cookies("__HOST_VERIFY_")
-		if cookie == "" {
-			return ctx.Status(http.StatusForbidden).SendString("invalid verify credentials")
-		}
-
-		userAgent := ctx.Get("User-Agent")
-		ip := ctx.IP()
-
-		session, err := srv.impl.Verify(&types.VerifyAccountDTO{
-			Cookie:     cookie,
-			VerifyCode: newVerify.Code,
-			UserAgent:  userAgent,
-			IPAddress:  ip,
-		})
+		session, err := srv.impl.Verify(verifyCreds)
 		if err != nil {
 			return ctx.Status(http.StatusForbidden).SendString("invalid verify credentials")
 		}
@@ -138,22 +97,12 @@ func (srv *Server) VerifyAccount() fiber.Handler {
 // @Router			/login [post]
 func (srv *Server) LoginAccount() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		login := new(webtypes.LoginRepresentation)
-
-		payload := ctx.Body()
-		if err := json.Unmarshal(payload, login); err != nil {
-			return ctx.Status(http.StatusForbidden).SendString("invalid login credentials")
+		loginCreds, ok := ctx.Locals("login_creds").(*types.LoginAccountDTO)
+		if !ok {
+			return ctx.SendStatus(http.StatusInternalServerError)
 		}
 
-		userAgent := ctx.Get("User-Agent")
-		ip := ctx.IP()
-
-		session, err := srv.impl.Login(&types.LoginAccountDTO{
-			Email:     login.Email,
-			Password:  login.Password,
-			UserAgent: userAgent,
-			IPAddress: ip,
-		})
+		session, err := srv.impl.Login(loginCreds)
 		if err != nil {
 			return ctx.Status(http.StatusForbidden).SendString("invalid login credentials")
 		}
@@ -176,15 +125,9 @@ func (srv *Server) LoginAccount() fiber.Handler {
 // @Router			/new_password [post]
 func (srv *Server) NewPassword() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		newPassword := new(webtypes.NewPasswordRepresentation)
-		payload := ctx.Body()
-		if err := json.Unmarshal(payload, newPassword); err != nil {
-			return ctx.Status(http.StatusForbidden).SendString("invalid credentials")
-		}
-
-		session, err := srv.impl.NewPassword(newPassword.Email)
-		if err != nil {
-			return ctx.Status(http.StatusForbidden).SendString("invalid credentials")
+		session, ok := ctx.Locals("verify_session_creds").(*types.VerifySessionDTO)
+		if !ok {
+			return ctx.SendStatus(http.StatusInternalServerError)
 		}
 
 		ctx.Cookie(&fiber.Cookie{
@@ -195,11 +138,8 @@ func (srv *Server) NewPassword() fiber.Handler {
 			SameSite: "None",
 		})
 
-		return ctx.Status(http.StatusCreated).
-			SendString(
-				fmt.Sprintf(
-					"Hello %s. Please look in your email to get your verify code",
-					session.Name))
+		return ctx.Status(http.StatusCreated).SendString(
+			fmt.Sprintf("Hello %s. Please look in your email to get your verify code", session.Name))
 	}
 }
 
@@ -216,28 +156,12 @@ func (srv *Server) NewPassword() fiber.Handler {
 // @Router			/change_password [patch]
 func (srv *Server) ChangePassword() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		changePass := new(webtypes.ChangePasswordRepresentation)
-		payload := ctx.Body()
-		if err := json.Unmarshal(payload, changePass); err != nil {
-			return ctx.Status(http.StatusForbidden).SendString("invalid credentials")
+		changePassCreds, ok := ctx.Locals("change_password_creds").(*types.ChangePasswordDTO)
+		if !ok {
+			return ctx.SendStatus(http.StatusInternalServerError)
 		}
 
-		userAgent := ctx.Get("User-Agent")
-		ip := ctx.IP()
-		cookie := ctx.Cookies("__HOST_VERIFY_")
-		if cookie == "" {
-			return ctx.Status(http.StatusForbidden).SendString("invalid credentials")
-		}
-
-		session, err := srv.impl.ChangePassword(&types.ChangePasswordDTO{
-			Email:        changePass.Email,
-			Password:     changePass.Password,
-			Confirmation: changePass.Confirmation,
-			VerifyCode:   changePass.VerifyCode,
-			UserAgent:    userAgent,
-			IPAddress:    ip,
-			Cookie:       cookie,
-		})
+		session, err := srv.impl.ChangePassword(changePassCreds)
 		if err != nil {
 			return ctx.Status(http.StatusForbidden).SendString("invalid credentials")
 		}
@@ -260,19 +184,14 @@ func (srv *Server) ChangePassword() fiber.Handler {
 // @Router			/refresh [post]
 func (srv *Server) RefreshSession() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		refresh := ctx.Cookies("__HOST_REFRESH_")
-		if refresh == "" {
-			return ctx.Status(http.StatusForbidden).SendString("invalid credentials")
+		refreshCreds, ok := ctx.Locals("refresh_creds").(*types.RefreshSessionDTO)
+		if !ok {
+			return ctx.SendStatus(http.StatusInternalServerError)
 		}
-		userAgent := ctx.Get("User-Agent")
-		ip := ctx.IP()
 
-		session, err := srv.impl.RefreshSession(&types.RefreshSessionDTO{
-			Cookie:    refresh,
-			UserAgent: userAgent,
-			IPAddress: ip,
-		})
+		session, err := srv.impl.RefreshSession(refreshCreds)
 		if err != nil {
+			ctx.ClearCookie()
 			return ctx.Status(http.StatusForbidden).SendString("invalid credentials")
 		}
 
@@ -294,18 +213,12 @@ func (srv *Server) RefreshSession() fiber.Handler {
 // @Router			/remove [post]
 func (srv *Server) RemoveSession() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		refresh := ctx.Cookies("__HOST_REFRESH_")
-		if refresh == "" {
-			return ctx.Status(http.StatusForbidden).SendString("invalid credentials")
+		refreshCreds, ok := ctx.Locals("refresh_creds").(*types.RefreshSessionDTO)
+		if !ok {
+			return ctx.SendStatus(http.StatusInternalServerError)
 		}
-		userAgent := ctx.Get("User-Agent")
-		ip := ctx.IP()
 
-		if err := srv.impl.RemoveSession(&types.RemoveSessionDTO{
-			Cookie:    refresh,
-			UserAgent: userAgent,
-			IPAddress: ip,
-		}); err != nil {
+		if err := srv.impl.RemoveSession(refreshCreds); err != nil {
 			return ctx.Status(http.StatusForbidden).SendString("invalid credentials")
 		}
 

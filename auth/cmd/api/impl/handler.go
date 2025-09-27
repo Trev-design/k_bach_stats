@@ -166,6 +166,10 @@ func (impl *Impl) RefreshSession(refresh *types.RefreshSessionDTO) (*types.NewAc
 	}, nil
 }
 
-func (impl *Impl) RemoveSession(remove *types.RemoveSessionDTO) error {
+func (impl *Impl) RemoveSession(remove *types.RefreshSessionDTO) error {
+	if _, _, err := impl.jwt.Verify(remove.JWT); err != nil {
+		return err
+	}
+
 	return impl.session.RemoveRefreshData(remove.Cookie, remove.IPAddress, remove.UserAgent)
 }

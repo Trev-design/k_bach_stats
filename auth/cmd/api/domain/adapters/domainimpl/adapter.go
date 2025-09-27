@@ -9,7 +9,7 @@ type Adapter interface {
 	NewPassword(email string) (*types.VerifySessionDTO, error)
 	ChangePassword(changePassRequest *types.ChangePasswordDTO) (*types.NewAccountSessionDTO, error)
 	RefreshSession(creds *types.RefreshSessionDTO) (*types.NewAccountSessionDTO, error)
-	RemoveSession(creds *types.RemoveSessionDTO) error
+	RemoveSession(creds *types.RefreshSessionDTO) error
 }
 
 type Instance interface {
