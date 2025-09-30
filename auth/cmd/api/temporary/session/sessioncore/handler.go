@@ -9,6 +9,9 @@ import (
 	"github.com/google/uuid"
 )
 
+// get verify data from cookie string.
+// fetches the account id, the session id and the verify number string on success
+// if the procedure failed you'll get an error
 func (session *Session) GetVerifyData(cookie string) (account uuid.UUID, sessionID, verify string, err error) {
 	account, id, err := session.getIDsFromCookie(cookie)
 	if err != nil {
@@ -23,10 +26,14 @@ func (session *Session) GetVerifyData(cookie string) (account uuid.UUID, session
 	return account, id, verify, nil
 }
 
+// deletes session on success
 func (session *Session) DeleteVerifySession(id string) error {
 	return session.store.DeleteSessionPayload("verify", id)
 }
 
+// set new verify session and make client setup to execute the verification procedure.
+// on success you'll get the verify number string and the cookie.
+// on failure you'll get an error
 func (session *Session) SetVerifyData(accountID string) (number, cookie string, err error) {
 	// make verify
 	number, id, err := session.setVerifyInSession()
@@ -42,6 +49,7 @@ func (session *Session) SetVerifyData(accountID string) (number, cookie string, 
 	return
 }
 
+// adds the refresh session to the session store and gives you a cookie string on success otherwice you'll get an error
 func (session *Session) SetRefreshData(accountID, ip, userAgent string) (string, error) {
 	token, err := getRefreshToken()
 	if err != nil {
@@ -77,6 +85,9 @@ func (session *Session) SetRefreshData(accountID, ip, userAgent string) (string,
 	return encodedCookie, nil
 }
 
+// tries to verify the refresh cookie.
+// on success it will generate a new cookie and return it.
+// on failure you'll get an error.
 func (session *Session) VerifyRefreshData(cookie, ip, useragent string) (string, error) {
 	separatedCookieData, err := session.getCookieData(cookie)
 	if err != nil {
@@ -90,6 +101,8 @@ func (session *Session) VerifyRefreshData(cookie, ip, useragent string) (string,
 	return session.SetRefreshData(separatedCookieData.accountID, ip, useragent)
 }
 
+// removes a refresh session.
+// if a session doe not exist you'll get an error
 func (session *Session) RemoveRefreshData(cookie, ip, useragent string) error {
 	separatedcookieData, err := session.getCookieData(cookie)
 	if err != nil {
@@ -103,6 +116,8 @@ func (session *Session) RemoveRefreshData(cookie, ip, useragent string) error {
 	return session.store.DeleteSessionPayload("refresh", separatedcookieData.sessionID)
 }
 
+// closes the session on shutdown or by reconnect.
+// you'll get an error if something went wrong.
 func (session *Session) CloseSession() error {
 	if err := session.cookieCrypt.CloseCrypto(); err != nil {
 		return err
@@ -115,6 +130,7 @@ func (session *Session) CloseSession() error {
 	return session.store.CloseRedisStore()
 }
 
+// registers background services
 func (session *Session) HandleBackground() {
 	go session.cookieCrypt.ComputeRotateInterval()
 	go session.verifyCrypt.ComputeRotateInterval()

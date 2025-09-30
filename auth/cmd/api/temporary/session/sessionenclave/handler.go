@@ -2,6 +2,9 @@ package sessionenclave
 
 import "errors"
 
+// tries to fetch a key which is stored in memlock.
+// gets a slice of bytes, which stores the fetched key bytes on success.
+// on failure you'll get an error.
 func (key *Key) GetKey(diff int) ([]byte, error) {
 	if key.enclave == nil {
 		return nil, errors.New("does not exist or already destoyed")
@@ -30,6 +33,7 @@ func (key *Key) GetKey(diff int) ([]byte, error) {
 	return keyData, nil
 }
 
+// deletes a set of keys out of the memlock.
 func (key *Key) DestroyKey() error {
 	key.mutex.Lock()
 	defer key.mutex.Unlock()
@@ -45,6 +49,7 @@ func (key *Key) DestroyKey() error {
 	return nil
 }
 
+// generates new keyset.
 func (key *Key) ChangeKey() error {
 	key.mutex.Lock()
 	defer key.mutex.Unlock()
@@ -54,9 +59,9 @@ func (key *Key) ChangeKey() error {
 		return err
 	}
 
-	keyBuffer.Melt()
-	keyBuffer.Scramble()
-	keyBuffer.Freeze()
+	keyBuffer.Melt()     // must made mutable before make new keyset
+	keyBuffer.Scramble() // generate new random bytes
+	keyBuffer.Freeze()   // make key set imutable again
 
 	newEnclave := keyBuffer.Seal()
 	key.enclave = newEnclave

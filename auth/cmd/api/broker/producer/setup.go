@@ -59,11 +59,14 @@ func (builder *RMQProducerBuilder) VirtualHost(virtualHost string) *RMQProducerB
 	return builder
 }
 
+// for optional tls support we have a tls builder where you can parse your tls configurations
 func (builder *RMQProducerBuilder) WithTLS(tlsBuilder *tlsconf.TLSBuilder) *RMQProducerBuilder {
 	builder.tlsBuilder = tlsBuilder
 	return builder
 }
 
+// here you can setup your channels.
+// because there can more then one channels, this method can be used more than one time
 func (builder *RMQProducerBuilder) WithChannel(
 	channelName string,
 	channelBuilder *channel.PipeBuilder,
@@ -97,12 +100,14 @@ func (builder *RMQProducerBuilder) Build() (*RMQProducerService, error) {
 	}, nil
 }
 
+// registers and execute backround process/es from producer service.
 func (service *RMQProducerService) HandleBackgroundProcess(req sidecar.Request) {
 	defer req.Done()
 	payload := req.GetPayload()
 	service.SendMessage("logging", payload.GetPayloadBytes())
 }
 
+// sends a message in the background.
 func (rmq *RMQProducer) SendMessage(channelName string, message []byte) error {
 	channel, ok := rmq.channels[channelName]
 	if !ok {
@@ -114,6 +119,8 @@ func (rmq *RMQProducer) SendMessage(channelName string, message []byte) error {
 	return nil
 }
 
+// background computation of messages.
+// evrey channel has its own goroutine.
 func (rmq *RMQProducer) ComputeBackgroundServices() {
 	for _, channel := range rmq.channels {
 		go channel.ListenForMessages()

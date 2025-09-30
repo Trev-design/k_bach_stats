@@ -8,6 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// tries to sign a new jwt token on success you'll get a token otherwise you'll get an error
 func (service *JWTService) Sign(id, role string) (string, error) {
 	timestamp := time.Now()
 	claims := jwt.MapClaims{
@@ -32,6 +33,8 @@ func (service *JWTService) Sign(id, role string) (string, error) {
 	return token.SignedString(key)
 }
 
+// tries to verify a json web token. on success you'll get the token id and the account role
+// otherwise you'll get an error
 func (service *JWTService) Verify(jwtToken string) (string, string, error) {
 	token, err := jwt.Parse(jwtToken, func(t *jwt.Token) (any, error) {
 		kid, ok := t.Header["kid"].(string)

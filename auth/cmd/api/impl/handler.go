@@ -5,6 +5,7 @@ import (
 	"errors"
 )
 
+// tries to register a new account
 func (impl *Impl) Register(account *types.NewAccountRequestDTO) (*types.VerifySessionDTO, error) {
 	if !passwordConfirmed(account.Password, account.Confirmation) {
 		return nil, errors.New("invalid credentials")
@@ -40,6 +41,7 @@ func (impl *Impl) Register(account *types.NewAccountRequestDTO) (*types.VerifySe
 	return &types.VerifySessionDTO{Name: account.Name, Cookie: cookie}, nil
 }
 
+// tries to verify an account
 func (impl *Impl) Verify(verifyRequest *types.VerifyAccountDTO) (*types.NewAccountSessionDTO, error) {
 	id, sessionID, number, err := impl.session.GetVerifyData(verifyRequest.Cookie)
 	if err != nil {
@@ -66,6 +68,7 @@ func (impl *Impl) Verify(verifyRequest *types.VerifyAccountDTO) (*types.NewAccou
 		verifyRequest.UserAgent)
 }
 
+// tries to login a verified account
 func (impl *Impl) Login(loginRequest *types.LoginAccountDTO) (*types.NewAccountSessionDTO, error) {
 	account, err := impl.db.GetUserByEmail(loginRequest.Email)
 	if err != nil {
@@ -87,6 +90,7 @@ func (impl *Impl) Login(loginRequest *types.LoginAccountDTO) (*types.NewAccountS
 		loginRequest.UserAgent)
 }
 
+// tries to register a password reset
 func (impl *Impl) NewPassword(email string) (*types.VerifySessionDTO, error) {
 	if !isValidEmail(email) {
 		return nil, errors.New("invalid credentials")
@@ -109,6 +113,7 @@ func (impl *Impl) NewPassword(email string) (*types.VerifySessionDTO, error) {
 	return &types.VerifySessionDTO{Name: account.Name, Cookie: cookie}, nil
 }
 
+// tries to execute a registered password reset
 func (impl *Impl) ChangePassword(changePassRequest *types.ChangePasswordDTO) (*types.NewAccountSessionDTO, error) {
 	if !passwordConfirmed(changePassRequest.Password, changePassRequest.Confirmation) {
 		return nil, errors.New("invalid credentials")
@@ -144,6 +149,7 @@ func (impl *Impl) ChangePassword(changePassRequest *types.ChangePasswordDTO) (*t
 		changePassRequest.UserAgent)
 }
 
+// tries to refresh a refresh session of a user who has accsess to one of them
 func (impl *Impl) RefreshSession(refresh *types.RefreshSessionDTO) (*types.NewAccountSessionDTO, error) {
 	newCookie, err := impl.session.VerifyRefreshData(refresh.Cookie, refresh.IPAddress, refresh.IPAddress)
 	if err != nil {
@@ -166,6 +172,7 @@ func (impl *Impl) RefreshSession(refresh *types.RefreshSessionDTO) (*types.NewAc
 	}, nil
 }
 
+// tries to remove a session of a users account who access to it
 func (impl *Impl) RemoveSession(remove *types.RefreshSessionDTO) error {
 	if _, _, err := impl.jwt.Verify(remove.JWT); err != nil {
 		return err

@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Creates a new user. Per default he is not authorized.
 func (db *Database) AddUser(newAccount *types.NewAccountDM) (string, error) {
 	var guid uuid.UUID
 	if err := db.db.Transaction(func(tx *gorm.DB) error {
@@ -41,10 +42,13 @@ func (db *Database) AddUser(newAccount *types.NewAccountDM) (string, error) {
 	return guid.String(), nil
 }
 
+// Fetches user from Database
 func (db *Database) GetUser(id uuid.UUID) (*types.AccountDM, error) {
 	return getUser(db.db, id)
 }
 
+// Fetches user from Database based on his email.
+// This is common when the user tries to sign in.
 func (db *Database) GetUserByEmail(email string) (*types.AccountDM, error) {
 	row := db.db.Table("accounts AS a").
 		Joins("LEFT JOIN users AS u ON a.id = u.account_id").
@@ -56,6 +60,7 @@ func (db *Database) GetUserByEmail(email string) (*types.AccountDM, error) {
 	return userByEmail(row)
 }
 
+// When the user is verified. His authorized status changes and he is a valid use with an abo plan default community.
 func (db *Database) UpdateState(id uuid.UUID) (*types.AccountDM, error) {
 	if err := db.db.Model(&Role{}).
 		Where("account_id = ?", id).
@@ -67,6 +72,7 @@ func (db *Database) UpdateState(id uuid.UUID) (*types.AccountDM, error) {
 	return getUser(db.db, id)
 }
 
+// Fallback: If the user has forgotten their password or just want to change it, the user can change it.
 func (db *Database) ChangePassword(id uuid.UUID, passwordHash string) (*types.AccountDM, error) {
 	if err := db.db.Model(&User{}).Where("account_id = ?", id).Update("password_hash", passwordHash).Error; err != nil {
 		return nil, err

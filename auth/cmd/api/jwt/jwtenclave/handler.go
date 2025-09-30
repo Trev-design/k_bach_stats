@@ -2,6 +2,7 @@ package jwtenclave
 
 import "errors"
 
+// you get the an EdDSA seed from this function on success othervice an error
 func (enclave *Enclave) GetSeed() ([]byte, error) {
 	if enclave.enclave != nil {
 		enclave.mutex.Lock()
@@ -25,6 +26,7 @@ func (enclave *Enclave) GetSeed() ([]byte, error) {
 	return nil, errors.New("enclave destroyed")
 }
 
+// changes the seeds on success othervice you'll get an error
 func (enclave *Enclave) NewSeeds() error {
 	if enclave.enclave != nil {
 		enclave.mutex.Lock()
@@ -48,6 +50,7 @@ func (enclave *Enclave) NewSeeds() error {
 	return errors.New("enclave destroyed")
 }
 
+// destroys the seeds on success otherwice you'll get an error
 func (enclave *Enclave) DestroySeeds() error {
 	if enclave.enclave != nil {
 		enclave.mutex.Lock()

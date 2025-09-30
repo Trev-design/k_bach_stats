@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// we use an orm called gorm to compute our database resources
 type Database struct {
 	db *gorm.DB
 }

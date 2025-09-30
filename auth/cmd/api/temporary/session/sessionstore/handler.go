@@ -5,6 +5,7 @@ import (
 	"errors"
 )
 
+// adds session data to the session store
 func (client *RedisClient) SetSessionPayload(service, payload string) (string, error) {
 	id := client.makeNewID(service)
 
@@ -20,12 +21,14 @@ func (client *RedisClient) SetSessionPayload(service, payload string) (string, e
 	return getUUIDFromRedisID(id)
 }
 
+// gets data from the session store
 func (client *RedisClient) GetSessionPayload(service, guid string) (string, error) {
 	id := makeID(service, guid)
 
 	return client.client.Get(context.Background(), id).Result()
 }
 
+// deletes data from the session store
 func (client *RedisClient) DeleteSessionPayload(service, guid string) error {
 	id := makeID(service, guid)
 

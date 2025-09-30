@@ -2,6 +2,8 @@ package dbcore
 
 import "github.com/google/uuid"
 
+// our schemas to manage the accounts
+
 type Account struct {
 	ID   uuid.UUID `gorm:"column:id;type:uuid;default:gen_random_uuid();primaryKey"`
 	User User      `gorm:"constraint:OnDelete:Cascade;"`

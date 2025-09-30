@@ -22,6 +22,7 @@ func (builder *RMQProducerBuilder) newConnection() (*amqp.Connection, error) {
 
 	dsn := builder.getDSN(tlsConfig)
 
+	// we make 6 tries to connect with rabbitmq
 	for {
 		conn, err := builder.createNewConnection(dsn, tlsConfig)
 		if err == nil {
@@ -80,6 +81,7 @@ func (builder *RMQProducerBuilder) createNewConnection(dsn string, tlsConfig *tl
 
 func newChannels(conn *amqp.Connection, channelBuilders map[string]*channel.PipeBuilder) (map[string]*channel.Pipe, error) {
 	channels := make(map[string]*channel.Pipe)
+	// we build our channels based on the map of channelbuilders and iterate over it
 	for key, channelBuilder := range channelBuilders {
 		channel, err := channelBuilder.Build(conn)
 		if err != nil {

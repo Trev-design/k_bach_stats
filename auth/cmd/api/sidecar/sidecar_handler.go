@@ -6,6 +6,7 @@ import (
 	"sync/atomic"
 )
 
+// sends your payload to a background process it will return an error if the topic doesn't exist
 func (processor *processor) MakeBackgroundProcess(name string, message Payload) error {
 	topic, ok := processor.backgroundTopics[name]
 	if !ok {
@@ -17,6 +18,8 @@ func (processor *processor) MakeBackgroundProcess(name string, message Payload) 
 	return nil
 }
 
+// sends your payload to process which will be responsive.
+// it will return an error if the topic doesn't exist or if the request doesn't succeed
 func (processor *processor) MakeResponsiveProcess(name string, message Payload) error {
 	topic, ok := processor.responsiveTopics[name]
 	if !ok {
@@ -26,6 +29,7 @@ func (processor *processor) MakeResponsiveProcess(name string, message Payload) 
 	return topic.sendResponsiveMessage(message)
 }
 
+// here we can register some background topics
 func (processor *processor) RegisterBackgroundTopic(signal BackgroundSignal, name string) {
 	processor.backgroundTopics[name] = &backgroundTopic{
 		messageChannel: make(chan Payload, 5),
@@ -36,6 +40,7 @@ func (processor *processor) RegisterBackgroundTopic(signal BackgroundSignal, nam
 	}
 }
 
+// here we can register some responsive topics
 func (processor *processor) RegisterResponsiveTopic(signal ResponsiveSignal, name string) {
 	processor.responsiveTopics[name] = &responsiveTopic{
 		messageChannel: make(chan responsiveRequest, 5),
@@ -46,6 +51,7 @@ func (processor *processor) RegisterResponsiveTopic(signal ResponsiveSignal, nam
 	}
 }
 
+// here we starting the topic processes
 func (processor *processor) StartProcessing() {
 	for _, topic := range processor.backgroundTopics {
 		go topic.handleMessages()
@@ -56,6 +62,7 @@ func (processor *processor) StartProcessing() {
 	}
 }
 
+// here we're stopping the sidecar on server shutdown
 func (processor *processor) StopSidecar() {
 	for _, topic := range processor.backgroundTopics {
 		topic.stopTopic()
