@@ -30,12 +30,12 @@ func (impl *Impl) sendVerifyData(number, email, name string) error {
 }
 
 func (impl *Impl) newAccountSession(account, role, ip, userAgent string) (*types.NewAccountSessionDTO, error) {
-	refresh, err := impl.session.SetRefreshData(account, ip, userAgent)
+	access, err := impl.jwt.Sign(account, role)
 	if err != nil {
 		return nil, err
 	}
 
-	access, err := impl.jwt.Sign(account, role)
+	refresh, err := impl.session.SetRefreshData(account, ip, userAgent)
 	if err != nil {
 		return nil, err
 	}

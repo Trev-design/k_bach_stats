@@ -1,11 +1,13 @@
 package sessionimpl
 
-import "github.com/google/uuid"
+import (
+	"auth_server/cmd/api/domain/types"
+)
 
 type Adapter interface {
 	// tries to fetch verify data. you'll get the account id the session id and the verify number string on success
 	// if the fetch failed you get an error
-	GetVerifyData(cookie string) (uuid.UUID, string, string, error)
+	GetVerifyData(cookie string) (*types.VerifyDataDM, error)
 
 	// deletes a verify session. if no session with this id is in this store you get an error
 	DeleteVerifySession(id string) error

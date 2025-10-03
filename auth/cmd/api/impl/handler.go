@@ -43,20 +43,20 @@ func (impl *Impl) Register(account *types.NewAccountRequestDTO) (*types.VerifySe
 
 // tries to verify an account
 func (impl *Impl) Verify(verifyRequest *types.VerifyAccountDTO) (*types.NewAccountSessionDTO, error) {
-	id, sessionID, number, err := impl.session.GetVerifyData(verifyRequest.Cookie)
+	verifyData, err := impl.session.GetVerifyData(verifyRequest.Cookie)
 	if err != nil {
 		return nil, err
 	}
 
-	if number != verifyRequest.VerifyCode {
+	if verifyData.Verify != verifyRequest.VerifyCode {
 		return nil, errors.New("invalid verify code")
 	}
 
-	if err := impl.session.DeleteVerifySession(sessionID); err != nil {
+	if err := impl.session.DeleteVerifySession(verifyData.SessionID); err != nil {
 		return nil, err
 	}
 
-	account, err := impl.db.UpdateState(id)
+	account, err := impl.db.UpdateState(verifyData.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -124,29 +124,34 @@ func (impl *Impl) ChangePassword(changePassRequest *types.ChangePasswordDTO) (*t
 		return nil, err
 	}
 
-	id, sessionID, number, err := impl.session.GetVerifyData(changePassRequest.Cookie)
+	verifyData, err := impl.session.GetVerifyData(changePassRequest.Cookie)
 	if err != nil {
 		return nil, err
 	}
 
-	if number != changePassRequest.VerifyCode {
+	if verifyData.Verify != changePassRequest.VerifyCode {
 		return nil, errors.New("invalid credentials")
 	}
 
-	account, err := impl.db.ChangePassword(id, passwordHash)
+	account, err := impl.db.ChangePassword(verifyData.ID, passwordHash)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := impl.session.DeleteVerifySession(sessionID); err != nil {
+	if err := impl.session.DeleteVerifySession(verifyData.SessionID); err != nil {
 		return nil, err
 	}
 
-	return impl.newAccountSession(
+	session, err := impl.newAccountSession(
 		account.ID,
 		account.AboType,
 		changePassRequest.IPAddress,
 		changePassRequest.UserAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	return session, nil
 }
 
 // tries to refresh a refresh session of a user who has accsess to one of them

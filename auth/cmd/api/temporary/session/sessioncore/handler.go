@@ -1,29 +1,28 @@
 package sessioncore
 
 import (
+	"auth_server/cmd/api/domain/types"
 	"auth_server/cmd/api/temporary/session/refreshpayload"
 	"encoding/base64"
 	"strings"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 // get verify data from cookie string.
 // fetches the account id, the session id and the verify number string on success
 // if the procedure failed you'll get an error
-func (session *Session) GetVerifyData(cookie string) (account uuid.UUID, sessionID, verify string, err error) {
+func (session *Session) GetVerifyData(cookie string) (*types.VerifyDataDM, error) {
 	account, id, err := session.getIDsFromCookie(cookie)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	verify, err = session.getVerifyFromSession(id)
+	verify, err := session.getVerifyFromSession(id)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	return account, id, verify, nil
+	return &types.VerifyDataDM{ID: account, SessionID: id, Verify: verify}, nil
 }
 
 // deletes session on success

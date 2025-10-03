@@ -78,5 +78,10 @@ func (db *Database) ChangePassword(id uuid.UUID, passwordHash string) (*types.Ac
 		return nil, err
 	}
 
-	return getUser(db.db, id)
+	updatedAccount, err := getUser(db.db, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedAccount, err
 }

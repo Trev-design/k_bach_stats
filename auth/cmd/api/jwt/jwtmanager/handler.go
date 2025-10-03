@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// gets the seed from the enclave on success otherwice you'll get an error
 func (manager *SeedManager) GetSeed(timestamp time.Time) ([]byte, error) {
 	manager.mutex.RLock()
 	defer manager.mutex.RUnlock()

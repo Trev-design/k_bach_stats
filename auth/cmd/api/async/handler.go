@@ -1,13 +1,27 @@
 package async
 
-type Task chan Output
+type result[O any] struct {
+	value O
+	err   error
+}
 
-func NewTask(input Input, fn Fn) Task {
-	task := make(chan Output)
-	go fn(task, input)
+type Task[O any] chan result[O]
+
+func NewTask[I any, O any](input I, fn func(I) (O, error)) Task[O] {
+	task := make(chan result[O])
+
+	go func() {
+		output, err := fn(input)
+		task <- result[O]{
+			value: output,
+			err:   err,
+		}
+	}()
+
 	return task
 }
 
-func (task Task) AwaitResult() Output {
-	return <-task
+func (task Task[O]) AwaitResult() (O, error) {
+	result := <-task
+	return result.value, result.err
 }

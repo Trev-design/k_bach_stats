@@ -22,3 +22,9 @@ type AccountDM struct {
 	Isverified   bool
 	AboType      string
 }
+
+type VerifyDataDM struct {
+	ID        uuid.UUID
+	SessionID string
+	Verify    string
+}

@@ -92,12 +92,12 @@ func TestGetData(t *testing.T) {
 
 	t.Logf("number: %s", number)
 
-	_, sessionID, _, err := session.GetVerifyData(cookie)
+	data, err := session.GetVerifyData(cookie)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := session.DeleteVerifySession(sessionID); err != nil {
+	if err := session.DeleteVerifySession(data.SessionID); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -111,7 +111,7 @@ func TestGetDataWithOldKey(t *testing.T) {
 	t.Logf("number: %s", number)
 
 	time.Sleep(1600 * time.Millisecond)
-	_, _, _, err = session.GetVerifyData(cookie)
+	_, err = session.GetVerifyData(cookie)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -126,7 +126,7 @@ func TestGetDataFailedSessionExpired(t *testing.T) {
 
 	time.Sleep(2100 * time.Millisecond)
 
-	_, _, _, err = session.GetVerifyData(cookie)
+	_, err = session.GetVerifyData(cookie)
 	if err == nil {
 		t.Fatal("get should fail because of expired session but got succeed")
 	}
@@ -146,7 +146,7 @@ func TestGetDataFailedFalsePayload(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, _, _, err = session.GetVerifyData(falseCookie)
+	_, err = session.GetVerifyData(falseCookie)
 	if err == nil {
 		t.Fatal("should fail because of false payload but got succeed")
 	}
@@ -189,7 +189,7 @@ func TestGetDataFailedFalseKey(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, _, _, err = session.GetVerifyData(falseCookie)
+	_, err = session.GetVerifyData(falseCookie)
 	if err == nil {
 		t.Fatal("should fail because of false timestamp but got succeed")
 	}
@@ -231,7 +231,7 @@ func TestGetFalseCookie(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, _, _, err = session.GetVerifyData(falseCookie)
+	_, err = session.GetVerifyData(falseCookie)
 	if err == nil {
 		t.Fatal("should fail because of false timestamp but got succeed")
 	}
