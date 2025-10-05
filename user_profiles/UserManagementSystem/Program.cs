@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using UserManagementSystem.Services.Database;
+using UserManagementSystem.Services.RabbitMQ;
 using UserManagementSystem.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,9 @@ builder.WebHost.ConfigureKestrel(options =>
         listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
     });
 });
+
+builder.Services.AddSingleton<IMessageChannel, RabbitMessageChannel>();
+builder.Services.AddHostedService<RabbitMQLoggingService>();
 
 string connStr = DBConnstring.GetLocalEnvConnectionString();
 
