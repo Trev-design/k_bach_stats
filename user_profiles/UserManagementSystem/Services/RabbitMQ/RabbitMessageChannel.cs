@@ -6,6 +6,11 @@ public class RabbitMessageChannel : IRabbitChannel, IMessageChannel, IMessagePip
 {
     private readonly Channel<byte[]> _channel = Channel.CreateUnbounded<byte[]>();
 
+    public void Complete()
+    {
+         _channel.Writer.Complete();
+    }
+
     public IAsyncEnumerable<byte[]> GetMessagePipe()
     {
         return _channel.Reader.ReadAllAsync();

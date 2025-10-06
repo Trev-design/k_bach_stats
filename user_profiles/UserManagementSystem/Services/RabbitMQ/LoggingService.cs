@@ -4,6 +4,7 @@ namespace UserManagementSystem.Services.RabbitMQ;
 
 public sealed class RabbitMQLoggingService(IMessageChannel channel) : RabbitMQBase<IMessageChannel>(channel), IHostedService, IAsyncDisposable
 {
+    private Task _messageTask = null!;
     public async ValueTask DisposeAsync()
     {
         await _channel.DisposeAsync();
@@ -13,18 +14,26 @@ public sealed class RabbitMQLoggingService(IMessageChannel channel) : RabbitMQBa
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await StartBroker();
-        await ComputeMessages();
+        _messageTask = Task.Run(async () =>
+        {
+            await ComputeMessages();
+        }, cancellationToken);
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
+        _messageChannel.Complete();
+        await _messageTask;
         await _channel.CloseAsync(cancellationToken);
         await _connection.CloseAsync(cancellationToken);
     }
 
-    protected override Task ComputeMessages()
+    protected async override Task ComputeMessages()
     {
-        throw new NotImplementedException();
+        await foreach (var message in _messageChannel.GetMessagePipe())
+        {
+            await _channel.BasicPublishAsync(Exchange, RoutingKey, message);
+        }
     }
 
     protected async override Task StartBroker()

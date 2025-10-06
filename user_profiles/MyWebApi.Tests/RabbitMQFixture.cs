@@ -10,6 +10,7 @@ public class RabbitMQFixture : IAsyncLifetime
 {
     private IHost _host = null!;
     private RabbitMqContainer _container = null!;
+    public IServiceProvider Services { get; private set; } = null!;
 
     public async Task DisposeAsync()
     {
@@ -21,12 +22,15 @@ public class RabbitMQFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _container = new RabbitMqBuilder()
+        .WithImage("rabbitmq:4.1.1-management")
         .WithHostname("localhost")
         .WithPortBinding(5672)
         .WithUsername("guest")
         .WithPassword("guest")
         .WithEnvironment("RABBITMQ_DEFAULT_VHOST", "my_vhost")
         .Build();
+
+        await _container.StartAsync();
 
         _host = Host.CreateDefaultBuilder()
         .ConfigureServices(services =>
@@ -38,7 +42,8 @@ public class RabbitMQFixture : IAsyncLifetime
         })
         .Build();
 
-        await _container.StartAsync();
         await _host.StartAsync();
+
+        Services = _host.Services;
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using UserManagementSystem.Services.RabbitMQ;
 
 namespace MyWebApi.Tests.Mocks;
@@ -24,9 +25,21 @@ public sealed class RabbitMQConsumer(IMessagePipe channel) : RabbitMQBase<IMessa
         await _connection.CloseAsync(cancellationToken: cancellationToken);
     }
 
-    protected override async Task StartBroker()
+    protected async override Task ComputeMessages()
     {
-        var factory = new ConnectionFactory { Uri = new(url) };
+        var consumer = new AsyncEventingBasicConsumer(_channel);
+        consumer.ReceivedAsync += async (model, args) =>
+        {
+            var body = args.Body.ToArray();
+            await _messageChannel.SendMessageAsync(body);
+        };
+
+        await _channel.BasicConsumeAsync(Queue, true, consumer);
+    }
+
+    protected async override Task StartBroker()
+    {
+        var factory = new ConnectionFactory { Uri = new(URL) };
         _connection = await factory.CreateConnectionAsync();
         _channel = await _connection.CreateChannelAsync();
 
