@@ -2,7 +2,7 @@ using RabbitMQ.Client;
 
 namespace UserManagementSystem.Services.RabbitMQ;
 
-public sealed class RabbitMQLoggingService(IMessageChannel channel) : RabbitMQService(channel), IHostedService, IAsyncDisposable
+public sealed class RabbitMQLoggingService(IMessageChannel channel) : RabbitMQBase<IMessageChannel>(channel), IHostedService, IAsyncDisposable
 {
     public async ValueTask DisposeAsync()
     {
@@ -20,6 +20,11 @@ public sealed class RabbitMQLoggingService(IMessageChannel channel) : RabbitMQSe
     {
         await _channel.CloseAsync(cancellationToken);
         await _connection.CloseAsync(cancellationToken);
+    }
+
+    protected override Task ComputeMessages()
+    {
+        throw new NotImplementedException();
     }
 
     protected async override Task StartBroker()

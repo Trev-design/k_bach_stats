@@ -1,15 +1,44 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using MyWebApi.Tests.Mocks;
+using Testcontainers.RabbitMq;
+using UserManagementSystem.Services.RabbitMQ;
 
 namespace MyWebApi.Tests;
 
 public class RabbitMQFixture : IAsyncLifetime
 {
-    public Task DisposeAsync()
+    private IHost _host = null!;
+    private RabbitMqContainer _container = null!;
+
+    public async Task DisposeAsync()
     {
-        throw new NotImplementedException();
+        await _host.StopAsync();
+        await _container.StopAsync();
+        await _container.DisposeAsync();
     }
 
-    public Task InitializeAsync()
+    public async Task InitializeAsync()
     {
-        throw new NotImplementedException();
+        _container = new RabbitMqBuilder()
+        .WithHostname("localhost")
+        .WithPortBinding(5672)
+        .WithUsername("guest")
+        .WithPassword("guest")
+        .WithEnvironment("RABBITMQ_DEFAULT_VHOST", "my_vhost")
+        .Build();
+
+        _host = Host.CreateDefaultBuilder()
+        .ConfigureServices(services =>
+        {
+            services.AddSingleton<IMessageChannel, RabbitMessageChannel>();
+            services.AddSingleton<IMessagePipe, RabbitMessageChannel>();
+            services.AddHostedService<RabbitMQLoggingService>();
+            services.AddHostedService<RabbitMQConsumer>();
+        })
+        .Build();
+
+        await _container.StartAsync();
+        await _host.StartAsync();
     }
 }

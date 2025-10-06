@@ -2,7 +2,7 @@ using System.Threading.Channels;
 
 namespace UserManagementSystem.Services.RabbitMQ;
 
-public class RabbitMessageChannel : IMessageChannel
+public class RabbitMessageChannel : IRabbitChannel, IMessageChannel, IMessagePipe
 {
     private readonly Channel<byte[]> _channel = Channel.CreateUnbounded<byte[]>();
 

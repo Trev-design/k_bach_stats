@@ -4,7 +4,7 @@ using UserManagementSystem.Services.RabbitMQ;
 
 namespace MyWebApi.Tests.Mocks;
 
-public sealed class RabbitMQConsumer(IMessageChannel channel) : ConsumerService(channel), IHostedService, IAsyncDisposable
+public sealed class RabbitMQConsumer(IMessagePipe channel) : RabbitMQBase<IMessagePipe>(channel), IHostedService, IAsyncDisposable
 {
     public async ValueTask DisposeAsync()
     {
