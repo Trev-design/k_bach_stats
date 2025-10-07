@@ -4,6 +4,10 @@ using static UserManagementSystem.Grpc.UserRegistryService;
 
 namespace UserManagementSystem.Services.GRPC;
 
+/// <summary>
+/// 
+/// </summary>
+/// <param name="provider"></param>
 public class UserRegistryServiceImpl(IServiceProvider provider) : UserRegistryServiceBase
 {
     private readonly IServiceProvider _serviceProvider = provider;

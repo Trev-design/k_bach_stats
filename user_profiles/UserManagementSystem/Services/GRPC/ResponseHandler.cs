@@ -4,6 +4,9 @@ using UserManagementSystem.Grpc;
 
 namespace UserManagementSystem.Services.GRPC;
 
+/// <summary>
+/// 
+/// </summary>
 public class ResponseHandler
 {
     public IAsyncStreamWriter<RegistryResponse> Writer { init; private get; } = null!;

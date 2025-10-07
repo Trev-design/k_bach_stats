@@ -3,6 +3,10 @@ using RabbitMQ.Client;
 
 namespace UserManagementSystem.Services.RabbitMQ;
 
+/// <summary>
+/// 
+/// </summary>
+/// <typeparam name="Type"></typeparam>
 public abstract class RabbitMQBase<Type> where Type : class, IRabbitChannel
 {
     protected IConnection _connection = null!;

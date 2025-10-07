@@ -15,6 +15,7 @@ public class AppDBContext(DbContextOptions<AppDBContext> options) : DbContext(op
     {
         base.OnModelCreating(modelBuilder);
 
+        // generate the ids on add
         modelBuilder.Entity<User>().Property(u => u.Id).ValueGeneratedOnAdd();
         modelBuilder.Entity<Profile>().Property(p => p.Id).ValueGeneratedOnAdd();
         modelBuilder.Entity<Contact>().Property(c => c.Id).ValueGeneratedOnAdd();

@@ -4,6 +4,9 @@ using UserManagementSystem.Grpc;
 
 namespace UserManagementSystem.Services.GRPC;
 
+/// <summary>
+/// 
+/// </summary>
 public class StreamHandler
 {
     public IAsyncStreamReader<RegistryRequest> RequestReader { init; private get; } = null!;
@@ -35,7 +38,7 @@ public class StreamHandler
             await foreach (var request in RequestReader.ReadAllAsync(cancelationTokenSource.Token))
             {
                 await Semaphore.WaitAsync();
-                
+
                 _ = Task.Run(async () =>
                 {
                     MessageHandler handler = new()
@@ -54,5 +57,5 @@ public class StreamHandler
             await responseTask;
         }
 
-    } 
+    }
 }

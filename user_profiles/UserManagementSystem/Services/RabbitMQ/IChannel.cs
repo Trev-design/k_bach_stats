@@ -1,5 +1,8 @@
 namespace UserManagementSystem.Services.RabbitMQ;
 
+/// <summary>
+/// 
+/// </summary>
 public interface IRabbitChannel
 {
     public Task SendMessageAsync(byte[] message);

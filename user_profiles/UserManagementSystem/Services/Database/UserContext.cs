@@ -4,17 +4,33 @@ using UserManagementSystem.Models;
 
 namespace UserManagementSystem.Services.Database;
 
+/// <summary>
+/// 
+/// </summary>
 public class UserDBImpl
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
     public static async Task<List<User>> GetAllAsync(AppDBContext context)
     {
         var users = await context.Users.Include(user => user.UserProfile).
         ThenInclude(profile => profile.UserContact).
         ToListAsync();
-        
+
         return users;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="name"></param>
+    /// <param name="email"></param>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     public static async Task CreateUser(AppDBContext context, string name, string email, string entity)
     {
         var userToInsert = new User { Entity = entity };
@@ -25,6 +41,13 @@ public class UserDBImpl
         await context.Contacts.AddAsync(contactToInsert);
         await context.SaveChangesAsync();
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     public static async Task<User?> GetWholeUser(AppDBContext context, string entity)
     {
         var user = await context.Users.Include(u => u.UserProfile).
@@ -38,6 +61,13 @@ public class UserDBImpl
 
         return user;
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public static async Task<User?> GetUserById(AppDBContext context, Guid id)
     {
         var user = await context.Users.Include(u => u.UserProfile).
@@ -52,6 +82,13 @@ public class UserDBImpl
         return user;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="id"></param>
+    /// <param name="workspaceName"></param>
+    /// <returns></returns>
     public static async Task<Workspace?> AddNewWorkspace(AppDBContext context, Guid id, string workspaceName)
     {
         var user = await context.Users.FindAsync(id);
@@ -69,6 +106,14 @@ public class UserDBImpl
         return workspace;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="id"></param>
+    /// <param name="workspaceId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public static async Task DeleteWorkspace(AppDBContext context, Guid id, Guid workspaceId)
     {
         var workspace = await context.Workspaces.FirstOrDefaultAsync(w => w.UserId == id && w.Id == workspaceId) ?? throw new Exception("");
@@ -76,6 +121,15 @@ public class UserDBImpl
         await context.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="id"></param>
+    /// <param name="workspaceId"></param>
+    /// <param name="reference"></param>
+    /// <param name="topic"></param>
+    /// <returns></returns>
     public static async Task<ChatRoom?> NewChatRoom(AppDBContext context, Guid id, Guid workspaceId, string reference, string topic)
     {
         var workspace = await context.Workspaces.FirstOrDefaultAsync(w => w.Id == workspaceId && w.UserId == id);
@@ -94,6 +148,15 @@ public class UserDBImpl
         return chatRoom;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="Id"></param>
+    /// <param name="workspaceId"></param>
+    /// <param name="chatId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public static async Task DeleteChat(AppDBContext context, Guid Id, Guid workspaceId, Guid chatId)
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Id == Id) ?? throw new Exception("");
@@ -104,6 +167,13 @@ public class UserDBImpl
         await context.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public static async Task DeleteUser(AppDBContext context, Guid id)
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id) ?? throw new Exception("");

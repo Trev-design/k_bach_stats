@@ -7,6 +7,9 @@ using UserManagementSystem.Services.Database;
 
 namespace UserManagementSystem.Services.GRPC;
 
+/// <summary>
+/// 
+/// </summary>
 public class MessageHandler
 {
     public RegistryRequest Request { init; private get; } = null!;

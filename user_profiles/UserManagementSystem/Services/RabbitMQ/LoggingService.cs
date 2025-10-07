@@ -2,6 +2,10 @@ using RabbitMQ.Client;
 
 namespace UserManagementSystem.Services.RabbitMQ;
 
+/// <summary>
+/// 
+/// </summary>
+/// <param name="channel"></param>
 public sealed class RabbitMQLoggingService(IMessageChannel channel) : RabbitMQBase<IMessageChannel>(channel), IHostedService, IAsyncDisposable
 {
     private Task _messageTask = null!;
