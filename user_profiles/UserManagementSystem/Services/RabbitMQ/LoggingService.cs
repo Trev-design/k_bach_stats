@@ -3,18 +3,28 @@ using RabbitMQ.Client;
 namespace UserManagementSystem.Services.RabbitMQ;
 
 /// <summary>
-/// 
+/// the rabbitmq implementation
 /// </summary>
 /// <param name="channel"></param>
 public sealed class RabbitMQLoggingService(IMessageChannel channel) : RabbitMQBase<IMessageChannel>(channel), IHostedService, IAsyncDisposable
 {
     private Task _messageTask = null!;
+
+    /// <summary>
+    /// disposing functionality
+    /// </summary>
+    /// <returns></returns>
     public async ValueTask DisposeAsync()
     {
         await _channel.DisposeAsync();
         await _connection.DisposeAsync();
     }
 
+    /// <summary>
+    /// starting functionality
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await StartBroker();
@@ -24,6 +34,11 @@ public sealed class RabbitMQLoggingService(IMessageChannel channel) : RabbitMQBa
         }, cancellationToken);
     }
 
+    /// <summary>
+    /// stopping functionality
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         _messageChannel.Complete();

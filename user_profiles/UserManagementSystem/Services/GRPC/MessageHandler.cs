@@ -8,7 +8,9 @@ using UserManagementSystem.Services.Database;
 namespace UserManagementSystem.Services.GRPC;
 
 /// <summary>
-/// 
+/// class to compute incomming requests.
+///  
+/// spawns on every incomming request
 /// </summary>
 public class MessageHandler
 {
@@ -17,6 +19,10 @@ public class MessageHandler
     public Channel<Response> MessagePipe { init; private get; } = null!;
     private ulong index = 0;
 
+    /// <summary>
+    /// computes incomming requests
+    /// </summary>
+    /// <returns></returns>
     public async Task ComputeMessageAsync()
     {
         string message = "";

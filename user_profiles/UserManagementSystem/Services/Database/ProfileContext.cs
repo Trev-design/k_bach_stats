@@ -4,7 +4,7 @@ using UserManagementSystem.Models;
 namespace UserManagementSystem.Services.Database;
 
 /// <summary>
-/// 
+/// implements access for the profiles
 /// </summary>
 public class ProfileDBImpl
 {

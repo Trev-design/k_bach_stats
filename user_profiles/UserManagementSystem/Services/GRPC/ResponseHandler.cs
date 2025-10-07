@@ -5,7 +5,7 @@ using UserManagementSystem.Grpc;
 namespace UserManagementSystem.Services.GRPC;
 
 /// <summary>
-/// 
+/// handles all outcomming responses of the grpc servev
 /// </summary>
 public class ResponseHandler
 {
@@ -14,6 +14,10 @@ public class ResponseHandler
     public Channel<Response> MessagePipe { init; private get; } = null!;
     public CancellationTokenSource TokenSource { init; private get; } = null!;
 
+    /// <summary>
+    /// computes all messages and send it back in the right order
+    /// </summary>
+    /// <returns></returns>
     public async Task HandleResponseOutput()
     {
         Dictionary<ulong, RegistryResponse> responses = [];

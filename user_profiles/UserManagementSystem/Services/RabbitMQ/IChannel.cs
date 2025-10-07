@@ -1,7 +1,7 @@
 namespace UserManagementSystem.Services.RabbitMQ;
 
 /// <summary>
-/// 
+/// interface for local traffic in your rabbitmq infrastructure
 /// </summary>
 public interface IRabbitChannel
 {

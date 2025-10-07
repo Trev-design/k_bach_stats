@@ -5,7 +5,7 @@ using UserManagementSystem.Grpc;
 namespace UserManagementSystem.Services.GRPC;
 
 /// <summary>
-/// 
+/// setting up the stream
 /// </summary>
 public class StreamHandler
 {
@@ -16,6 +16,10 @@ public class StreamHandler
     private readonly Channel<Response> MessageStream = Channel.CreateUnbounded<Response>();
     private readonly SemaphoreSlim Semaphore = new(10);
 
+    /// <summary>
+    /// setting up the stream computation. the request computation is parallel. the response computation is sequential.
+    /// </summary>
+    /// <returns></returns>
     public async Task HandleMessageIncomeAsync()
     {
         using var cancelationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(Context.CancellationToken);

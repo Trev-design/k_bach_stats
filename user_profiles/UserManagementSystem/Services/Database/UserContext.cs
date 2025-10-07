@@ -5,15 +5,15 @@ using UserManagementSystem.Models;
 namespace UserManagementSystem.Services.Database;
 
 /// <summary>
-/// 
+/// implements access for users
 /// </summary>
 public class UserDBImpl
 {
     /// <summary>
-    /// 
+    /// gets all users
     /// </summary>
     /// <param name="context"></param>
-    /// <returns></returns>
+    /// <returns>a list of all users</returns>
     public static async Task<List<User>> GetAllAsync(AppDBContext context)
     {
         var users = await context.Users.Include(user => user.UserProfile).
@@ -24,7 +24,7 @@ public class UserDBImpl
     }
 
     /// <summary>
-    /// 
+    /// creates a whole new user with all attributes
     /// </summary>
     /// <param name="context"></param>
     /// <param name="name"></param>
@@ -43,11 +43,11 @@ public class UserDBImpl
     }
 
     /// <summary>
-    /// 
+    /// gets a user with all attributes
     /// </summary>
     /// <param name="context"></param>
     /// <param name="entity"></param>
-    /// <returns></returns>
+    /// <returns>a user</returns>
     public static async Task<User?> GetWholeUser(AppDBContext context, string entity)
     {
         var user = await context.Users.Include(u => u.UserProfile).
@@ -63,7 +63,7 @@ public class UserDBImpl
     }
 
     /// <summary>
-    /// 
+    /// gets a user with all attributes based on the given id
     /// </summary>
     /// <param name="context"></param>
     /// <param name="id"></param>
@@ -83,7 +83,7 @@ public class UserDBImpl
     }
 
     /// <summary>
-    /// 
+    /// adds a new workspace
     /// </summary>
     /// <param name="context"></param>
     /// <param name="id"></param>
@@ -107,7 +107,7 @@ public class UserDBImpl
     }
 
     /// <summary>
-    /// 
+    /// deletes a workspace of the user
     /// </summary>
     /// <param name="context"></param>
     /// <param name="id"></param>
@@ -122,7 +122,7 @@ public class UserDBImpl
     }
 
     /// <summary>
-    /// 
+    /// adds a new chatroom in a workspace of the founder user
     /// </summary>
     /// <param name="context"></param>
     /// <param name="id"></param>
@@ -149,7 +149,7 @@ public class UserDBImpl
     }
 
     /// <summary>
-    /// 
+    /// deletes a new chatroom in a workspace of the founder user
     /// </summary>
     /// <param name="context"></param>
     /// <param name="Id"></param>
@@ -168,7 +168,7 @@ public class UserDBImpl
     }
 
     /// <summary>
-    /// 
+    /// deletes a whole user
     /// </summary>
     /// <param name="context"></param>
     /// <param name="id"></param>

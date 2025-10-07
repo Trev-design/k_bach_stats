@@ -4,7 +4,7 @@ using RabbitMQ.Client;
 namespace UserManagementSystem.Services.RabbitMQ;
 
 /// <summary>
-/// 
+/// the baseclass of your rabbitmq infrastructure
 /// </summary>
 /// <typeparam name="Type"></typeparam>
 public abstract class RabbitMQBase<Type> where Type : class, IRabbitChannel
