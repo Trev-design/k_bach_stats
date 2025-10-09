@@ -3,15 +3,20 @@ pipeline{
 
     stages{
         stage("user-management-test"){
-            agent {
-                dockerfile {
-                    filename 'Dockerfile.jenkins'     // Pfad zu deinem Dockerfile                          // optional: Build-Verzeichnis
-                    additionalBuildArgs ''            // optional: extra build args
-                    args '--network host -u root -v /var/run/docker.sock:/var/run/docker.sock'
-                    reuseNode true
-                }
-            }
             steps{
+                echo "build image"
+                checkout scm
+                script {
+                    def image = docker.build(
+                        "my-dotnet-agent",
+                        "-f user_profiles/Dockerfile.jenkins user_profiles/"
+                    )
+                    image.inside('--network host') {
+                        sh 'dotnet restore'
+                        sh 'dotnet build'
+                        sh 'dotnet test'
+                    }
+                }
                 echo "========executing user-management-test========"
                 echo "======== Restoring Packages ========"
                 sh 'dotnet restore'
