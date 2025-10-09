@@ -14,6 +14,12 @@ pipeline{
                     echo "========configure test workspace"
                     image.inside('--network host') {
                         withEnv(["DOTNET_CLI_HOME=/tmp"]) {
+                            sh '''
+                                echo "📂 Inside container workspace:"
+                                pwd
+                                echo "📁 Structure:"
+                                ls -R
+                            '''
                             echo "========executing user-management-test========"
                             echo "======== Restoring Packages ========"
                             sh 'dotnet restore'
