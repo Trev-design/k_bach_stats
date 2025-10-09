@@ -4,31 +4,33 @@ pipeline{
     stages{
         stage("user-management-test"){
             steps{
-                echo "build image"
+                echo "========build image========"
                 checkout scm
                 script {
                     def image = docker.build(
                         "my-dotnet-agent",
                         "-f user_profiles/Dockerfile.jenkins user_profiles/"
                     )
+                    echo "========configure test workspace"
                     image.inside('--network host') {
-                        sh 'dotnet restore'
-                        sh 'dotnet build'
-                        sh 'dotnet test'
+                        withEnv(["DOTNET_CLI_HOME=/tmp"]) {
+                            echo "========executing user-management-test========"
+                            echo "======== Restoring Packages ========"
+                            sh 'dotnet restore'
+
+                            echo "======== Building Solution ========"
+                            sh 'dotnet build'
+                            
+                            echo "======== Running Tests (with Testcontainers & Ryuk) ========"
+                            sh '''
+                                mkdir -p test-results
+                                dotnet test --no-build --logger "junit;LogFilePath=test-results/results.xml"
+                            '''
+                            junit 'test-results/results.xml'
+                        }
                     }
+                    sh 'docker rmi my-dotnet-agent || true'
                 }
-                echo "========executing user-management-test========"
-                echo "======== Restoring Packages ========"
-                sh 'dotnet restore'
-
-                echo "======== Building Solution ========"
-                sh 'dotnet build --no-restore'
-
-                echo "======== Running Tests (with Testcontainers & Ryuk) ========"
-                sh '''
-                    mkdir -p test-results
-                    dotnet test --no-build --logger "junit;LogFilePath=test-results/results.xml"
-                '''
             }
             post{
                 always{
