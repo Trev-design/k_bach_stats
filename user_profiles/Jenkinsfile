@@ -41,6 +41,7 @@ pipeline{
                 }
                 failure{
                     echo "========A execution failed========"
+                    sh 'docker rmi my-dotnet-agent || true'
                 }
             }
         }
