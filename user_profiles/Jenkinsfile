@@ -1,0 +1,51 @@
+pipeline{
+    agent any
+
+    stages{
+        stage("user-management-test"){
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/dotnet/sdk:9.0'
+                    args '--network host -u root -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=tcp://docker:2376'
+                    reuseNode true
+                }
+            }
+            steps{
+                echo "========executing user-management-test========"
+                echo "======== Restoring Packages ========"
+                sh 'dotnet restore'
+
+                echo "======== Building Solution ========"
+                sh 'dotnet build --no-restore'
+
+                echo "======== Running Tests (with Testcontainers & Ryuk) ========"
+                sh '''
+                    mkdir -p test-results
+                    dotnet test --no-build --logger "junit;LogFilePath=test-results/results.xml"
+                '''
+            }
+            post{
+                always{
+                    echo "========always========"
+                }
+                success{
+                    echo "========A executed successfully========"
+                }
+                failure{
+                    echo "========A execution failed========"
+                }
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
