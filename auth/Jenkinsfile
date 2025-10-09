@@ -2,7 +2,7 @@ pipeline{
     agent any
 
     stages{
-        stage("user-management-test"){
+        stage("auth-test"){
             agent {
                 dockerfile {
                     filename 'Dockerfile.jenkins'     // Pfad zu deinem Dockerfile                          // optional: Build-Verzeichnis
@@ -12,28 +12,25 @@ pipeline{
                 }
             }
             steps{
-                echo "========executing user-management-test========"
-                echo "======== Restoring Packages ========"
-                sh 'dotnet restore'
-
-                echo "======== Building Solution ========"
-                sh 'dotnet build --no-restore'
-
-                echo "======== Running Tests (with Testcontainers & Ryuk) ========"
+                echo "========executing auth-test========"
+                echo "======== Installing Dependencies ========"
                 sh '''
-                    mkdir -p test-results
-                    dotnet test --no-build --logger "junit;LogFilePath=test-results/results.xml"
+                    apk add --no-cache bash git docker-cli postgresql-client
+                    go mod download
                 '''
+
+                echo "======== Running Tests ========"
+                sh 'go test -v ./...'
             }
             post{
                 always{
                     echo "========always========"
                 }
                 success{
-                    echo "========A executed successfully========"
+                    echo "========auth-test executed successfully========"
                 }
                 failure{
-                    echo "========A execution failed========"
+                    echo "========auth-test execution failed========"
                 }
             }
         }

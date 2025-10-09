@@ -1,0 +1,8 @@
+# Dockerfile.jenkins
+FROM golang:1.24-alpine
+
+# Root-Berechtigungen
+USER root
+
+# Tools installieren
+RUN apk add --no-cache bash git docker-cli
