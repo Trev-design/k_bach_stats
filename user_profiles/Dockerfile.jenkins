@@ -3,6 +3,8 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0
 
 USER root
 
+COPY . .
+
 # Pakete installieren: Docker CLI und Git
 RUN apt-get update && \
     apt-get install -y docker.io git && \
