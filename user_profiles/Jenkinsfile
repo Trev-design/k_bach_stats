@@ -14,25 +14,27 @@ pipeline{
                     echo "========configure test workspace"
                     image.inside('--network host') {
                         withEnv(["DOTNET_CLI_HOME=/tmp"]) {
-                            sh '''
-                                echo "📂 Inside container workspace:"
-                                pwd
-                                echo "📁 Structure:"
-                                ls -R
-                            '''
-                            echo "========executing user-management-test========"
-                            echo "======== Restoring Packages ========"
-                            sh 'dotnet restore'
+                            dir('user_profiles') {
+                                sh '''
+                                    echo "📂 Inside container workspace:"
+                                    pwd
+                                    echo "📁 Structure:"
+                                    ls -R
+                                '''
+                                echo "========executing user-management-test========"
+                                echo "======== Restoring Packages ========"
+                                sh 'dotnet restore'
 
-                            echo "======== Building Solution ========"
-                            sh 'dotnet build'
+                                echo "======== Building Solution ========"
+                                sh 'dotnet build'
                             
-                            echo "======== Running Tests (with Testcontainers & Ryuk) ========"
-                            sh '''
-                                mkdir -p test-results
-                                dotnet test --no-build --logger "junit;LogFilePath=test-results/results.xml"
-                            '''
-                            junit 'test-results/results.xml'
+                                echo "======== Running Tests (with Testcontainers & Ryuk) ========"
+                                sh '''
+                                    mkdir -p test-results
+                                    dotnet test --no-build --logger "junit;LogFilePath=test-results/results.xml"
+                                '''
+                                junit 'test-results/results.xml'
+                            }
                         }
                     }
                 }
