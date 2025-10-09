@@ -9,7 +9,7 @@ pipeline{
                 script {
                     def image = docker.build(
                         "my-dotnet-agent",
-                        "-f user_profiles/Dockerfile.jenkins user_profiles/"
+                        "-f user_profiles/Dockerfile.jenkins ."
                     )
                     echo "========configure test workspace"
                     image.inside('--network host') {
@@ -29,7 +29,6 @@ pipeline{
                             junit 'test-results/results.xml'
                         }
                     }
-                    sh 'docker rmi my-dotnet-agent || true'
                 }
             }
             post{
@@ -38,6 +37,7 @@ pipeline{
                 }
                 success{
                     echo "========A executed successfully========"
+                    sh 'docker rmi my-dotnet-agent || true'
                 }
                 failure{
                     echo "========A execution failed========"
