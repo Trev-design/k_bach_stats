@@ -12,7 +12,7 @@ pipeline{
                         "-f user_profiles/Dockerfile.jenkins ."
                     )
                     echo "========configure test workspace"
-                    image.inside('-v /var/run/docker.sock:/var/run/docker.sock --network jenkins') {
+                    image.inside('-v /var/run/docker.sock:/var/run/docker.sock --network host') {
                         withEnv(["DOTNET_CLI_HOME=/tmp"]) {
                             dir('user_profiles') {
                                 sh '''
