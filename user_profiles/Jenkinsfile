@@ -7,9 +7,10 @@ pipeline{
                 echo "========build image========"
                 checkout scm
                 script {
+                    def dockerGid = sh(script: "stat -c '%g' /var/run/docker.sock", returnStdout: true).trim()
                     def image = docker.build(
                         "my-dotnet-agent",
-                        "-f user_profiles/Dockerfile.jenkins ."
+                        "--build-arg DOCKER_GID=${dockerGid} -f user_profiles/Dockerfile.jenkins ."
                     )
                     echo "========configure test workspace"
                     image.inside('-v /var/run/docker.sock:/var/run/docker.sock --network host') {
