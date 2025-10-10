@@ -3,11 +3,8 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0
 
 USER root
 
-ARG DOCKER_GID=999
 # Pakete installieren: Docker CLI und Git
-RUN useradd -m jenkins && \
-    groupadd -g ${DOCKER_GID} docker && usermod -aG docker jenkins && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install -y docker.io git && \
     rm -rf /var/lib/apt/lists/*
 
