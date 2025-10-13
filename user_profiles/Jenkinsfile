@@ -12,8 +12,13 @@ pipeline{
                         "-f user_profiles/Dockerfile.jenkins ."
                     )
                     echo "========configure test workspace"
-                    image.inside('-v /var/run/docker.sock:/var/run/docker.sock') {
-                        withEnv(["DOTNET_CLI_HOME=/tmp"]) {
+                    image.inside('-v /certs/client:/certs/client:ro') {
+                        withEnv([
+                            "DOTNET_CLI_HOME=/tmp"
+                            "DOCKER_HOST=tcp://docker:2376",
+                            "DOCKER_CERT_PATH=/certs/client",
+                            "DOCKER_TLS_VERIFY=1"
+                            ]) {
                             dir('user_profiles') {
                                 sh '''
                                     echo "📂 Inside container workspace:"
