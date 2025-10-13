@@ -13,8 +13,10 @@ pipeline{
                     )
                     echo "========configure test workspace"
                     image.inside(
-                        '-v /certs/client:/certs/client:ro',
-                        '-v /var/run/docker.sock:/var/run/docker.sock'
+                        '''
+                            -v /certs/client:/certs/client:ro
+                            -v /var/run/docker.sock:/var/run/docker.sock
+                        '''
                         ) {
                         withEnv([
                             "DOTNET_CLI_HOME=/tmp",
