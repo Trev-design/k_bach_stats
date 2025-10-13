@@ -46,28 +46,9 @@ pipeline{
             }
             post{
                 always{
-                    echo "========always========"
-                }
-                success{
-                    echo "========A executed successfully========"
-                    sh 'docker rmi my-dotnet-agent || true'
-                }
-                failure{
-                    echo "========A execution failed========"
                     sh 'docker rmi my-dotnet-agent || true'
                 }
             }
-        }
-    }
-    post{
-        always{
-            echo "========always========"
-        }
-        success{
-            echo "========pipeline executed successfully ========"
-        }
-        failure{
-            echo "========pipeline execution failed========"
         }
     }
 }
