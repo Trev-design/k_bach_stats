@@ -22,13 +22,13 @@ jobs:
           dotnet-version: '9.0.102'
 
       - name: Restore
-        run: dotnet restore ./user_profiles/UserManagementSystem.sln
+        run: dotnet restore ./user_profiles/k_bach_stats.sln
 
       - name: Build
-        run: dotnet build ./user_profiles/UserManagementSystem.sln --no-restore
+        run: dotnet build ./user_profiles/k_bach_stats.sln --no-restore
 
       - name: Test
-        run: dotnet test ./user_profiles/UserManagementSystem.sln --no-build --logger "trx;LogFileName=user_profile_test_results.trx" --results-directory ./TestResults
+        run: dotnet test ./user_profiles/k_bach_stats.sln --no-build --logger "trx;LogFileName=user_profile_test_results.trx" --results-directory ./TestResults
 
       - name: Upload Test Results
         if: always()
