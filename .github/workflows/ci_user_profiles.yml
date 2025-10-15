@@ -1,0 +1,39 @@
+name: Run user_profiles Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    
+  schedule:
+    - cron: "0 0 */3 * *"
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with: 
+          dotnet-version: '9.0.102'
+
+      - name: Restore
+        run: dotnet restore ./user_profiles/UserManagementSystem.sln
+
+      - name: Build
+        run: dotnet build ./user_profiles/UserManagementSystem.sln --no-restore
+
+      - name: Test
+        run: dotnet test ./user_profiles/UserManagementSystem.sln --no-build --logger "trx;LogFileName=user_profile_test_results.trx" --results-directory ./TestResults
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: user_profiles_test_results
+          path: ./TestResults/user_profile_test_results.trx
+          reporter: dotnet-trx
