@@ -25,7 +25,7 @@ public abstract class RabbitMQBase<Type> where Type : class, IRabbitChannel
         var host = Env.GetString("RABBIT_HOST", "localhost");
         var port = Env.GetString("RABBIT_PORT", "5672");
         var user = Env.GetString("RABBIT_USER", "guest");
-        var pass = Env.GetString("RABIT_PASSWORD", "guest");
+        var pass = Env.GetString("RABbIT_PASSWORD", "guest");
         var vhost = Env.GetString("RABBIT_V_HOST", "my_vhost");
 
         URL = $"amqp://{user}:{pass}@{host}:{port}/{vhost}";

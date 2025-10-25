@@ -1,13 +1,14 @@
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MyWebApi.Tests.Utils;
 using UserManagementSystem.Services.Database;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using UserManagementSystem.Controllers;
 using Microsoft.Extensions.Hosting;
+using UserManagementSystem.Services.S3Service;
+using Amazon.S3;
+using Amazon;
 
 namespace MyWebApi.Tests;
 

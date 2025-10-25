@@ -121,7 +121,7 @@ public class TestUserController(EndpointsFixture fixture) : IClassFixture<Endpoi
         }
     }
 
-    [Fact]
+    [Fact] 
     public async Task TestDeleteWorkspaceFailed()
     {
         await Assert.ThrowsAsync<HttpRequestException>(async () =>
