@@ -11,11 +11,11 @@ public class TestS3(S3Fixture fixture) : IClassFixture<S3Fixture>
     [Fact]
     public async Task TestUpload()
     {
-        var postCreds = await _fixture.Handler.PostImageCredentials("test_image.jpg", "image/jpeg");
+        var postCreds = await _fixture.Handler.PostImageCredentials(_fixture.FileName, "image/jpeg");
         Assert.NotNull(postCreds);
 
         using var client = new HttpClient();
-        using var stream = File.OpenRead("test_image.jpg");
+        using var stream = File.OpenRead(_fixture.FilePath);
 
         var postRequest = new HttpRequestMessage(HttpMethod.Put, postCreds.URL)
         {
@@ -73,11 +73,11 @@ public class TestS3(S3Fixture fixture) : IClassFixture<S3Fixture>
     [Fact]
     public async Task TestDelete()
     {
-        var postCreds = await _fixture.Handler.PostImageCredentials("test_image.jpeg", "image/jpeg");
+        var postCreds = await _fixture.Handler.PostImageCredentials(_fixture.FileName, "image/jpeg");
         Assert.NotNull(postCreds);
 
         using var client = new HttpClient();
-        using var stream = File.OpenRead("test_image.jpg");
+        using var stream = File.OpenRead(_fixture.FilePath);
 
         var postRequest = new HttpRequestMessage(HttpMethod.Put, postCreds.URL)
         {

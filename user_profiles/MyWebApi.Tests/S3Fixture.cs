@@ -11,6 +11,8 @@ public class S3Fixture : IAsyncLifetime
     private IMinioClient _client = null!;
     private S3Settings _settings = null!;
     public S3Handler Handler { get; private set; } = null!;
+    public string FileName { get; } = "test_image.jpg";
+    public string FilePath { get; private set; } = null!;
 
     public async Task DisposeAsync()
     {
@@ -44,5 +46,9 @@ public class S3Fixture : IAsyncLifetime
         if (!found) await _client.MakeBucketAsync(new MakeBucketArgs().WithBucket(_settings.BucketName));
 
         Handler = new S3Handler(_client, _settings);
+
+        var tempFile = Path.Combine(Path.GetTempPath(), FileName);
+        await File.WriteAllBytesAsync(tempFile, [0xFF, 0xD8, 0xFF, 0xD9]);
+        FilePath = tempFile;
     }
 }
