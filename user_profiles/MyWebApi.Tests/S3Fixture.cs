@@ -8,27 +8,27 @@ namespace MyWebApi.Tests;
 public class S3Fixture : IAsyncLifetime
 {
     private MinioContainer _container = null!;
-    private IMinioClient _client = null!;
-    private S3Settings _settings = null!;
+    public IMinioClient Client { get; private set; } = null!;
+    public S3Settings Settings { get; private set; } = null!;
     public S3Handler Handler { get; private set; } = null!;
     public string FileName { get; } = "test_image.jpg";
     public string FilePath { get; private set; } = null!;
 
     public async Task DisposeAsync()
     {
-        _client.Dispose();
+        Client.Dispose();
         await _container.StopAsync();
         await _container.DisposeAsync();
     }
 
     public async Task InitializeAsync()
     {
-        _settings = new S3Settings();
+        Settings = new S3Settings();
 
         _container = new MinioBuilder()
             .WithImage("minio/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1")
-            .WithEnvironment("MINIO_ROOT_USER", _settings.GetUser())
-            .WithEnvironment("MINIO_ROOT_PASSWORD", _settings.GetSekretKey())
+            .WithEnvironment("MINIO_ROOT_USER", Settings.GetUser())
+            .WithEnvironment("MINIO_ROOT_PASSWORD", Settings.GetSekretKey())
             .WithPortBinding(9000, true)
             .Build();
 
@@ -36,16 +36,16 @@ public class S3Fixture : IAsyncLifetime
 
         var port = _container.GetMappedPublicPort();
 
-        _client = new MinioClient()
+        Client = new MinioClient()
             .WithEndpoint($"localhost:{port}")
-            .WithCredentials(_settings.GetUser(), _settings.GetSekretKey())
+            .WithCredentials(Settings.GetUser(), Settings.GetSekretKey())
             .WithSSL(false)
             .Build();
 
-        bool found = await _client.BucketExistsAsync(new BucketExistsArgs().WithBucket(_settings.BucketName));
-        if (!found) await _client.MakeBucketAsync(new MakeBucketArgs().WithBucket(_settings.BucketName));
+        bool found = await Client.BucketExistsAsync(new BucketExistsArgs().WithBucket(Settings.BucketName));
+        if (!found) await Client.MakeBucketAsync(new MakeBucketArgs().WithBucket(Settings.BucketName));
 
-        Handler = new S3Handler(_client, _settings);
+        Handler = new S3Handler(Client, Settings);
 
         var tempFile = Path.Combine(Path.GetTempPath(), FileName);
         await File.WriteAllBytesAsync(tempFile, [0xFF, 0xD8, 0xFF, 0xD9]);

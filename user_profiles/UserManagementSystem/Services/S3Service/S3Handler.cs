@@ -33,16 +33,12 @@ public class S3Handler(IMinioClient client, S3Settings settings)
     {
         try
         {
-            string id = $"images/{Guid.NewGuid()}{Path.GetExtension(fileName)}";
+            string id = $"{Guid.NewGuid()}{Path.GetExtension(fileName)}";
 
             var url = await _client.PresignedPutObjectAsync(new PresignedPutObjectArgs()
             .WithBucket(_settings.BucketName)
             .WithObject(id)
-            .WithExpiry(10 * 60)
-            .WithHeaders(new Dictionary<string, string>
-            {
-                { "x-amz-meta-original-filename", fileName }
-            }));
+            .WithExpiry(10 * 60));
 
             return new PostImageModel { ID = id, URL = url };
         } catch

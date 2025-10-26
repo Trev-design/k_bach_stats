@@ -10,10 +10,10 @@ public class ImageController(S3Handler handler) : Controller
 {
     private readonly S3Handler _handler = handler; 
 
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<GetImageModel>> Get(Guid id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<GetImageModel>> Get(string id)
     {
-        var result = await _handler.GetImageCredentials(id.ToString());
+        var result = await _handler.GetImageCredentials(id);
         if (result == null) return BadRequest("something went wrong");
         return Ok(result);
     }
@@ -26,10 +26,10 @@ public class ImageController(S3Handler handler) : Controller
         return Ok(result);
     }
 
-    [HttpDelete("{id:guid}")]
-    public async Task<ActionResult<string>> Delete(Guid id)
+    [HttpDelete("{id}/delete")]
+    public async Task<ActionResult<string>> Delete(string id)
     {
-        await _handler.DeleteImageRequest(id.ToString());
+        await _handler.DeleteImageRequest(id);
         return Ok("image deleted");
     }
 }

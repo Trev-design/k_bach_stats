@@ -2,9 +2,10 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using UserManagementSystem.Models;
 
-namespace MyWebApi.Tests;
+namespace MyWebApi.Tests; 
 
-public class TestS3(S3Fixture fixture) : IClassFixture<S3Fixture>
+[Collection("S3Collection")]
+public class TestS3(S3Fixture fixture)
 {
     private readonly S3Fixture _fixture = fixture;
 
