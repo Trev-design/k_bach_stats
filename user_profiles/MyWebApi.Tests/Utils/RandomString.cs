@@ -9,7 +9,10 @@ public class RandomString
         var length = GenerateRandomStringLength(maxLength);
         var buffer = new byte[length];
         RandomNumberGenerator.Fill(buffer);
-        var randomString = Convert.ToBase64String(buffer);
+        var randomString = Convert.ToBase64String(buffer)        
+        .Replace("+", "-")
+        .Replace("/", "_")
+        .Replace("=", "");
         return randomString;
     }
 
@@ -22,6 +25,6 @@ public class RandomString
 
     private static int GenerateRandomStringLength(int maxLength)
     {
-        return RandomNumberGenerator.GetInt32(maxLength);
+        return RandomNumberGenerator.GetInt32(4, maxLength);
     }
 }

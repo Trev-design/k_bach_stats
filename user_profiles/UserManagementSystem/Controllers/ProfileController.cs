@@ -19,7 +19,7 @@ public class ProfileController(AppDBContext dbContext) : Controller
     }
 
     [HttpPut("{id}/new_image")]
-    public async Task<ActionResult> ChangeImage(Guid id, string imagePath)
+    public async Task<ActionResult> ChangeImage(Guid id, [FromBody] string imagePath)
     {
         try
         {
@@ -33,7 +33,7 @@ public class ProfileController(AppDBContext dbContext) : Controller
     }
 
     [HttpPut("{id}/new_description")]
-    public async Task<ActionResult> ChangeDescription(Guid id, string description)
+    public async Task<ActionResult> ChangeDescription(Guid id, [FromBody] string description)
     {
         try
         {

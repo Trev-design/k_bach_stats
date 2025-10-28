@@ -12,7 +12,7 @@ public class TestUserController(EndpointsFixture fixture) : IClassFixture<Endpoi
     [Fact]
     public async Task TestGetInitial()
     {
-        foreach (var entity in _fixture.Entities)
+        foreach (var entity in _fixture.EntitiesWithChatRooms)
         {
             var response = await _fixture.Client.GetAsync($"api/users/{entity}/initial");
             try
@@ -72,20 +72,20 @@ public class TestUserController(EndpointsFixture fixture) : IClassFixture<Endpoi
     {
         foreach (var id in _fixture.UserIDs)
         {
-            var userID = id.ToString();
             var name = RandomString.GenerateRandomString(20);
-            var response = await _fixture.Client.PostAsJsonAsync($"api/users/{userID}/new_workspace", name);
+            var response = await _fixture.Client.PostAsJsonAsync($"api/users/{id}/new_workspace", name);
 
             try
             {
                 response.EnsureSuccessStatusCode();
-                var created = await response.Content.ReadFromJsonAsync<Workspace>() ?? throw new Exception("could not fetch workspace");
-                _fixture.Workspaces.Add(id, created.Id);
             }
             catch (Exception e)
             {
                 Assert.Fail($"Should succeed but got exception {e.Message}");
             }
+
+            var created = await response.Content.ReadFromJsonAsync<Workspace>();
+            Assert.NotNull(created);
         }
     }
 
@@ -104,19 +104,33 @@ public class TestUserController(EndpointsFixture fixture) : IClassFixture<Endpoi
     [Fact]
     public async Task TestDeleteWorkspace()
     {
-        foreach (var id in _fixture.UserIDs)
+        foreach (var id in _fixture.DeleteWorcspaceIDs)
         {
-            bool ok = _fixture.Workspaces.TryGetValue(id, out Guid workspaceID);
-            Assert.True(ok);
+            var getResponse = await _fixture.Client.GetAsync($"api/users/{id}");
 
-            var response = await _fixture.Client.DeleteAsync($"api/users/{id.ToString()}/workspace/{workspaceID.ToString()}");
             try
             {
-                response.EnsureSuccessStatusCode();
+                getResponse.EnsureSuccessStatusCode();
             }
-            catch (Exception e)
+            catch (HttpRequestException exception)
             {
-                Assert.Fail($"Should succeed but got exception {e.Message}");
+                Assert.Fail(exception.Message);
+            }
+
+            var user = await getResponse.Content.ReadFromJsonAsync<User>();
+            Assert.NotNull(user);
+
+            foreach (var workspace in user.Workspaces)
+            {
+                var response = await _fixture.Client.DeleteAsync($"api/users/{user.Id}/workspace/{workspace.Id}");
+                try
+                {
+                    response.EnsureSuccessStatusCode();
+                }
+                catch (HttpRequestException e)
+                {
+                    Assert.Fail($"Should succeed but got exception {e.Message}");
+                }
             }
         }
     }
@@ -136,22 +150,36 @@ public class TestUserController(EndpointsFixture fixture) : IClassFixture<Endpoi
     [Fact]
     public async Task TestNewChat()
     {
-        foreach (var id in _fixture.UserIDs)
+        foreach (var id in _fixture.UserIDsWithWorkspaces)
         {
-            bool ok = _fixture.Workspaces.TryGetValue(id, out Guid workspaceID);
-            Assert.True(ok);
-            var topic = RandomString.GenerateRandomString(20);
-            var response = await _fixture.Client.PostAsJsonAsync($"api/users/{id.ToString()}/workspace/{workspaceID.ToString()}/new_chat", topic);
-
+            var getResponse = await _fixture.Client.GetAsync($"api/users/{id}");
             try
             {
-                response.EnsureSuccessStatusCode();
-                var created = await response.Content.ReadFromJsonAsync<ChatRoom>() ?? throw new Exception("could not fetch chatroom from database");
-                _fixture.ChatRooms.Add(id, created.Id);
+                getResponse.EnsureSuccessStatusCode();
             }
-            catch (Exception e)
+            catch (HttpRequestException exception)
             {
-                Assert.Fail($"Should succeed but got exception {e.Message}");
+                Assert.Fail(exception.Message);
+            }
+
+            var user = await getResponse.Content.ReadFromJsonAsync<User>();
+            Assert.NotNull(user);
+
+            foreach (var workspace in user.Workspaces)
+            {
+                var response = await _fixture.Client.PostAsJsonAsync($"api/users/{user.Id}/workspace/{workspace.Id}/new_chat", RandomString.GenerateRandomString(40));
+
+                try
+                {
+                    response.EnsureSuccessStatusCode();
+                }
+                catch (HttpRequestException exception)
+                {
+                    Assert.Fail(exception.Message);
+                }
+
+                var created = await response.Content.ReadFromJsonAsync<ChatRoom>();
+                Assert.NotNull(created);
             }
         }
     }
@@ -172,22 +200,36 @@ public class TestUserController(EndpointsFixture fixture) : IClassFixture<Endpoi
     [Fact]
     public async Task TestDeleteChat()
     {
-        foreach (var id in _fixture.UserIDs)
+        foreach (var id in _fixture.DeleteChatIDs)
         {
-            bool ok = _fixture.Workspaces.TryGetValue(id, out Guid workspaceID);
-            Assert.True(ok);
-            ok = _fixture.ChatRooms.TryGetValue(workspaceID, out Guid chatroomID);
-            Assert.True(ok);
+            var getResponse = await _fixture.Client.GetAsync($"api/users/{id}");
 
-            var response = await _fixture.Client.DeleteAsync($"api/users/{id.ToString()}/workspace/{workspaceID.ToString()}/chat/{chatroomID.ToString()}");
             try
             {
-                response.EnsureSuccessStatusCode();
-                var created = await response.Content.ReadFromJsonAsync<User>() ?? throw new Exception("something wen wrong bei fetchin user");
+                getResponse.EnsureSuccessStatusCode();
             }
-            catch (Exception e)
+            catch (HttpRequestException exception)
             {
-                Assert.Fail($"Should succeed but got exception {e.Message}");
+                Assert.Fail(exception.Message);
+            }
+
+            var user = await getResponse.Content.ReadFromJsonAsync<User>();
+            Assert.NotNull(user);
+            
+            foreach (var workspace in user.Workspaces)
+            {
+                foreach (var chatroom in workspace.ChatRooms)
+                {
+                    var response = await _fixture.Client.DeleteAsync($"api/users/{user.Id}/workspace/{workspace.Id}/chat/{chatroom.Id}");
+
+                    try
+                    {
+                        response.EnsureSuccessStatusCode();
+                    } catch (HttpRequestException exception)
+                    {
+                        Assert.Fail(exception.Message);
+                    }
+                }
             }
         }
     }
@@ -204,6 +246,156 @@ public class TestUserController(EndpointsFixture fixture) : IClassFixture<Endpoi
             var response = await _fixture.Client.DeleteAsync($"api/users/{invalidUserID}/workspace/{invalidProfileID}/chat/{invalidChatroomID}");
             response.EnsureSuccessStatusCode();
         });
+    }
+
+    [Fact]
+    public async Task TestAddWorkspaceByEntity()
+    {
+        foreach (var entity in _fixture.Entities)
+        {
+            var getResponse = await _fixture.Client.GetAsync($"api/users/{entity}/initial");
+
+            try
+            {
+                getResponse.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException exception)
+            {
+                Assert.Fail(exception.Message);
+            }
+
+            var user = await getResponse.Content.ReadFromJsonAsync<User>();
+            Assert.NotNull(user);
+
+            var name = RandomString.GenerateRandomString(20);
+            var postResponse = await _fixture.Client.PostAsJsonAsync($"api/users/{user.Id}/new_workspace", name);
+
+            try
+            {
+                postResponse.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException exception)
+            {
+                Assert.Fail(exception.Message);
+            }
+
+            var workspace = await postResponse.Content.ReadFromJsonAsync<Workspace>();
+            Assert.NotNull(workspace);
+            Assert.Equal(name, workspace.Name);          
+        }
+    }
+
+    [Fact]
+    public async Task TestDeleteWorkspaceByEntity()
+    {
+        foreach (var entity in _fixture.DeleteEntitiesWithWorkspaces)
+        {
+            var getResponse = await _fixture.Client.GetAsync($"api/users/{entity}/initial");
+
+            try
+            {
+                getResponse.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException exception)
+            {
+                Assert.Fail(exception.Message);
+            }
+
+            var user = await getResponse.Content.ReadFromJsonAsync<User>();
+            Assert.NotNull(user);
+
+            foreach (var workspace in user.Workspaces)
+            {
+                var deleteResponse = await _fixture.Client.DeleteAsync($"api/users/{user.Id}/workspace/{workspace.Id}");
+
+                try
+                {
+                    deleteResponse.EnsureSuccessStatusCode();
+                }
+                catch (HttpRequestException exception)
+                {
+                    Assert.Fail(exception.Message);
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public async Task TestAddChatByEntity()
+    {
+        foreach (var entity in _fixture.EntitiesWithWorkspaces)
+        {
+            var getResponse = await _fixture.Client.GetAsync($"api/users/{entity}/initial");
+
+            try
+            {
+                getResponse.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException exception)
+            {
+                Assert.Fail(exception.Message);
+            }
+
+            var user = await getResponse.Content.ReadFromJsonAsync<User>();
+            Assert.NotNull(user);
+
+            foreach (var workspace in user.Workspaces)
+            {
+                var topic = RandomString.GenerateRandomString(20);
+                var postResponse = await _fixture.Client.PostAsJsonAsync($"api/users/{user.Id}/workspace/{workspace.Id}/new_chat", topic);
+
+                try
+                {
+                    postResponse.EnsureSuccessStatusCode();
+                }
+                catch (HttpRequestException exception)
+                {
+                    Assert.Fail(exception.Message);
+                }
+
+                var chat = await postResponse.Content.ReadFromJsonAsync<ChatRoom>();
+                Assert.NotNull(chat);
+                Assert.Equal(topic, chat.Topic);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task TestDeleteChatByEntity()
+    {
+        foreach (var entity in _fixture.DeleteEntitiesWithChatRooms)
+        {
+            var getResponse = await _fixture.Client.GetAsync($"api/users/{entity}/initial");
+
+            try
+            {
+                getResponse.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException exception)
+            {
+                Assert.Fail(exception.Message);
+            }
+
+            var user = await getResponse.Content.ReadFromJsonAsync<User>();
+            Assert.NotNull(user);
+
+            foreach (var workspace in user.Workspaces)
+            {
+                foreach (var chatroom in workspace.ChatRooms)
+                {
+                    var deleteResponse = await _fixture.Client.DeleteAsync($"api/users/{user.Id}/workspace/{workspace.Id}/chat/{chatroom.Id}");
+
+                    try
+                    {
+                        deleteResponse.EnsureSuccessStatusCode();
+                    }
+                    catch (HttpRequestException exception)
+                    {
+                        Assert.Fail(exception.Message);
+                    }
+                }
+            }
+        }
     }
 }
 

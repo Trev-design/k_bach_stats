@@ -51,7 +51,7 @@ public class UserController(AppDBContext dbContext) : Controller
     [HttpPost("api/users/{id}/workspace/{workspaceId}/new_chat")]
     public async Task<ActionResult<ChatRoom>> NewChat(Guid id, Guid workspaceId, [FromBody] string topic)
     {
-        var chatRoom = await UserDBImpl.NewChatRoom(_dbContext, id, workspaceId, "dummyref", topic);
+        var chatRoom = await UserDBImpl.NewChatRoom(_dbContext, id, workspaceId, Guid.NewGuid().ToString(), topic);
         if (chatRoom == null) return NotFound();
         return Ok(chatRoom); 
     }
