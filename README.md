@@ -8,6 +8,10 @@
 - While the full development environment is still in progress, individual components are already covered by isolated test setups.
 
 ### Auth Responsibilities
+The auth service is:
+1. Written in Go
+2. In test state
+
 The authentication service should:
 1. Authorize users
 2. Store sensitive user data securely
@@ -21,10 +25,23 @@ The authentication service should:
 10. Interact with the mailer service for verification processes
 
 ### Mailer Service Responsibilities
+The auth service is:
+1. Written in 
+2. In Dev State
+
 The mailer should:
 1. Receive email payloads
 2. Select the appropriate template based on the payload
 3. Send emails securely
+
+### User Profile Service Responsibillities
+The user profiles service is:
+1. Written in C#
+2. Almost in Deploy
+
+The user profiles service should:
+1. Give the user credentials to get access to other services
+2. Orchestrates users
 
 ### Completed
 - Component library setup in `auth`
