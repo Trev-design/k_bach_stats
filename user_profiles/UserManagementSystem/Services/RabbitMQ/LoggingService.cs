@@ -35,8 +35,8 @@ public sealed class RabbitMQLoggingService(
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await StartBroker();
-        _searchEngineMessageTask = Task.Run(ComputeSearchEngineMessages, cancellationToken);
-        _logMessageTask = Task.Run(ComputeLogMessages, cancellationToken);
+        _searchEngineMessageTask = Task.Run(async () => await ComputeSearchEngineMessages(), cancellationToken);
+        _logMessageTask = Task.Run(async () => ComputeLogMessages(), cancellationToken);
     }
 
     /// <summary>

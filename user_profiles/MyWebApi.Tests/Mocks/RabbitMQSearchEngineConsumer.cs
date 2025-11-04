@@ -5,8 +5,8 @@ using UserManagementSystem.Services.RabbitMQ;
 
 namespace MyWebApi.Tests.Mocks;
 
-public sealed class RabbitMQSearchEngineConsumer(ISearchMessageChannel channel)
-: RabbitMQBase<ISearchMessageChannel>(channel, "search_engine_service", "search_engine_entities", "search_engine")
+public sealed class RabbitMQSearchEngineConsumer(ISearchMessagePipe channel)
+: RabbitMQBase<ISearchMessagePipe>(channel, "search_engine_service", "search_engine_entities", "search_engine")
 , IHostedService 
 , IAsyncDisposable
 {
