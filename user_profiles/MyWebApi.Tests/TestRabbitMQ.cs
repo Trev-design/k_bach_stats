@@ -9,10 +9,10 @@ public class TestRabbitMQ(RabbitMQFixture fixture) : IClassFixture<RabbitMQFixtu
     private readonly RabbitMQFixture _fixture = fixture;
 
     [Fact]
-    public async Task TestRabbitMQInfrastructure()
+    public async Task TestRabbitMQLogInfrastructure()
     {
-        var channel = _fixture.Services.GetRequiredService<IMessageChannel>();
-        var pipe = _fixture.Services.GetRequiredService<IMessagePipe>();
+        var channel = _fixture.Services.GetRequiredService<ILogMessageChannel>();
+        var pipe = _fixture.Services.GetRequiredService<ILogMessagePipe>();
         List<string> responses = [];
         List<byte[]> requests = [Encoding.UTF8.GetBytes("hello"), Encoding.UTF8.GetBytes("miss"), Encoding.UTF8.GetBytes("jackson")];
 
@@ -37,5 +37,11 @@ public class TestRabbitMQ(RabbitMQFixture fixture) : IClassFixture<RabbitMQFixtu
         Assert.Contains(responses, response => response == "hello");
         Assert.Contains(responses, response => response == "miss");
         Assert.Contains(responses, response => response == "jackson");
+    }
+
+    [Fact]
+    public async Task TestRabbitMQSearchEngineInfrastructure()
+    {
+        
     }
 }

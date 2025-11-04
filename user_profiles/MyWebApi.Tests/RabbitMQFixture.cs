@@ -35,10 +35,10 @@ public class RabbitMQFixture : IAsyncLifetime
         _host = Host.CreateDefaultBuilder()
         .ConfigureServices(services =>
         {
-            services.AddSingleton<IMessageChannel, RabbitMessageChannel>();
-            services.AddSingleton<IMessagePipe, RabbitMessageChannel>();
+            services.AddSingleton<ILogMessageChannel, RabbitMessageChannel>();
+            services.AddSingleton<ILogMessagePipe, RabbitMessageChannel>();
             services.AddHostedService<RabbitMQLoggingService>();
-            services.AddHostedService<RabbitMQConsumer>();
+            services.AddHostedService<RabbitMQLogConsumer>();
         })
         .Build();
 

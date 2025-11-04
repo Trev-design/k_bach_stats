@@ -5,7 +5,12 @@ namespace UserManagementSystem.Services.RabbitMQ;
 /// <summary>
 /// channel for local traffic
 /// </summary>
-public class RabbitMessageChannel : IRabbitChannel, IMessageChannel, IMessagePipe
+public class RabbitMessageChannel
+: IRabbitChannel
+, ILogMessageChannel
+, ISearchMessageChannel
+, ILogMessagePipe
+, ISearchMessagePipe
 {
     private readonly Channel<byte[]> _channel = Channel.CreateUnbounded<byte[]>();
 

@@ -10,6 +10,10 @@ public interface IRabbitChannel
     public void Complete();
 }
 
-public interface IMessageChannel : IRabbitChannel { }
+public interface ILogMessageChannel : IRabbitChannel { }
 
-public interface IMessagePipe : IRabbitChannel {}
+public interface ILogMessagePipe : IRabbitChannel { }
+
+public interface ISearchMessageChannel : IRabbitChannel { }
+
+public interface ISearchMessagePipe : IRabbitChannel {}

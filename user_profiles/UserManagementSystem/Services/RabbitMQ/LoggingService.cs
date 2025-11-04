@@ -1,3 +1,4 @@
+using System.Threading.Channels;
 using RabbitMQ.Client;
 
 namespace UserManagementSystem.Services.RabbitMQ;
@@ -6,19 +7,25 @@ namespace UserManagementSystem.Services.RabbitMQ;
 /// the rabbitmq implementation
 /// </summary>
 /// <param name="channel"></param>
-public sealed class RabbitMQLoggingService(IMessageChannel channel) : RabbitMQBase<IMessageChannel>(channel), IHostedService, IAsyncDisposable
+public sealed class RabbitMQLoggingService(
+    ILogMessageChannel logMessageChannel,
+    ISearchMessageChannel searchMessageChannel
+) : IHostedService, IAsyncDisposable
 {
-    private Task _messageTask = null!;
-
-    /// <summary>
-    /// disposing functionality
-    /// </summary>
-    /// <returns></returns>
-    public async ValueTask DisposeAsync()
-    {
-        await _channel.DisposeAsync();
-        await _connection.DisposeAsync();
-    }
+    private Task _logMessageTask = null!;
+    private Task _searchEngineMessageTask = null!;
+    private readonly ILogMessageChannel _logMessageChannel = logMessageChannel;
+    private readonly ISearchMessageChannel _searchMessageChannel = searchMessageChannel;
+    private IConnection _connection = null!;
+    private IChannel _logChannel = null!;
+    private IChannel _searchEngineChannel = null!;
+    private readonly string _kind  = "direct";
+    private readonly string _logExchange = "logger_service";
+    private readonly string _searchEngineExchange = "search_engine_service";
+    private readonly string _logQueue = "logs";
+    private readonly string _searchEngineQueue = "new_search_engine";
+    private readonly string _logKey = "log_store";
+    private readonly string _searchEngineKey = "search_engine";
 
     /// <summary>
     /// starting functionality
@@ -28,10 +35,8 @@ public sealed class RabbitMQLoggingService(IMessageChannel channel) : RabbitMQBa
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await StartBroker();
-        _messageTask = Task.Run(async () =>
-        {
-            await ComputeMessages();
-        }, cancellationToken);
+        _searchEngineMessageTask = Task.Run(ComputeSearchEngineMessages, cancellationToken);
+        _logMessageTask = Task.Run(ComputeLogMessages, cancellationToken);
     }
 
     /// <summary>
@@ -41,28 +46,60 @@ public sealed class RabbitMQLoggingService(IMessageChannel channel) : RabbitMQBa
     /// <returns></returns>
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        _messageChannel.Complete();
-        await _messageTask;
-        await _channel.CloseAsync(cancellationToken);
+        _logMessageChannel.Complete();
+        _searchMessageChannel.Complete();
+        await _searchEngineMessageTask;
+        await _logMessageTask;
+        await _logChannel.CloseAsync(cancellationToken);
+        await _searchEngineChannel.CloseAsync(cancellationToken);
         await _connection.CloseAsync(cancellationToken);
     }
 
-    protected async override Task ComputeMessages()
+    /// <summary>
+    /// dispose functionality
+    /// </summary>
+    /// <returns></returns>
+    public async ValueTask DisposeAsync()
     {
-        await foreach (var message in _messageChannel.GetMessagePipe())
+        await _logChannel.DisposeAsync();
+        await _searchEngineChannel.DisposeAsync();
+        await _connection.DisposeAsync();
+    }
+
+    private async Task ComputeLogMessages()
+    {
+        await foreach (var message in _logMessageChannel.GetMessagePipe())
         {
-            await _channel.BasicPublishAsync(Exchange, RoutingKey, message);
+            await _logChannel.BasicPublishAsync(_logExchange, _logKey, message);
         }
     }
 
-    protected async override Task StartBroker()
+    private async Task ComputeSearchEngineMessages()
     {
-        var factory = new ConnectionFactory { Uri = new(URL) };
-        _connection = await factory.CreateConnectionAsync();
-        _channel = await _connection.CreateChannelAsync();
+        await foreach (var message in _searchMessageChannel.GetMessagePipe())
+        {
+            await _searchEngineChannel.BasicPublishAsync(_searchEngineExchange, _searchEngineKey, message);
+        }
+    }
 
-        await _channel.ExchangeDeclareAsync(Exchange, Kind, true, false, null, false);
-        await _channel.QueueDeclareAsync(Queue, true, false, false, null, false);
-        await _channel.QueueBindAsync(Queue, Exchange, RoutingKey, null, false);
+    private async Task StartBroker()
+    {
+        _connection = await new RabbitConnection { }.MakeConnectionAsync();
+
+        _logChannel = await new RabbitChannel
+        {
+            Exchange = _logExchange,
+            Queue = _logQueue,
+            Type = _kind,
+            Key = _logKey
+        }.MakeChannelAsync(_connection);
+
+        _searchEngineChannel = await new RabbitChannel
+        {
+            Exchange = _searchEngineExchange,
+            Queue = _searchEngineQueue,
+            Type = _kind,
+            Key = _searchEngineKey
+        }.MakeChannelAsync(_connection); 
     }
 }

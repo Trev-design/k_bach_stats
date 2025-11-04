@@ -5,7 +5,10 @@ using UserManagementSystem.Services.RabbitMQ;
 
 namespace MyWebApi.Tests.Mocks;
 
-public sealed class RabbitMQConsumer(IMessagePipe channel) : RabbitMQBase<IMessagePipe>(channel), IHostedService, IAsyncDisposable
+public sealed class RabbitMQLogConsumer(ILogMessagePipe channel) 
+: RabbitMQBase<ILogMessagePipe>(channel, "logger_service", "logs", "logstore")
+, IHostedService
+, IAsyncDisposable
 {
     public async ValueTask DisposeAsync()
     {
@@ -35,16 +38,5 @@ public sealed class RabbitMQConsumer(IMessagePipe channel) : RabbitMQBase<IMessa
         };
 
         await _channel.BasicConsumeAsync(Queue, true, consumer);
-    }
-
-    protected async override Task StartBroker()
-    {
-        var factory = new ConnectionFactory { Uri = new(URL) };
-        _connection = await factory.CreateConnectionAsync();
-        _channel = await _connection.CreateChannelAsync();
-
-        await _channel.ExchangeDeclareAsync(Exchange, Kind, true, false, null, false);
-        await _channel.QueueDeclareAsync(Queue, true, false, false, null, false);
-        await _channel.QueueBindAsync(Queue, Exchange, RoutingKey, null, false);;
     }
 }
