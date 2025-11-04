@@ -3,10 +3,10 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using UserManagementSystem.Services.RabbitMQ;
 
-namespace MyWebApi.Tests.Mocks; 
+namespace MyWebApi.Tests.Mocks;
 
-public sealed class RabbitMQLogConsumer(ILogMessagePipe channel) 
-: RabbitMQBase<ILogMessagePipe>(channel, "logger_service", "logs", "logs_tore")
+public sealed class RabbitMQSearchEngineConsumer(ISearchMessageChannel channel)
+: RabbitMQBase<ISearchMessageChannel>(channel, "search_engine_service", "search_engine_entities", "search_engine")
 , IHostedService
 , IAsyncDisposable
 {

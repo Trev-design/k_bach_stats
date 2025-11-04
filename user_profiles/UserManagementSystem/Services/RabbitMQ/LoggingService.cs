@@ -23,7 +23,7 @@ public sealed class RabbitMQLoggingService(
     private readonly string _logExchange = "logger_service";
     private readonly string _searchEngineExchange = "search_engine_service";
     private readonly string _logQueue = "logs";
-    private readonly string _searchEngineQueue = "new_search_engine";
+    private readonly string _searchEngineQueue = "search_engine_entities";
     private readonly string _logKey = "log_store";
     private readonly string _searchEngineKey = "search_engine";
 
