@@ -1,5 +1,5 @@
 using System.Threading.Channels;
-
+ 
 namespace UserManagementSystem.Services.RabbitMQ;
 
 /// <summary>
@@ -41,3 +41,8 @@ public class RabbitMessageChannel
         await _channel.Writer.WriteAsync(message);
     }
 }
+
+public class RabbitLogMessageChannel : RabbitMessageChannel { }
+public class RabbitSearchMessageChannel : RabbitMessageChannel { }
+public class RabbitLogMessagePipe : RabbitMessageChannel { }
+public class RabbitSearchMessagePipe : RabbitMessageChannel { }

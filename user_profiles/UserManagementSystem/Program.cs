@@ -30,7 +30,7 @@ builder.Services.AddSingleton(async (provider) =>
 
 builder.Services.AddSingleton<S3Handler>();
 
-builder.Services.AddSingleton<IMessageChannel, RabbitMessageChannel>();
+builder.Services.AddSingleton<ILogMessageChannel, RabbitMessageChannel>();
 builder.Services.AddHostedService<RabbitMQLoggingService>();
 
 string connStr = DBConnstring.GetLocalEnvConnectionString();

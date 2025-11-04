@@ -19,7 +19,7 @@ public abstract class RabbitMQBase<Type> where Type : class, IRabbitChannel
     protected string RoutingKey { get; private set; } = null!;
     protected readonly Type _messageChannel;
 
-    public RabbitMQBase(Type channel, string exchange, string queue, string key)
+    public RabbitMQBase(Type channel, string exchange, string queue, string key) 
     {
         Exchange = exchange;
         Queue = queue;
