@@ -1,0 +1,31 @@
+syntax="proto3";
+
+option go_package = "./proto";
+
+package key_orchestrator_service;
+
+service KeyOrchestratorService {
+    rpc KeyPipe(stream GetKeyRequest) returns (stream KeyResponse);
+}
+
+message InitKeySubscription {
+    string topic = 1;
+    string id = 2;
+}
+
+message Retry {
+    string topic = 1;
+    string id = 2;
+}
+
+message KeyResponse {
+    string message = 1;
+    string key = 2;
+}
+
+message GetKeyRequest {
+    oneof Payload {
+        InitKeySubscription init_key_subscription = 1;
+        Retry retry = 2;
+    }
+} 
