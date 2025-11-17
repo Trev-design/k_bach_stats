@@ -1,9 +1,27 @@
 package keyorchestrator
 
+import "log"
+
 func (orchestrator *GRPCClient) OpenPipe(message *GetKeySubscriptionType) {
-	panic("not implemented")
+	stream := newGRPCStream(message.ResponsePipe)
+
+	go stream.handle(orchestrator.client)
+
+	orchestrator.mutex.Lock()
+	orchestrator.streams[message.Id] = stream
+	orchestrator.mutex.Unlock()
+
+	stream.sendSubscribe(message)
 }
 
-func (orchestrator *GRPCClient) RetryKeyGet(message *RetryType) {
-	panic("not implemented")
+func (orchestrator *GRPCClient) Retry(message *RetryType) {
+	orchestrator.mutex.RLock()
+	defer orchestrator.mutex.RUnlock()
+
+	stream, ok := orchestrator.streams[message.Id]
+	if !ok {
+		log.Println("something went wrong")
+	}
+
+	stream.sendRetry(message)
 }

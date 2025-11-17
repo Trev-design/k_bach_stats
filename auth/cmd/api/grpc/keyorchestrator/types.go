@@ -1,19 +1,20 @@
 package keyorchestrator
 
-import "auth_server/cmd/api/grpc/keyorchestrator/proto/proto"
-
 type GetKeyResponse struct {
 	Key     string
 	Message error
 }
 
+type requestType struct {
+	Id    string
+	Topic string
+}
+
 type RetryType struct {
-	Id      string
-	Request *proto.GetKeyRequest
+	requestType
 }
 
 type GetKeySubscriptionType struct {
-	Id           string
-	Request      *proto.GetKeyRequest
-	ResponsePipe chan GetKeyResponse
+	requestType
+	ResponsePipe chan *GetKeyResponse
 }

@@ -11,10 +11,18 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+type grpcStream struct {
+	serviceWaitgroup    *sync.WaitGroup
+	requestChannel      chan *requestType
+	doneChannel         chan struct{}
+	getResponseChannels chan *GetKeyResponse
+}
+
 type GRPCClient struct {
-	client           proto.KeyOrchestratorServiceClient
-	connection       *grpc.ClientConn
-	serviceWaitgroup *sync.WaitGroup
+	client     proto.KeyOrchestratorServiceClient
+	connection *grpc.ClientConn
+	streams    map[string]*grpcStream
+	mutex      sync.RWMutex
 }
 
 type GRPCClientBuilder struct {
@@ -60,8 +68,9 @@ func (builder *GRPCClientBuilder) buildClient(credentials credentials.TransportC
 	client := proto.NewKeyOrchestratorServiceClient(conn)
 
 	return &GRPCClient{
-		client:           client,
-		connection:       conn,
-		serviceWaitgroup: &sync.WaitGroup{},
+		client:     client,
+		connection: conn,
+		streams:    make(map[string]*grpcStream),
+		mutex:      sync.RWMutex{},
 	}, nil
 }
