@@ -29,10 +29,3 @@ jobs:
 
       - name: Test
         run: dotnet test ./user_profiles/k_bach_stats.sln --no-build --logger "trx;LogFileName=user_profile_test_results.trx" --results-directory ./TestResults
-
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: user_profiles_test_results
-          path: ./TestResults/user_profile_test_results.trx
