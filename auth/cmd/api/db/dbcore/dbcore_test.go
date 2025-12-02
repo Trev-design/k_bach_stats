@@ -3,6 +3,7 @@ package dbcore_test
 import (
 	"auth_server/cmd/api/db/dbcore"
 	"auth_server/cmd/api/domain/types"
+	"auth_server/cmd/api/utils/connection"
 	"context"
 	"log"
 	"os"
@@ -133,6 +134,7 @@ func TestConnectionSuccess(t *testing.T) {
 		Host(creds.host).
 		Port(creds.port).
 		DBName(creds.database).
+		WithCredentialsPipe(make(chan connection.Credentials)).
 		Build()
 	if err != nil {
 		t.Fatal(err)

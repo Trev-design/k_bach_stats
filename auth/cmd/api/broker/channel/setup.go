@@ -2,6 +2,7 @@ package channel
 
 import (
 	"log"
+	"sync"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -11,6 +12,7 @@ type Pipe struct {
 	messagePipe chan []byte
 	routingKey  string
 	exchange    string
+	waitgroup   *sync.WaitGroup
 }
 
 type PipeBuilder struct {
@@ -53,6 +55,7 @@ func (builder *PipeBuilder) Build(conn *amqp.Connection) (*Pipe, error) {
 
 	return &Pipe{
 		channel:     channel,
+		waitgroup:   &sync.WaitGroup{},
 		messagePipe: make(chan []byte, 100),
 		routingKey:  builder.routingKey,
 		exchange:    builder.exchange,
@@ -61,6 +64,7 @@ func (builder *PipeBuilder) Build(conn *amqp.Connection) (*Pipe, error) {
 
 // Puts a message in the messagechannel we use a []byte channel because of simplicity and thread safetyness
 func (pipe *Pipe) ApplyMessage(message []byte) {
+	pipe.waitgroup.Add(1)
 	pipe.messagePipe <- message
 }
 
@@ -81,6 +85,8 @@ func (pipe *Pipe) ListenForMessages() {
 		); err != nil {
 			log.Println(err)
 		}
+
+		pipe.waitgroup.Done()
 	}
 }
 
@@ -88,5 +94,6 @@ func (pipe *Pipe) ListenForMessages() {
 // This function should only be called by server shutdown or some restart mechanisms
 func (pipe *Pipe) CloseChannel() error {
 	close(pipe.messagePipe)
+	pipe.waitgroup.Wait()
 	return pipe.channel.Close()
 }

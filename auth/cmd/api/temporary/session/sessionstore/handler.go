@@ -7,9 +7,13 @@ import (
 
 // adds session data to the session store
 func (client *RedisClient) SetSessionPayload(service, payload string) (string, error) {
-	id := client.makeNewID(service)
+	conn := client.conn.Get()
+	conn.waitgroup.Add(1)
+	defer conn.waitgroup.Done()
 
-	if _, err := client.client.Set(
+	id := client.makeNewID(service, conn)
+
+	if _, err := conn.client.Set(
 		context.Background(),
 		id,
 		payload,
@@ -23,16 +27,24 @@ func (client *RedisClient) SetSessionPayload(service, payload string) (string, e
 
 // gets data from the session store
 func (client *RedisClient) GetSessionPayload(service, guid string) (string, error) {
+	conn := client.conn.Get()
+	conn.waitgroup.Add(1)
+	defer conn.waitgroup.Done()
+
 	id := makeID(service, guid)
 
-	return client.client.Get(context.Background(), id).Result()
+	return conn.client.Get(context.Background(), id).Result()
 }
 
 // deletes data from the session store
 func (client *RedisClient) DeleteSessionPayload(service, guid string) error {
+	conn := client.conn.Get()
+	conn.waitgroup.Add(1)
+	defer conn.waitgroup.Done()
+
 	id := makeID(service, guid)
 
-	numDeleted, err := client.client.Del(context.Background(), id).Result()
+	numDeleted, err := conn.client.Del(context.Background(), id).Result()
 	if err != nil {
 		return err
 	}
