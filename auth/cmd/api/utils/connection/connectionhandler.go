@@ -6,6 +6,17 @@ import (
 	"sync/atomic"
 )
 
+type SuccessMessage struct {
+	Provider string
+	Status   string
+	Message  string
+}
+
+type SaltMessage struct {
+	Provider string
+	Salt     string
+}
+
 type Credentials struct {
 	UserName string `json:"user_name"`
 	Password string `jsone:"password"`
