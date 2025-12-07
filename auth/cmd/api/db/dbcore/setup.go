@@ -2,13 +2,22 @@ package dbcore
 
 import (
 	"auth_server/cmd/api/tlsconf"
+	"auth_server/cmd/api/utils/connection"
+	"sync"
 
 	"gorm.io/gorm"
 )
 
 // we use an orm called gorm to compute our database resources
 type Database struct {
-	db *gorm.DB
+	credentialsChannel chan connection.Credentials
+	builder            *DatabaseBuilder
+	conn               *connection.Handler[Connection]
+}
+
+type Connection struct {
+	waitgroup *sync.WaitGroup
+	conn      *gorm.DB
 }
 
 type DatabaseBuilder struct {
@@ -18,6 +27,7 @@ type DatabaseBuilder struct {
 	port       string
 	dbname     string
 	tlsBuilder *tlsconf.TLSBuilder
+	pipe       chan connection.Credentials
 }
 
 func NewDatabaseBuilder() *DatabaseBuilder {
@@ -54,33 +64,31 @@ func (builder *DatabaseBuilder) WithTLS(tlsBuilder *tlsconf.TLSBuilder) *Databas
 	return builder
 }
 
+func (builder *DatabaseBuilder) WithCredentialsPipe(pipe chan connection.Credentials) *DatabaseBuilder {
+	builder.pipe = pipe
+	return builder
+}
+
 func (builder *DatabaseBuilder) Build() (*Database, error) {
-	db, err := builder.makeConn()
+	conn, err := connection.NewBuilder(builder).Build()
 	if err != nil {
 		return nil, err
 	}
 
-	sqlDB, err := db.DB()
-	if err != nil {
-		return nil, err
-	}
+	return &Database{
+		conn:               conn,
+		credentialsChannel: builder.pipe,
+		builder:            builder,
+	}, nil
+}
 
-	if err = sqlDB.Ping(); err != nil {
-		return nil, err
+func (db *Database) Rotate() {
+	for cred := range db.credentialsChannel {
+		db.builder.User(cred.UserName).Password(cred.Password)
+		db.conn.Rotate(db.builder)
 	}
-
-	if err := db.AutoMigrate(&Account{}, &User{}, &Role{}); err != nil {
-		return nil, err
-	}
-
-	return &Database{db: db}, nil
 }
 
 func (db *Database) CloseDatabase() error {
-	sqlDB, err := db.db.DB()
-	if err != nil {
-		return err
-	}
-
-	return sqlDB.Close()
+	return db.conn.Get().Close()
 }

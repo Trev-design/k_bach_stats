@@ -2,20 +2,24 @@ package producer
 
 import (
 	"auth_server/cmd/api/broker/channel"
-	"auth_server/cmd/api/sidecar"
 	"auth_server/cmd/api/tlsconf"
+	"auth_server/cmd/api/utils/connection"
 	"errors"
+	"sync"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type RMQProducerService struct {
-	RMQProducer
+type RMQProducer struct {
+	builder            *RMQProducerBuilder
+	credentialsChannel chan connection.Credentials
+	conn               *connection.Handler[RMQConnection]
 }
 
-type RMQProducer struct {
+type RMQConnection struct {
 	connection *amqp.Connection
 	channels   map[string]*channel.Pipe
+	waitgroup  *sync.WaitGroup
 }
 
 type RMQProducerBuilder struct {
@@ -26,6 +30,7 @@ type RMQProducerBuilder struct {
 	virtualHost string
 	tlsBuilder  *tlsconf.TLSBuilder
 	channels    map[string]*channel.PipeBuilder
+	pipe        chan connection.Credentials
 }
 
 func NewProducer() *RMQProducerBuilder {
@@ -79,37 +84,48 @@ func (builder *RMQProducerBuilder) WithChannel(
 	return builder
 }
 
-func (builder *RMQProducerBuilder) Build() (*RMQProducerService, error) {
+func (builder *RMQProducerBuilder) WithCredentialChannel(pipe chan connection.Credentials) *RMQProducerBuilder {
+	builder.pipe = pipe
+	return builder
+}
+
+func (builder *RMQProducerBuilder) BuildConnection() (connection.Connection[RMQConnection], error) {
 	conn, err := builder.newConnection()
 	if err != nil {
 		return nil, err
 	}
-
-	setLoggingChannels(builder)
 
 	channels, err := newChannels(conn, builder.channels)
 	if err != nil {
 		return nil, err
 	}
 
-	return &RMQProducerService{
-		RMQProducer: RMQProducer{
-			connection: conn,
-			channels:   channels,
-		},
+	return &RMQConnection{
+		connection: conn,
+		channels:   channels,
+		waitgroup:  &sync.WaitGroup{},
 	}, nil
 }
 
-// registers and execute backround process/es from producer service.
-func (service *RMQProducerService) HandleBackgroundProcess(req sidecar.Request) {
-	defer req.Done()
-	payload := req.GetPayload()
-	service.SendMessage("logging", payload.GetPayloadBytes())
+func (builder *RMQProducerBuilder) Build() (*RMQProducer, error) {
+	conn, err := connection.NewBuilder(builder).Build()
+	if err != nil {
+		return nil, err
+	}
+
+	return &RMQProducer{
+		conn:               conn,
+		credentialsChannel: builder.pipe,
+		builder:            builder,
+	}, nil
 }
 
 // sends a message in the background.
 func (rmq *RMQProducer) SendMessage(channelName string, message []byte) error {
-	channel, ok := rmq.channels[channelName]
+	conn := rmq.conn.Get()
+	conn.waitgroup.Add(1)
+	defer conn.waitgroup.Done()
+	channel, ok := conn.channels[channelName]
 	if !ok {
 		return errors.New("something went wrong")
 	}
@@ -122,17 +138,14 @@ func (rmq *RMQProducer) SendMessage(channelName string, message []byte) error {
 // background computation of messages.
 // evrey channel has its own goroutine.
 func (rmq *RMQProducer) ComputeBackgroundServices() {
-	for _, channel := range rmq.channels {
+	conn := rmq.conn.Get()
+	for _, channel := range conn.channels {
 		go channel.ListenForMessages()
 	}
 }
 
 func (rmq *RMQProducer) CloseProducer() error {
-	for _, channel := range rmq.channels {
-		if err := channel.CloseChannel(); err != nil {
-			return err
-		}
-	}
-
-	return rmq.connection.Close()
+	conn := rmq.conn.Get()
+	conn.Wait()
+	return conn.Close()
 }

@@ -97,7 +97,12 @@ func newRedisClientTest(t *testing.T, creds *sessionCreds) *sessionstore.RedisCl
 	var redisSession *sessionstore.RedisClient
 
 	t.Run("new_redis_client", func(t *testing.T) {
-		session, err := sessionstore.NewRedisClient(2*time.Second, creds.password, creds.host, creds.port, nil)
+		session, err := sessionstore.NewRedisClientBuilder().
+			Host(creds.host).
+			Port(creds.port).
+			Password(creds.password).
+			WithDuration(2 * time.Second).
+			Build()
 		if err != nil {
 			t.Fatal(err)
 		}

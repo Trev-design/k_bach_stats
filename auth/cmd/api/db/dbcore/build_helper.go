@@ -1,16 +1,43 @@
 package dbcore
 
 import (
+	"auth_server/cmd/api/utils/connection"
 	"errors"
 	"fmt"
 	"log"
 	"math"
 	"os"
+	"sync"
 	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
+
+func (builder *DatabaseBuilder) BuildConnection() (connection.Connection[Connection], error) {
+	db, err := builder.makeConn()
+	if err != nil {
+		return nil, err
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+
+	if err = sqlDB.Ping(); err != nil {
+		return nil, err
+	}
+
+	if err := db.AutoMigrate(&Account{}, &User{}, &Role{}); err != nil {
+		return nil, err
+	}
+
+	return &Connection{
+		conn:      db,
+		waitgroup: &sync.WaitGroup{},
+	}, nil
+}
 
 func (builder *DatabaseBuilder) makeConn() (*gorm.DB, error) {
 	dsn, err := builder.makeDSN()

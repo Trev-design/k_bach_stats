@@ -17,6 +17,7 @@ func setupClient(password, host, port string, tlsConfig *tls.Config) (*redis.Cli
 		Addr:      fmt.Sprintf("%s:%s", host, port),
 		Password:  password,
 		TLSConfig: tlsConfig,
+		PoolSize:  20,
 	})
 
 	if err := client.Ping(context.Background()).Err(); err != nil {
@@ -26,11 +27,11 @@ func setupClient(password, host, port string, tlsConfig *tls.Config) (*redis.Cli
 	return client, nil
 }
 
-func (client *RedisClient) makeNewID(kind string) string {
+func (client *RedisClient) makeNewID(kind string, conn *RedisConnection) string {
 	for {
 		guid := uuid.New().String()
 		redisID := fmt.Sprintf("%s:%s", kind, guid)
-		status, err := client.client.Exists(
+		status, err := conn.client.Exists(
 			context.Background(),
 			redisID,
 		).Result()

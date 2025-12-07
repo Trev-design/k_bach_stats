@@ -4,6 +4,7 @@ import (
 	"auth_server/cmd/api/temporary/session/sessioncrypto"
 	"auth_server/cmd/api/temporary/session/sessionstore"
 	"auth_server/cmd/api/tlsconf"
+	"auth_server/cmd/api/utils/connection"
 	"sync"
 	"time"
 )
@@ -17,18 +18,22 @@ type Session struct {
 }
 
 type SessionBuilder struct {
-	host       string
-	port       string
-	password   string
-	tlsBuilder *tlsconf.TLSBuilder
-	duration   time.Duration
+	host               string
+	port               string
+	password           string
+	tlsBuilder         *tlsconf.TLSBuilder
+	intervalDuration   time.Duration
+	sessionDuration    time.Duration
+	credentialsChannel chan connection.Credentials
 }
 
 func NewSessionBuilder() *SessionBuilder {
 	return &SessionBuilder{
-		host:     "localhost",
-		port:     "6379",
-		duration: 2 * time.Hour,
+		host:               "localhost",
+		port:               "6379",
+		sessionDuration:    2 * time.Hour,
+		intervalDuration:   15 * time.Minute,
+		credentialsChannel: nil,
 	}
 }
 
@@ -53,54 +58,47 @@ func (builder *SessionBuilder) WithTLS(tlsBuilder *tlsconf.TLSBuilder) *SessionB
 }
 
 func (builder *SessionBuilder) IntevalDuration(duration time.Duration) *SessionBuilder {
-	builder.duration = duration
+	builder.intervalDuration = duration
+	return builder
+}
+
+func (builder *SessionBuilder) SessionDuration(duration time.Duration) *SessionBuilder {
+	builder.sessionDuration = duration
+	return builder
+}
+
+func (builder *SessionBuilder) WithCredentialChannel(pipe chan connection.Credentials) *SessionBuilder {
+	builder.credentialsChannel = pipe
 	return builder
 }
 
 func (builder *SessionBuilder) Build() (*Session, error) {
 	client := new(sessionstore.RedisClient)
-	if builder.tlsBuilder != nil {
-		tlsConfig, err := builder.tlsBuilder.Build()
-		if err != nil {
-			return nil, err
-		}
-
-		newClient, err := sessionstore.NewRedisClient(
-			builder.duration,
-			builder.password,
-			builder.host,
-			builder.port,
-			tlsConfig)
-		if err != nil {
-			return nil, err
-		}
-
-		client = newClient
-	} else {
-		newClient, err := sessionstore.NewRedisClient(
-			builder.duration,
-			builder.password,
-			builder.host,
-			builder.port,
-			nil)
-		if err != nil {
-			return nil, err
-		}
-
-		client = newClient
-	}
-
-	verifyCrypt, err := sessioncrypto.NewCrypt(builder.duration)
+	newClient, err := sessionstore.NewRedisClientBuilder().
+		Host(builder.host).
+		Port(builder.port).
+		Password(builder.password).
+		WithDuration(builder.sessionDuration).
+		WithTLS(builder.tlsBuilder).
+		WithCredentialChannel(builder.credentialsChannel).
+		Build()
 	if err != nil {
 		return nil, err
 	}
 
-	cookieCrypt, err := sessioncrypto.NewCrypt(builder.duration)
+	client = newClient
+
+	verifyCrypt, err := sessioncrypto.NewCrypt(builder.intervalDuration)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshCrypt, err := sessioncrypto.NewCrypt(builder.duration)
+	cookieCrypt, err := sessioncrypto.NewCrypt(builder.intervalDuration)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshCrypt, err := sessioncrypto.NewCrypt(builder.intervalDuration)
 	if err != nil {
 		return nil, err
 	}

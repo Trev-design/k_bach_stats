@@ -3,6 +3,7 @@ package producer_test
 import (
 	"auth_server/cmd/api/broker/channel"
 	"auth_server/cmd/api/broker/producer"
+	"auth_server/cmd/api/utils/connection"
 	"context"
 	"fmt"
 	"log"
@@ -29,7 +30,7 @@ const queue_name = "test_queue"
 const consumer_tag = "test_tag"
 const channel_name = "test_channel"
 
-var prod *producer.RMQProducerService
+var prod *producer.RMQProducer
 
 var testCreds *brokerCreds
 
@@ -54,7 +55,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	prod = new(producer.RMQProducerService)
+	prod = new(producer.RMQProducer)
 	prod = newProd
 
 	dsn := fmt.Sprintf(
@@ -100,6 +101,7 @@ func TestMakeNewProducer(t *testing.T) {
 		Host(testCreds.host).
 		Port(testCreds.port).
 		VirtualHost(testCreds.vhost).
+		WithCredentialChannel(make(chan connection.Credentials)).
 		WithChannel(
 			"other_channel",
 			channel.NewPipeBuilder().
