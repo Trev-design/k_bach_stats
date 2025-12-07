@@ -5,8 +5,24 @@ import (
 	"context"
 )
 
-func (client *GRPCClient) MakeSaltStream(topic, id string, messageChannel chan []byte) {
+func (client *GRPCClient) MakeSaltStream(topic, id string, messageChannel chan []byte) error {
+	stream, err := client.client.SaltStream(context.Background())
+	if err != nil {
+		return err
+	}
 
+	streamChannel := &grpcSaltStream{
+		id:             id,
+		topic:          topic,
+		stream:         stream,
+		messageChannel: messageChannel,
+	}
+
+	client.saltStreams[id] = streamChannel
+
+	streamChannel.subscribe()
+
+	return nil
 }
 
 func (client *GRPCClient) MakeNewCredsStream(topic, id string, messageChannel chan *connection.Credentials) error {

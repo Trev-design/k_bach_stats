@@ -13,7 +13,8 @@ func (handler *grpcNewCredsStreamHandler) handleStream(id string) {
 	for {
 		response, err := stream.stream.Recv()
 		if err != nil {
-
+			// TODO: implement reconnect mechanism
+			break
 		}
 
 		handler.handleIncome(response)

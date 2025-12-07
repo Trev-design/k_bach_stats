@@ -14,7 +14,7 @@ type GRPCClient struct {
 	connection     *grpc.ClientConn
 	waitgroup      *sync.WaitGroup
 	client         proto.CredentialDistroServiceClient
-	saltStreams    []*grpcSaltStream
+	saltStreams    map[string]*grpcSaltStream
 	newCredsStream *grpcNewCredsStreamHandler
 	mutex          sync.RWMutex
 }
@@ -73,7 +73,7 @@ func NewGRPCClient(host, port string) (*GRPCClient, error) {
 		connection:     conn,
 		waitgroup:      &sync.WaitGroup{},
 		client:         client,
-		saltStreams:    make([]*grpcSaltStream, 0),
+		saltStreams:    make(map[string]*grpcSaltStream),
 		newCredsStream: newCredsStream,
 		mutex:          sync.RWMutex{},
 	}, nil
