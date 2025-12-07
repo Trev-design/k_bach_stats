@@ -1,4 +1,4 @@
-package credentialdistro
+package asymmetric
 
 import (
 	"crypto/rand"
@@ -11,17 +11,21 @@ import (
 	"github.com/awnumar/memguard"
 )
 
-func newKeyManager() (*keyManager, error) {
-	privateKey, publicKey, err := makeKeys()
+type KeyManager struct {
+	privateKey *memguard.Enclave
+	publicKey  string
+	mutex      sync.Mutex
+}
+
+func NewKeyManager() (*KeyManager, error) {
+	priv, pub, err := makeKeys()
 	if err != nil {
 		return nil, err
 	}
 
-	pub := base64.RawURLEncoding.EncodeToString(publicKey)
-
-	return &keyManager{
-		privateKey: memguard.NewEnclave(privateKey),
-		publicKey:  pub,
+	return &KeyManager{
+		privateKey: memguard.NewEnclave(priv),
+		publicKey:  base64.RawURLEncoding.EncodeToString(pub),
 		mutex:      sync.Mutex{},
 	}, nil
 }
@@ -40,26 +44,27 @@ func makeKeys() ([]byte, []byte, error) {
 	return privateBytes, publicBytes, nil
 }
 
-func (keys *keyManager) decrypt(cipher []byte) ([]byte, error) {
+func (keys *KeyManager) Decrypt(cipher []byte) ([]byte, error) {
 	keys.mutex.Lock()
 	defer keys.mutex.Unlock()
 
-	keyBuffer, err := keys.privateKey.Open()
+	keybuffer, err := keys.privateKey.Open()
 	if err != nil {
 		return nil, err
 	}
-	keys.privateKey = keyBuffer.Seal()
 
-	keyBytes := keyBuffer.Bytes()
+	keyBytes := keybuffer.Bytes()
 	key, err := x509.ParsePKCS1PublicKey(keyBytes)
 	if err != nil {
 		return nil, err
 	}
 
+	keys.privateKey = keybuffer.Seal()
+
 	return rsa.EncryptOAEP(sha256.New(), rand.Reader, key, cipher, nil)
 }
 
-func (keys *keyManager) swapAndGet() (string, error) {
+func (keys *KeyManager) SwapAndGet() (string, error) {
 	keys.mutex.Lock()
 	defer keys.mutex.Unlock()
 

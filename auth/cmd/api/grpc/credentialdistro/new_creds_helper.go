@@ -37,26 +37,31 @@ func (handler *grpcNewCredsStreamHandler) handleResponse(response *proto.Respons
 	resp := response.Response
 	stream, ok := handler.streams[resp.Id]
 	if !ok {
+		// TODO: implement reconnect mechanism
 		return
 	}
 
 	if resp.Topic != stream.topic {
+		handler.handleNack(stream, "FALSE_TOPIC_IN_RESPONSE")
 		return
 	}
 
 	payload, err := base64.RawURLEncoding.DecodeString(resp.Payload)
 	if err != nil {
+		handler.handleNack(stream, "INVALID_PAYLOAD_IN_RESPONSE")
 		return
 	}
 
-	decrypted, err := handler.keyManager.decrypt(payload)
+	decrypted, err := handler.keyManager.Decrypt(payload)
 	if err != nil {
+		handler.handleNack(stream, "INVALID_PAYLOAD_IN_RESPONSE")
 		return
 	}
 
 	credentials := new(connection.Credentials)
 
 	if err := json.Unmarshal(decrypted, credentials); err != nil {
+		handler.handleNack(stream, "INVALID_PAYLOAD_IN_RESPONSE")
 		return
 	}
 
@@ -69,6 +74,7 @@ func (handler *grpcNewCredsStreamHandler) handleConfirm(response *proto.Response
 	resp := response.Confirm
 	stream, ok := handler.streams[resp.Id]
 	if !ok {
+		// TODO: implement reconnect mechanism
 		return
 	}
 
@@ -87,6 +93,7 @@ func (handler *grpcNewCredsStreamHandler) handleInitialResponse(response *proto.
 	resp := response.InitialResponse
 	stream, ok := handler.streams[resp.Id]
 	if !ok {
+		// TODO: implement reconnect mechanism
 		return
 	}
 
@@ -97,17 +104,20 @@ func (handler *grpcNewCredsStreamHandler) handleInitialResponse(response *proto.
 
 	payload, err := base64.RawURLEncoding.DecodeString(resp.Payload)
 	if err != nil {
+		handler.handleNack(stream, "INVALID_PAYLOAD_IN_INIT")
 		return
 	}
 
-	decripted, err := handler.keyManager.decrypt(payload)
+	decripted, err := handler.keyManager.Decrypt(payload)
 	if err != nil {
+		handler.handleNack(stream, "INVALID_PAYLOAD_IN_INIT")
 		return
 	}
 
 	credentials := new(connection.Credentials)
 
 	if err := json.Unmarshal(decripted, credentials); err != nil {
+		handler.handleNack(stream, "INVALID_PAYLOAD_IN_INIT")
 		return
 	}
 
@@ -125,6 +135,7 @@ func (handler *grpcNewCredsStreamHandler) handleAck(stream *grpcNewCredsStream) 
 			},
 		},
 	}); err != nil {
+		// TODO: implement reconnect mechanism
 		return
 	}
 
@@ -141,13 +152,15 @@ func (handler *grpcNewCredsStreamHandler) handleNack(stream *grpcNewCredsStream,
 			},
 		},
 	}); err != nil {
+		// TODO: implement reconnect mechanism
 		return
 	}
 }
 
 func (handler *grpcNewCredsStreamHandler) handleConfirmAck(stream *grpcNewCredsStream) {
-	key, err := handler.keyManager.swapAndGet()
+	key, err := handler.keyManager.SwapAndGet()
 	if err != nil {
+		// TODO: implement reconnect mechanism
 		return
 	}
 
@@ -160,6 +173,7 @@ func (handler *grpcNewCredsStreamHandler) handleConfirmAck(stream *grpcNewCredsS
 			},
 		},
 	}); err != nil {
+		// TODO: implement reconnect mechanism
 		return
 	}
 }

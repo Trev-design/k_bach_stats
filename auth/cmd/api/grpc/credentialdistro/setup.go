@@ -2,11 +2,11 @@ package credentialdistro
 
 import (
 	"auth_server/cmd/api/grpc/credentialdistro/proto"
+	"auth_server/cmd/api/kms/local/asymmetric"
 	"auth_server/cmd/api/utils/connection"
 	"fmt"
 	"sync"
 
-	"github.com/awnumar/memguard"
 	"google.golang.org/grpc"
 )
 
@@ -29,7 +29,7 @@ type grpcSaltStream struct {
 type grpcNewCredsStreamHandler struct {
 	streams    map[string]*grpcNewCredsStream
 	scheduled  map[string]bool
-	keyManager *keyManager
+	keyManager *asymmetric.KeyManager
 	mutex      sync.Mutex
 	waitgroup  *sync.WaitGroup
 }
@@ -40,13 +40,6 @@ type grpcNewCredsStream struct {
 	stream          grpc.BidiStreamingClient[proto.NewCredsRequest, proto.Response]
 	messageChannels chan *connection.Credentials
 }
-
-type keyManager struct {
-	privateKey *memguard.Enclave
-	publicKey  string
-	mutex      sync.Mutex
-}
-
 type SaltStreamHandler interface {
 	MakeSaltStream(topic, id string, messageChannel chan []byte)
 }
@@ -63,7 +56,7 @@ func NewGRPCClient(host, port string) (*GRPCClient, error) {
 
 	client := proto.NewCredentialDistroServiceClient(conn)
 
-	keyManager, err := newKeyManager()
+	keyManager, err := asymmetric.NewKeyManager()
 	if err != nil {
 		return nil, err
 	}
