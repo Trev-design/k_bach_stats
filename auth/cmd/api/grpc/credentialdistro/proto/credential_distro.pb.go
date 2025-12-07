@@ -189,7 +189,6 @@ type AckNewCreds struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Topic         string                 `protobuf:"bytes,1,opt,name=topic,proto3" json:"topic,omitempty"`
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	PublicKey     string                 `protobuf:"bytes,3,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -238,7 +237,60 @@ func (x *AckNewCreds) GetId() string {
 	return ""
 }
 
-func (x *AckNewCreds) GetPublicKey() string {
+type AckConfirm struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Topic         string                 `protobuf:"bytes,2,opt,name=topic,proto3" json:"topic,omitempty"`
+	PublicKey     string                 `protobuf:"bytes,3,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AckConfirm) Reset() {
+	*x = AckConfirm{}
+	mi := &file_credential_distro_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AckConfirm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AckConfirm) ProtoMessage() {}
+
+func (x *AckConfirm) ProtoReflect() protoreflect.Message {
+	mi := &file_credential_distro_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AckConfirm.ProtoReflect.Descriptor instead.
+func (*AckConfirm) Descriptor() ([]byte, []int) {
+	return file_credential_distro_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *AckConfirm) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *AckConfirm) GetTopic() string {
+	if x != nil {
+		return x.Topic
+	}
+	return ""
+}
+
+func (x *AckConfirm) GetPublicKey() string {
 	if x != nil {
 		return x.PublicKey
 	}
@@ -256,7 +308,7 @@ type NackSalt struct {
 
 func (x *NackSalt) Reset() {
 	*x = NackSalt{}
-	mi := &file_credential_distro_proto_msgTypes[4]
+	mi := &file_credential_distro_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -268,7 +320,7 @@ func (x *NackSalt) String() string {
 func (*NackSalt) ProtoMessage() {}
 
 func (x *NackSalt) ProtoReflect() protoreflect.Message {
-	mi := &file_credential_distro_proto_msgTypes[4]
+	mi := &file_credential_distro_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -281,7 +333,7 @@ func (x *NackSalt) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NackSalt.ProtoReflect.Descriptor instead.
 func (*NackSalt) Descriptor() ([]byte, []int) {
-	return file_credential_distro_proto_rawDescGZIP(), []int{4}
+	return file_credential_distro_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *NackSalt) GetTopic() string {
@@ -310,14 +362,13 @@ type NackNewCreds struct {
 	Topic         string                 `protobuf:"bytes,1,opt,name=topic,proto3" json:"topic,omitempty"`
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	Msg           string                 `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
-	PublicKey     string                 `protobuf:"bytes,4,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *NackNewCreds) Reset() {
 	*x = NackNewCreds{}
-	mi := &file_credential_distro_proto_msgTypes[5]
+	mi := &file_credential_distro_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -329,7 +380,7 @@ func (x *NackNewCreds) String() string {
 func (*NackNewCreds) ProtoMessage() {}
 
 func (x *NackNewCreds) ProtoReflect() protoreflect.Message {
-	mi := &file_credential_distro_proto_msgTypes[5]
+	mi := &file_credential_distro_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -342,7 +393,7 @@ func (x *NackNewCreds) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NackNewCreds.ProtoReflect.Descriptor instead.
 func (*NackNewCreds) Descriptor() ([]byte, []int) {
-	return file_credential_distro_proto_rawDescGZIP(), []int{5}
+	return file_credential_distro_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *NackNewCreds) GetTopic() string {
@@ -366,24 +417,18 @@ func (x *NackNewCreds) GetMsg() string {
 	return ""
 }
 
-func (x *NackNewCreds) GetPublicKey() string {
-	if x != nil {
-		return x.PublicKey
-	}
-	return ""
-}
-
 type CredentialResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Payload       string                 `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
+	Topic         string                 `protobuf:"bytes,2,opt,name=topic,proto3" json:"topic,omitempty"`
+	Payload       string                 `protobuf:"bytes,3,opt,name=payload,proto3" json:"payload,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CredentialResponse) Reset() {
 	*x = CredentialResponse{}
-	mi := &file_credential_distro_proto_msgTypes[6]
+	mi := &file_credential_distro_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -395,7 +440,7 @@ func (x *CredentialResponse) String() string {
 func (*CredentialResponse) ProtoMessage() {}
 
 func (x *CredentialResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_credential_distro_proto_msgTypes[6]
+	mi := &file_credential_distro_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -408,12 +453,19 @@ func (x *CredentialResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CredentialResponse.ProtoReflect.Descriptor instead.
 func (*CredentialResponse) Descriptor() ([]byte, []int) {
-	return file_credential_distro_proto_rawDescGZIP(), []int{6}
+	return file_credential_distro_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CredentialResponse) GetId() string {
 	if x != nil {
 		return x.Id
+	}
+	return ""
+}
+
+func (x *CredentialResponse) GetTopic() string {
+	if x != nil {
+		return x.Topic
 	}
 	return ""
 }
@@ -425,16 +477,77 @@ func (x *CredentialResponse) GetPayload() string {
 	return ""
 }
 
+type InitialResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Topic         string                 `protobuf:"bytes,2,opt,name=topic,proto3" json:"topic,omitempty"`
+	Payload       string                 `protobuf:"bytes,3,opt,name=payload,proto3" json:"payload,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InitialResponse) Reset() {
+	*x = InitialResponse{}
+	mi := &file_credential_distro_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InitialResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InitialResponse) ProtoMessage() {}
+
+func (x *InitialResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_credential_distro_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InitialResponse.ProtoReflect.Descriptor instead.
+func (*InitialResponse) Descriptor() ([]byte, []int) {
+	return file_credential_distro_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *InitialResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *InitialResponse) GetTopic() string {
+	if x != nil {
+		return x.Topic
+	}
+	return ""
+}
+
+func (x *InitialResponse) GetPayload() string {
+	if x != nil {
+		return x.Payload
+	}
+	return ""
+}
+
 type ConfirmResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Topic         string                 `protobuf:"bytes,2,opt,name=topic,proto3" json:"topic,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ConfirmResponse) Reset() {
 	*x = ConfirmResponse{}
-	mi := &file_credential_distro_proto_msgTypes[7]
+	mi := &file_credential_distro_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -446,7 +559,7 @@ func (x *ConfirmResponse) String() string {
 func (*ConfirmResponse) ProtoMessage() {}
 
 func (x *ConfirmResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_credential_distro_proto_msgTypes[7]
+	mi := &file_credential_distro_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -459,7 +572,7 @@ func (x *ConfirmResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfirmResponse.ProtoReflect.Descriptor instead.
 func (*ConfirmResponse) Descriptor() ([]byte, []int) {
-	return file_credential_distro_proto_rawDescGZIP(), []int{7}
+	return file_credential_distro_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ConfirmResponse) GetId() string {
@@ -469,62 +582,9 @@ func (x *ConfirmResponse) GetId() string {
 	return ""
 }
 
-type ErrorResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ErrorResponse) Reset() {
-	*x = ErrorResponse{}
-	mi := &file_credential_distro_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ErrorResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ErrorResponse) ProtoMessage() {}
-
-func (x *ErrorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_credential_distro_proto_msgTypes[8]
+func (x *ConfirmResponse) GetTopic() string {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ErrorResponse.ProtoReflect.Descriptor instead.
-func (*ErrorResponse) Descriptor() ([]byte, []int) {
-	return file_credential_distro_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *ErrorResponse) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *ErrorResponse) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-func (x *ErrorResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
+		return x.Topic
 	}
 	return ""
 }
@@ -543,7 +603,7 @@ type SaltRequest struct {
 
 func (x *SaltRequest) Reset() {
 	*x = SaltRequest{}
-	mi := &file_credential_distro_proto_msgTypes[9]
+	mi := &file_credential_distro_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -555,7 +615,7 @@ func (x *SaltRequest) String() string {
 func (*SaltRequest) ProtoMessage() {}
 
 func (x *SaltRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_credential_distro_proto_msgTypes[9]
+	mi := &file_credential_distro_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -568,7 +628,7 @@ func (x *SaltRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaltRequest.ProtoReflect.Descriptor instead.
 func (*SaltRequest) Descriptor() ([]byte, []int) {
-	return file_credential_distro_proto_rawDescGZIP(), []int{9}
+	return file_credential_distro_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SaltRequest) GetValue() isSaltRequest_Value {
@@ -634,6 +694,7 @@ type NewCredsRequest struct {
 	//	*NewCredsRequest_SubToCredRotator
 	//	*NewCredsRequest_AckNewCreds
 	//	*NewCredsRequest_NackNewCreds
+	//	*NewCredsRequest_AckConfirm
 	Value         isNewCredsRequest_Value `protobuf_oneof:"value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -641,7 +702,7 @@ type NewCredsRequest struct {
 
 func (x *NewCredsRequest) Reset() {
 	*x = NewCredsRequest{}
-	mi := &file_credential_distro_proto_msgTypes[10]
+	mi := &file_credential_distro_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -653,7 +714,7 @@ func (x *NewCredsRequest) String() string {
 func (*NewCredsRequest) ProtoMessage() {}
 
 func (x *NewCredsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_credential_distro_proto_msgTypes[10]
+	mi := &file_credential_distro_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -666,7 +727,7 @@ func (x *NewCredsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NewCredsRequest.ProtoReflect.Descriptor instead.
 func (*NewCredsRequest) Descriptor() ([]byte, []int) {
-	return file_credential_distro_proto_rawDescGZIP(), []int{10}
+	return file_credential_distro_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *NewCredsRequest) GetValue() isNewCredsRequest_Value {
@@ -703,6 +764,15 @@ func (x *NewCredsRequest) GetNackNewCreds() *NackNewCreds {
 	return nil
 }
 
+func (x *NewCredsRequest) GetAckConfirm() *AckConfirm {
+	if x != nil {
+		if x, ok := x.Value.(*NewCredsRequest_AckConfirm); ok {
+			return x.AckConfirm
+		}
+	}
+	return nil
+}
+
 type isNewCredsRequest_Value interface {
 	isNewCredsRequest_Value()
 }
@@ -719,11 +789,17 @@ type NewCredsRequest_NackNewCreds struct {
 	NackNewCreds *NackNewCreds `protobuf:"bytes,3,opt,name=nack_new_creds,json=nackNewCreds,proto3,oneof"`
 }
 
+type NewCredsRequest_AckConfirm struct {
+	AckConfirm *AckConfirm `protobuf:"bytes,4,opt,name=ack_confirm,json=ackConfirm,proto3,oneof"`
+}
+
 func (*NewCredsRequest_SubToCredRotator) isNewCredsRequest_Value() {}
 
 func (*NewCredsRequest_AckNewCreds) isNewCredsRequest_Value() {}
 
 func (*NewCredsRequest_NackNewCreds) isNewCredsRequest_Value() {}
+
+func (*NewCredsRequest_AckConfirm) isNewCredsRequest_Value() {}
 
 type Response struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -731,7 +807,7 @@ type Response struct {
 	//
 	//	*Response_Response
 	//	*Response_Confirm
-	//	*Response_ErrorMsg
+	//	*Response_InitialResponse
 	Value         isResponse_Value `protobuf_oneof:"value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -739,7 +815,7 @@ type Response struct {
 
 func (x *Response) Reset() {
 	*x = Response{}
-	mi := &file_credential_distro_proto_msgTypes[11]
+	mi := &file_credential_distro_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -751,7 +827,7 @@ func (x *Response) String() string {
 func (*Response) ProtoMessage() {}
 
 func (x *Response) ProtoReflect() protoreflect.Message {
-	mi := &file_credential_distro_proto_msgTypes[11]
+	mi := &file_credential_distro_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -764,7 +840,7 @@ func (x *Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Response.ProtoReflect.Descriptor instead.
 func (*Response) Descriptor() ([]byte, []int) {
-	return file_credential_distro_proto_rawDescGZIP(), []int{11}
+	return file_credential_distro_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *Response) GetValue() isResponse_Value {
@@ -792,10 +868,10 @@ func (x *Response) GetConfirm() *ConfirmResponse {
 	return nil
 }
 
-func (x *Response) GetErrorMsg() *ErrorResponse {
+func (x *Response) GetInitialResponse() *InitialResponse {
 	if x != nil {
-		if x, ok := x.Value.(*Response_ErrorMsg); ok {
-			return x.ErrorMsg
+		if x, ok := x.Value.(*Response_InitialResponse); ok {
+			return x.InitialResponse
 		}
 	}
 	return nil
@@ -813,15 +889,15 @@ type Response_Confirm struct {
 	Confirm *ConfirmResponse `protobuf:"bytes,2,opt,name=confirm,proto3,oneof"`
 }
 
-type Response_ErrorMsg struct {
-	ErrorMsg *ErrorResponse `protobuf:"bytes,3,opt,name=error_msg,json=errorMsg,proto3,oneof"`
+type Response_InitialResponse struct {
+	InitialResponse *InitialResponse `protobuf:"bytes,3,opt,name=initial_response,json=initialResponse,proto3,oneof"`
 }
 
 func (*Response_Response) isResponse_Value() {}
 
 func (*Response_Confirm) isResponse_Value() {}
 
-func (*Response_ErrorMsg) isResponse_Value() {}
+func (*Response_InitialResponse) isResponse_Value() {}
 
 var File_credential_distro_proto protoreflect.FileDescriptor
 
@@ -838,45 +914,51 @@ const file_credential_distro_proto_rawDesc = "" +
 	"public_key\x18\x03 \x01(\tR\tpublicKey\"/\n" +
 	"\aAckSalt\x12\x14\n" +
 	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x0e\n" +
-	"\x02id\x18\x02 \x01(\tR\x02id\"R\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\"3\n" +
 	"\vAckNewCreds\x12\x14\n" +
 	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x0e\n" +
-	"\x02id\x18\x02 \x01(\tR\x02id\x12\x1d\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\"Q\n" +
+	"\n" +
+	"AckConfirm\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05topic\x18\x02 \x01(\tR\x05topic\x12\x1d\n" +
 	"\n" +
 	"public_key\x18\x03 \x01(\tR\tpublicKey\"B\n" +
 	"\bNackSalt\x12\x14\n" +
 	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\x12\x10\n" +
-	"\x03msg\x18\x03 \x01(\tR\x03msg\"e\n" +
+	"\x03msg\x18\x03 \x01(\tR\x03msg\"F\n" +
 	"\fNackNewCreds\x12\x14\n" +
 	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\x12\x10\n" +
-	"\x03msg\x18\x03 \x01(\tR\x03msg\x12\x1d\n" +
-	"\n" +
-	"public_key\x18\x04 \x01(\tR\tpublicKey\">\n" +
+	"\x03msg\x18\x03 \x01(\tR\x03msg\"T\n" +
 	"\x12CredentialResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
-	"\apayload\x18\x02 \x01(\tR\apayload\"!\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05topic\x18\x02 \x01(\tR\x05topic\x12\x18\n" +
+	"\apayload\x18\x03 \x01(\tR\apayload\"Q\n" +
+	"\x0fInitialResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05topic\x18\x02 \x01(\tR\x05topic\x12\x18\n" +
+	"\apayload\x18\x03 \x01(\tR\apayload\"7\n" +
 	"\x0fConfirmResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"Q\n" +
-	"\rErrorResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"\xe3\x01\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05topic\x18\x02 \x01(\tR\x05topic\"\xe3\x01\n" +
 	"\vSaltRequest\x12N\n" +
 	"\vsub_to_salt\x18\x01 \x01(\v2,.user_registry_service.SubscribeToSaltDistroH\x00R\tsubToSalt\x12;\n" +
 	"\back_salt\x18\x02 \x01(\v2\x1e.user_registry_service.AckSaltH\x00R\aackSalt\x12>\n" +
 	"\tnack_salt\x18\x03 \x01(\v2\x1f.user_registry_service.NackSaltH\x00R\bnackSaltB\a\n" +
-	"\x05value\"\x9b\x02\n" +
+	"\x05value\"\xe1\x02\n" +
 	"\x0fNewCredsRequest\x12h\n" +
 	"\x13sub_to_cred_rotator\x18\x01 \x01(\v27.user_registry_service.SubscribeToConnectionCredRotatorH\x00R\x10subToCredRotator\x12H\n" +
 	"\rack_new_creds\x18\x02 \x01(\v2\".user_registry_service.AckNewCredsH\x00R\vackNewCreds\x12K\n" +
-	"\x0enack_new_creds\x18\x03 \x01(\v2#.user_registry_service.NackNewCredsH\x00R\fnackNewCredsB\a\n" +
-	"\x05value\"\xe5\x01\n" +
+	"\x0enack_new_creds\x18\x03 \x01(\v2#.user_registry_service.NackNewCredsH\x00R\fnackNewCreds\x12D\n" +
+	"\vack_confirm\x18\x04 \x01(\v2!.user_registry_service.AckConfirmH\x00R\n" +
+	"ackConfirmB\a\n" +
+	"\x05value\"\xf5\x01\n" +
 	"\bResponse\x12G\n" +
 	"\bresponse\x18\x01 \x01(\v2).user_registry_service.CredentialResponseH\x00R\bresponse\x12B\n" +
-	"\aconfirm\x18\x02 \x01(\v2&.user_registry_service.ConfirmResponseH\x00R\aconfirm\x12C\n" +
-	"\terror_msg\x18\x03 \x01(\v2$.user_registry_service.ErrorResponseH\x00R\berrorMsgB\a\n" +
+	"\aconfirm\x18\x02 \x01(\v2&.user_registry_service.ConfirmResponseH\x00R\aconfirm\x12S\n" +
+	"\x10initial_response\x18\x03 \x01(\v2&.user_registry_service.InitialResponseH\x00R\x0finitialResponseB\a\n" +
 	"\x05value2\xcf\x01\n" +
 	"\x17CredentialDistroService\x12U\n" +
 	"\n" +
@@ -895,40 +977,42 @@ func file_credential_distro_proto_rawDescGZIP() []byte {
 	return file_credential_distro_proto_rawDescData
 }
 
-var file_credential_distro_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_credential_distro_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_credential_distro_proto_goTypes = []any{
 	(*SubscribeToSaltDistro)(nil),            // 0: user_registry_service.SubscribeToSaltDistro
 	(*SubscribeToConnectionCredRotator)(nil), // 1: user_registry_service.SubscribeToConnectionCredRotator
 	(*AckSalt)(nil),                          // 2: user_registry_service.AckSalt
 	(*AckNewCreds)(nil),                      // 3: user_registry_service.AckNewCreds
-	(*NackSalt)(nil),                         // 4: user_registry_service.NackSalt
-	(*NackNewCreds)(nil),                     // 5: user_registry_service.NackNewCreds
-	(*CredentialResponse)(nil),               // 6: user_registry_service.CredentialResponse
-	(*ConfirmResponse)(nil),                  // 7: user_registry_service.ConfirmResponse
-	(*ErrorResponse)(nil),                    // 8: user_registry_service.ErrorResponse
-	(*SaltRequest)(nil),                      // 9: user_registry_service.SaltRequest
-	(*NewCredsRequest)(nil),                  // 10: user_registry_service.NewCredsRequest
-	(*Response)(nil),                         // 11: user_registry_service.Response
+	(*AckConfirm)(nil),                       // 4: user_registry_service.AckConfirm
+	(*NackSalt)(nil),                         // 5: user_registry_service.NackSalt
+	(*NackNewCreds)(nil),                     // 6: user_registry_service.NackNewCreds
+	(*CredentialResponse)(nil),               // 7: user_registry_service.CredentialResponse
+	(*InitialResponse)(nil),                  // 8: user_registry_service.InitialResponse
+	(*ConfirmResponse)(nil),                  // 9: user_registry_service.ConfirmResponse
+	(*SaltRequest)(nil),                      // 10: user_registry_service.SaltRequest
+	(*NewCredsRequest)(nil),                  // 11: user_registry_service.NewCredsRequest
+	(*Response)(nil),                         // 12: user_registry_service.Response
 }
 var file_credential_distro_proto_depIdxs = []int32{
 	0,  // 0: user_registry_service.SaltRequest.sub_to_salt:type_name -> user_registry_service.SubscribeToSaltDistro
 	2,  // 1: user_registry_service.SaltRequest.ack_salt:type_name -> user_registry_service.AckSalt
-	4,  // 2: user_registry_service.SaltRequest.nack_salt:type_name -> user_registry_service.NackSalt
+	5,  // 2: user_registry_service.SaltRequest.nack_salt:type_name -> user_registry_service.NackSalt
 	1,  // 3: user_registry_service.NewCredsRequest.sub_to_cred_rotator:type_name -> user_registry_service.SubscribeToConnectionCredRotator
 	3,  // 4: user_registry_service.NewCredsRequest.ack_new_creds:type_name -> user_registry_service.AckNewCreds
-	5,  // 5: user_registry_service.NewCredsRequest.nack_new_creds:type_name -> user_registry_service.NackNewCreds
-	6,  // 6: user_registry_service.Response.response:type_name -> user_registry_service.CredentialResponse
-	7,  // 7: user_registry_service.Response.confirm:type_name -> user_registry_service.ConfirmResponse
-	8,  // 8: user_registry_service.Response.error_msg:type_name -> user_registry_service.ErrorResponse
-	9,  // 9: user_registry_service.CredentialDistroService.SaltStream:input_type -> user_registry_service.SaltRequest
-	10, // 10: user_registry_service.CredentialDistroService.NewCredsStream:input_type -> user_registry_service.NewCredsRequest
-	11, // 11: user_registry_service.CredentialDistroService.SaltStream:output_type -> user_registry_service.Response
-	11, // 12: user_registry_service.CredentialDistroService.NewCredsStream:output_type -> user_registry_service.Response
-	11, // [11:13] is the sub-list for method output_type
-	9,  // [9:11] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	6,  // 5: user_registry_service.NewCredsRequest.nack_new_creds:type_name -> user_registry_service.NackNewCreds
+	4,  // 6: user_registry_service.NewCredsRequest.ack_confirm:type_name -> user_registry_service.AckConfirm
+	7,  // 7: user_registry_service.Response.response:type_name -> user_registry_service.CredentialResponse
+	9,  // 8: user_registry_service.Response.confirm:type_name -> user_registry_service.ConfirmResponse
+	8,  // 9: user_registry_service.Response.initial_response:type_name -> user_registry_service.InitialResponse
+	10, // 10: user_registry_service.CredentialDistroService.SaltStream:input_type -> user_registry_service.SaltRequest
+	11, // 11: user_registry_service.CredentialDistroService.NewCredsStream:input_type -> user_registry_service.NewCredsRequest
+	12, // 12: user_registry_service.CredentialDistroService.SaltStream:output_type -> user_registry_service.Response
+	12, // 13: user_registry_service.CredentialDistroService.NewCredsStream:output_type -> user_registry_service.Response
+	12, // [12:14] is the sub-list for method output_type
+	10, // [10:12] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_credential_distro_proto_init() }
@@ -936,20 +1020,21 @@ func file_credential_distro_proto_init() {
 	if File_credential_distro_proto != nil {
 		return
 	}
-	file_credential_distro_proto_msgTypes[9].OneofWrappers = []any{
+	file_credential_distro_proto_msgTypes[10].OneofWrappers = []any{
 		(*SaltRequest_SubToSalt)(nil),
 		(*SaltRequest_AckSalt)(nil),
 		(*SaltRequest_NackSalt)(nil),
 	}
-	file_credential_distro_proto_msgTypes[10].OneofWrappers = []any{
+	file_credential_distro_proto_msgTypes[11].OneofWrappers = []any{
 		(*NewCredsRequest_SubToCredRotator)(nil),
 		(*NewCredsRequest_AckNewCreds)(nil),
 		(*NewCredsRequest_NackNewCreds)(nil),
+		(*NewCredsRequest_AckConfirm)(nil),
 	}
-	file_credential_distro_proto_msgTypes[11].OneofWrappers = []any{
+	file_credential_distro_proto_msgTypes[12].OneofWrappers = []any{
 		(*Response_Response)(nil),
 		(*Response_Confirm)(nil),
-		(*Response_ErrorMsg)(nil),
+		(*Response_InitialResponse)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -957,7 +1042,7 @@ func file_credential_distro_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_credential_distro_proto_rawDesc), len(file_credential_distro_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
